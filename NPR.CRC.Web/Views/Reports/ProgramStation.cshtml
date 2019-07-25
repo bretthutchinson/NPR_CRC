@@ -1,0 +1,60 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.ProgramStationViewModel
+
+@{
+    ViewBag.Title = "Program Station's Report";
+}
+<p>
+    <span class="page-header">Program Station Report</span>
+</p>
+@using (Html.BeginForm())//"ProgramStation", "Reports", FormMethod.Post, new { target = "_blank", name = "ProgramStation", id = "ProgramStation" }))
+{
+<div>
+    @Inf.ValidationSummary(this)
+    <div class="leftColumn" style="width: 45%;">
+        <div style="text-align: center; color: red">
+            <p>* Indicates a required field</p>
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.CurrentSeason)</span>
+            @Html.DropDownListFor(model => model.CurrentSeason, Model.CurrentSeasonList)@Html.DropDownListFor(model => model.CurrentYear, Model.CurrentYearList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.PastSeason)</span>
+            @Html.DropDownListFor(model => model.PastSeason, Model.PastSeasonList)@Html.DropDownListFor(model => model.PastYear, Model.PastYearList)
+        </div>
+           <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Band)</span>
+            @Html.DropDownListFor(model => model.Band, Model.BandList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Format)</span>
+            @Html.DropDownListFor(model => model.Format, Model.FormatList)
+        </div>
+        <div>
+            <span class="reportFieldLabel"></span>
+            <input type="submit" id="generateReport" value="Generate Report" />
+        </div>
+    </div>
+</div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#CurrentYear').val(curretYear);
+        $('#PastYear').val(curretYear);
+        if (curretMonth < 4) {
+            curretMonth = 'Winter';
+        } else if (curretMonth < 7) {
+            curretMonth = 'Spring';
+        } else if (curretMonth < 8) {
+            curretMonth = 'Summer';
+        } else {
+            curretMonth = 'Fall';
+        }
+        $('#CurrentSeason').val(curretMonth);
+        $('#PastSeason').val(curretMonth);
+    });
+</script>

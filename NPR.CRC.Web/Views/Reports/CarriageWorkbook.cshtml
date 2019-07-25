@@ -1,0 +1,85 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.CarriageWorkbookViewModel
+
+@{
+    ViewBag.Title = "Carriage Workbook";
+}
+<style type="text/css">
+    ul li {
+    list-style-type: none;
+    padding-bottom: 6px;
+    }
+</style>
+<div id="workbookFilters">
+    <p>
+        <span class="page-header">Carriage Workbook</span>
+    </p>
+    @using (Html.BeginForm("CarriageWorkbook", "Reports"))
+    {
+        @Html.HiddenFor(model => model.SeasonName)
+        @Html.HiddenFor(model => model.CarriageType)
+    <div>
+        @Inf.ValidationSummary(this)
+        <div class="leftColumn" style="width: 45%;">
+            <div style="text-align: center; color: red">
+                <p>* Indicates a required field</p>
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.CarriageTypeId)</span>
+                @Html.DropDownListFor(model => model.CarriageTypeId, Model.CarriageTypeList)
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.Season)</span>
+                @Html.DropDownListFor(model => model.Season, Model.SeasonList)@Html.DropDownListFor(model => model.Years, Model.YearsList)
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.Band)</span>
+                @Html.DropDownListFor(model => model.Band, Model.BandList)
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.StationEnabled)</span>
+                @Html.DropDownListFor(model => model.StationEnabled, Model.StationEnabledList)
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.MemberStatusId)</span>
+                @Html.DropDownListFor(model => model.MemberStatusId, Model.MemberStatusList)
+            </div>
+            <div>
+                <span class="reportFieldLabel">@Html.LabelFor(model => model.Format)</span>
+                @Html.DropDownListFor(model => model.Format, Model.FormatList)
+            </div>
+            <div>
+                <span class="reportFieldLabel"></span>
+                <input type="submit" id="generateReport" value="Generate Report" />
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#SeasonName").val($("#Season option:selected").text());
+
+        $("#Season").change(function () {
+            $("#SeasonName").val($("#Season option:selected").text());
+        });
+
+        $("#CarriageTypeId").change(function () {
+            $("#CarriageType").val($("#CarriageTypeId option:selected").text());
+        });
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        $('#Years').val(curretYear);
+        var curretMonth = d.getUTCMonth() + 1;
+        if (curretMonth < 4) {
+            curretMonth = '1, 2, 3';
+        } else if (curretMonth < 7) {
+            curretMonth = '4, 5, 6';
+        } else if (curretMonth < 8) {
+            curretMonth = '7, 8, 9';
+        } else {
+            curretMonth = '10, 11, 12';
+        }
+        $('#Season').val(curretMonth);
+    });
+</script>

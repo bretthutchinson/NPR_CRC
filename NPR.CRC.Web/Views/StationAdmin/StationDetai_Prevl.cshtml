@@ -1,0 +1,654 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.StationDetailViewModel
+<style type="text/css">
+.ui-jqgrid {
+	margin-top: 10px;
+}
+
+#gview_stationNotesGrid .ui-jqgrid tr.jqgrow td {
+    white-space: normal !important;
+    height:auto;
+    vertical-align:text-top;
+}
+</style>
+<p>
+    <span class="page-header">Station Details</span> 
+    | <a href="@Url.Action("AddEditStation")?stationId=@(Model.StationId)&copyInd=N">Edit Station</a> 
+    | <a href="@Url.Action("AddEditStation")?stationId=@(Model.StationId)&copyInd=Y">Copy Station</a>
+    | <a href="@Url.Action("Index", "Schedules")?CallLetters=@(Model.CallLetters)-@(Model.BandName)">Go To Schedules</a>
+</p>
+
+
+    <div id="ReqNewUserDiv" style="display :none; border: 1px solid #AAAAAA;border-radius: 4px;height:248px;background-color:#DDDDDD; opacity:.95; width:455px; z-index: 1000; position: absolute; margin: auto; color:black" >
+    <table style="margin-left:8px; margin-top:4px">
+        <tr>
+            <td colspan="2">
+                <span style="font-weight:bold;font-size:16px;text-decoration:underline">Request New Station User</span>
+                
+            </td>
+        </tr>
+         <tr>
+          
+            <td style="height:7px">
+                 
+            </td>
+        </tr>
+        <tr>
+          
+            <td>
+                First Name:
+            </td>
+            <td>
+                <input id="First_Name_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <Tr>
+            <td>
+                Last Name:
+            </td>
+            <td>
+                <input id="Last_Name_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                 Email:
+            </td>
+            <td>
+                <input id="Email_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Phone:
+            </td>
+            <td>
+                <input id="Phone_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                 Station Call Letters:
+            </td>
+        <td>
+                <input id="Call_Letters_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input id="Title_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr style="height:10px">
+            <td>
+                 
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button style="font-size:12px" type="button" id="submit_NU_Req" onclick="SubmitNewUserRequest()">Submit Request</button>
+            
+                
+                <button style="font-size:12px" type="button" id="cancel_NU"  onclick="CancelNewUserRequest()">Cancel</button>
+            </td>
+        </tr>
+
+    </table>
+    <br />
+      
+</div>
+
+<div id="StationDetails" style="width: 75%">
+    <div class="leftColumn">
+        <!-- Station information section -->
+        <div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.CallLetters): 
+                <span class="padRight" id="stCallLetters">@Html.DisplayFor(model => model.CallLetters)</span>
+                @Html.LabelFor(model => model.BandName): 
+                <span>@Model.BandName</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.RepeaterStatusName): 
+                <span>@Html.DisplayFor(model => model.RepeaterStatusName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.MemberStatusName): 
+                <span>@Html.DisplayFor(model => model.MemberStatusName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.LicenseeTypeName): 
+                <span>@Html.DisplayFor(model => model.LicenseeTypeName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.TSACume): 
+                <span>@Html.DisplayFor(model => model.TSACume)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.MetroMarketRank): 
+                <span>@(Model.MetroMarketRank.HasValue ? Model.MetroMarketRank.Value.ToString() : "")</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.DMAMarketRank): 
+                <span>@(Model.DMAMarketRank.HasValue ? Model.DMAMarketRank.Value.ToString() : "")</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.TimeZoneName): 
+                <span>@Html.DisplayFor(model => model.TimeZoneName)</span>
+            </div>
+        </div>
+        <!-- Affiliations section -->
+        <div>
+            <div class="sectionHeader">
+                Affiliations: <span style="font-weight: normal">@Html.DisplayFor(model => model.AffiliateCodesList)</span>
+            </div>
+        </div>
+        <!-- Station Address/Contact information section -->
+        <div>
+            <div class="sectionHeader">
+                Address
+            </div>
+            <div class="stationAddressDisplay">
+                <span>@Html.DisplayFor(model => model.AddressLine1)</span>
+            </div>
+            <div class="stationAddressDisplay">
+                <span>@Html.DisplayFor(model => model.AddressLine2)</span>
+            </div>
+            <div class="stationAddressDisplay">
+                <span>@Html.DisplayFor(model => model.City), @Html.DisplayFor(model => model.StateAbbreviation) @Html.DisplayFor(model => model.ZipCode)</span>
+            </div>
+            <div class="stationAddressDisplay">
+                @Html.LabelFor(model => model.County): 
+                <span>@Html.DisplayFor(model => model.County)</span>
+            </div>
+            <div class="stationAddressDisplay">
+                @Html.LabelFor(model => model.Country): 
+                <span>@Html.DisplayFor(model => model.Country)</span>
+            </div>
+        </div>
+    </div>
+    <div class="rightColumn">
+        <!-- Station information section -->
+        <div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.Frequency): <span class="padRight">@Html.DisplayFor(model => model.Frequency)</span>
+                @Html.LabelFor(model => model.StatusDate): <span class="padRight">@Html.DisplayFor(model => model.StatusDate)</span>
+                @Html.CheckBoxFor(model => model.EnabledInd, new { @disabled = "disabled" }) Enabled
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.FlagshipStationName): 
+                
+               
+                <a href= "@Url.Action("AddEditStation")?stationId=@(Model.FlagshipStationId)&copyInd=N" target="_blank"><span>@Html.DisplayFor(model=> model.FlagshipStationName)</span></a> 
+	  
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.MinorityStatusName): 
+                <span>@Html.DisplayFor(model => model.MinorityStatusName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.LicenseeName): 
+                <span>@Html.DisplayFor(model => model.LicenseeName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.TSAAQH): 
+                <span>@Html.DisplayFor(model => model.TSAAQH)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.MetroMarketName): 
+                <span>@Html.DisplayFor(model => model.MetroMarketName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.DMAMarketName): 
+                <span>@Html.DisplayFor(model => model.DMAMarketName)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.HrsFromFlagship): <span class="padRight">@(Model.HrsFromFlagship.IsEmpty() ? "" : Model.HrsFromFlagship)</span>
+                @Html.LabelFor(model => model.MaxNumberOfUsers): <span>@(Model.MaxNumberOfUsers.HasValue ? Model.MaxNumberOfUsers.Value.ToString() : "")</span>
+            </div>
+        </div>
+        <!-- Affiliations section -->
+        <div>
+            <div class="sectionHeader">
+            </div>
+        </div>
+        <!-- Station Address/Contact information section -->
+        <div>
+            <div class="sectionHeader">
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.Phone): 
+                <span>@Html.DisplayFor(model => model.Phone)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.Fax): 
+                <span>@Html.DisplayFor(model => model.Fax)</span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.Email): 
+                <span><a href="mailto:@(Model.Email)">@Html.DisplayFor(model => model.Email)</a></span>
+            </div>
+            <div class="fieldDisplay">
+                @Html.LabelFor(model => model.WebPage): 
+                <span><a href="@(Model.WebPage)" target="_blank">@(Model.WebPage)</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="gridSeperator"></div>
+<div id="StationDetailsGrids">
+    <div id="associatesSection">
+        <!-- Associates section -->
+        <span class="sectionHeader"> Associates (<span id="numAssociates"></span>)</span>
+        <div style="padding-left:10px">
+        @(Html.Grid("stationAssociatesGrid")
+            .SetUrl(Url.Action("StationAssociatesGridData", new { stationId = Model.StationId, hdFlag = "N" }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+            .SetSortName("CallLetters")
+            .OnGridComplete("{ countRecords('stationAssociatesGrid', 'numAssociates'); }")
+            .SetAsyncLoad(true)
+            
+            .AddColumn(new Column("StationId")
+                .SetHidden(true)) 
+        
+            .AddColumn(new Column("CallLetters")
+                .SetLabel("Call Letters")
+                .SetWidth(100)
+                .SetCustomFormatter("stationDisplayNameColumnFormatter")
+                .SetSortable(true))
+        
+            .AddColumn(new Column("RepeaterStatusName")
+                .SetLabel("Repeater Status")
+                .SetWidth(165)
+                .SetSortable(true))                
+                
+            .AddColumn(new Column("FlagshipStationName")
+                .SetLabel("Flagship")
+                .SetWidth(100)
+                .SetSortable(true))                    
+            
+            .AddColumn(new Column("City")
+                .SetLabel("City")
+                .SetWidth(125)
+                .SetSortable(true))                       
+                
+            .AddColumn(new Column("StateAbbreviation")
+                .SetLabel("State")
+                .SetWidth(40)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))    
+                
+            .AddColumn(new Column("Frequency")
+                .SetLabel("Frequency")
+                .SetWidth(75)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                                    
+           
+            .AddColumn(new Column("MemberStatusName")
+                .SetLabel("Member Status")
+                .SetWidth(150)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                        
+                
+            .AddColumn(new Column("MetroMarketRank")
+                .SetLabel("Metro Ranking")
+                .SetWidth(90)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                   
+
+            .AddColumn(new Column("DMAMarketRank")
+                .SetLabel("DMA Rank")
+                .SetWidth(80)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                                    
+
+            .AddColumn(new Column("LicenseeTypeName")
+                .SetLabel("Licensee Type")
+                .SetWidth(125)
+                .SetSortable(true))                                                     
+                
+            .AddColumn(new Column("AffiliateCodesList")
+                .SetLabel("Affiliations")
+                .SetWidth(150)
+                .SetSortable(true))                 
+                
+            .AddColumn(new Column("EnabledInd")
+                .SetLabel("Station")
+                .SetWidth(70)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))
+            )        
+        </div>
+    </div>
+    <div class="gridSeperator"></div>
+    <div id="HDStationsSection">
+    <!-- HD Stations section -->
+        <span class="sectionHeader"> HD Stations (<span id="numHDStations"></span>)</span>
+        <div style="padding-left:10px">
+        @(Html.Grid("stationHDGrid")
+            .SetUrl(Url.Action("StationAssociatesGridData", new { stationId = Model.StationId, hdFlag = "Y" }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+            .SetSortName("CallLetters")
+            .OnGridComplete("{ countRecords('stationHDGrid', 'numHDStations'); }")
+            .SetAsyncLoad(true)
+
+            .AddColumn(new Column("StationId")
+                .SetHidden(true)) 
+            
+        
+            .AddColumn(new Column("CallLetters")
+                .SetLabel("Call Letters")
+                .SetWidth(100)
+                .SetCustomFormatter("stationDisplayNameColumnFormatter")
+                .SetSortable(true))
+        
+            .AddColumn(new Column("RepeaterStatusName")
+                .SetLabel("Repeater Status")
+                .SetWidth(165)
+                .SetSortable(true))                
+                
+            .AddColumn(new Column("FlagshipStationName")
+                .SetLabel("Flagship")
+                .SetWidth(100)
+                .SetSortable(true))                    
+            
+            .AddColumn(new Column("City")
+                .SetLabel("City")
+                .SetWidth(125)
+                .SetSortable(true))                       
+                
+            .AddColumn(new Column("StateAbbreviation")
+                .SetLabel("State")
+                .SetWidth(40)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))    
+                
+            .AddColumn(new Column("Frequency")
+                .SetLabel("Frequency")
+                .SetWidth(75)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                                    
+           
+            .AddColumn(new Column("MemberStatusName")
+                .SetLabel("Member Status")
+                .SetWidth(150)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                        
+                
+            .AddColumn(new Column("MetroMarketRank")
+                .SetLabel("Metro Ranking")
+                .SetWidth(90)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                   
+
+            .AddColumn(new Column("DMAMarketRank")
+                .SetLabel("DMA Rank")
+                .SetWidth(80)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))                                    
+
+            .AddColumn(new Column("LicenseeTypeName")
+                .SetLabel("Licensee Type")
+                .SetWidth(125)
+                .SetSortable(true))                                                     
+                
+            .AddColumn(new Column("AffiliateCodesList")
+                .SetLabel("Affiliations")
+                .SetWidth(150)
+                .SetSortable(true))                 
+                
+            .AddColumn(new Column("EnabledInd")
+                .SetLabel("Station")
+                .SetWidth(70)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))
+
+            )        
+        </div>
+    </div>
+  
+
+
+<script>
+    function ReqNewUserFunc() {
+
+        $("#ReqNewUserDiv").css("display", "block");
+
+        $('#Call_Letters_NU').val($("#stCallLetters".html()))
+    }
+    function SubmitNewUserRequest() {
+
+        inf.messageBox("Your request to add new user <b>" + $('#First_Name_NU').val() + " " + $('#Last_Name_NU').val() + "</b> to station <b> " + $('#Call_Letters_NU').val() + " </b>has been sent to the CRC Manager. <br/><br/> The user should get an email shortly to set up their password and account");
+        $('#ReqNewUserDiv').hide();
+
+        var url = "http://localhost:64697/Schedules/NewUserRequest/"
+        var emailBody = '';
+
+        //emailBody +=    '"' + $('#First_Name_NU').val()
+        //emailBody +=    '<br>'+ $('#Last_Name_NU').val()
+        //emailBody +=    '<br>' + $('#Email_NU').val()
+        //emailBody +=    '<br>' + $('#Phone_NU').val()
+        //emailBody +=    '<br>' + $('#Call_Letters_NU').val()
+        //emailBody +=    '<br>' + $('#Title_NU').val() +'"'
+
+
+
+        var requestData = {
+            //emailBody: emailBody
+
+            First_Name_NU: $('#First_Name_NU').val(),
+            Last_Name_NU: $('#Last_Name_NU').val(),
+            Email_NU: $('#Email_NU').val(),
+            Phone_NU: $('#Phone_NU').val(),
+            Call_Letters_NU: $('#Call_Letters_NU').val(),
+            Title_NU: $('#Title_NU').val()
+        };
+
+
+        var responseData = '';
+
+        $.getJSON(url, requestData, function (responseData) {
+            //var List = JSON.parse(responseData);
+            //alert(responseData);
+            //MGrid_PopulateDropDown('MGrid_PK_Create_Field', List, null);
+            //MGrid_AddPrimaryKeyChange();\
+
+            //$('#First_Name_NU').val(''),
+            //$('#Last_Name_NU').val(''),
+            //$('#Email_NU').val(''),
+            //$('#Phone_NU').val(''),
+            //$('#Call_Letters_NU').val(''),
+            //$('#Title_NU').val('')
+            var t = 1;
+        });
+
+        //$.ajax({
+        //    type: "POST", //rest Type
+        //    dataType: 'jsonp', //mispelled
+        //    url: "http://json-cricket.appspot.com/score.json",
+        //    async: false,
+        //    contentType: "application/json; charset=utf-8",
+        //    success: function (msg) {
+        //        console.log(msg);
+        //    },
+        //    error: function () {
+        //        alert(99);
+        //        //any error to be handled
+        //}
+        //});
+
+    }
+
+    function CancelNewUserRequest() {
+       
+        $('#ReqNewUserDiv').hide();
+    }
+</script>
+
+
+
+    <div class="gridSeperator"></div>
+    <div id="UsersSection">
+        <!-- Station users section -->
+        <span class="sectionHeader">Station Users (<span id="numStationUsers"></span>)    </span><a href="#" onclick="ReqNewUserFunc();">Add New User</a>
+        <div style="padding-left:10px">
+        @(Html.Grid("stationUsersGrid")
+            .SetUrl(Url.Action("StationUsersGridData", new { stationId = Model.StationId }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+            .SetSortName("CRCName")
+            .OnGridComplete("{ countRecords('stationUsersGrid', 'numStationUsers'); }")
+            .SetAsyncLoad(true)
+
+            .AddColumn(new Column("UserId")
+                .SetHidden(true)) 
+            
+            .AddColumn(new Column("StationUserId")
+                .SetHidden(true)) 
+        
+            .AddColumn(new Column("CRCName")
+                .SetLabel("Name")
+                .SetWidth(175)
+                .SetCustomFormatter("stationUserNameFormatter")
+                .SetSortable(true))
+
+            .AddColumn(new Column("Email")
+                .SetLabel("Email")
+                .SetWidth(300)
+                .SetCustomFormatter("stationUserEmailFormatter")
+                .SetSortable(true))
+        
+            .AddColumn(new Column("PrimaryUserInd")
+                .SetLabel("Primary User")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))
+        
+            .AddColumn(new Column("GridWritePermissionsInd")
+                .SetLabel("Grid Write")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))    
+            )
+        </div>
+    </div>
+    <div class="gridSeperator"></div>
+    <div id="NotesSection">
+        <!-- Station Notes section -->
+        <span class="sectionHeader"> Station Notes (<span id="numStationNotes"></span>)</span> | @Html.ActionLink("Add Note", "AddEditStationNote", new { stationNoteId = "", stationId = Model.StationId, callLetters =Model.CallLetters }, new { @class = "inf-dialog" })
+        <div style="padding-left: 10px">
+        @(Html.Grid("stationNotesGrid")
+            .SetUrl(Url.Action("StationNotesGridData", new { stationId = Model.StationId }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+            .SetSortName("LastUpdatedDate")
+            .OnGridComplete("{ countRecords('stationNotesGrid', 'numStationNotes'); }")
+            .SetAsyncLoad(true)
+
+            .AddColumn(new Column("StationNoteId")
+                .SetHidden(true))
+
+            .AddColumn(new Column("StationNoteId")
+                .SetLabel("Edit")
+                .SetCustomFormatter("StationNotesEditFormatter")
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetWidth(90))
+
+            .AddColumn(new Column("NoteText")
+                .SetLabel("Notes")
+                .SetWidth(800)
+                .SetSortable(true))
+
+            .AddColumn(new Column("LastUpdatedDate")
+                .SetLabel("Last Updated Date")
+                .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+                .SetWidth(150)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))
+
+            .AddColumn(new Column("StationNoteId")
+                .SetLabel("Delete")
+                .SetCustomFormatter("StationNoteDeleteFormatter")
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetWidth(90))
+            )
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function stationDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("StationDetail")?stationId=" + rowObject.StationId + "'>" + rowObject.CallLetters + "</a>";
+    }
+
+    function stationUserNameFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditCRCUser", "UserAdmin")?userId=" + rowObject.UserId + "'>" + rowObject.CRCName + "</a>";
+    }
+
+    function stationUserEmailFormatter(cellValue, options, rowObject) {
+        return "<a href='mailto:" + rowObject.Email + "'>" + rowObject.Email + "</a>";
+    }
+
+    function StationNotesEditFormatter(cellValue, options, rowObject) {
+        return "<a class='inf-dialog' href='@Url.Action("AddEditStationNote")?stationNoteId=" + rowObject.StationNoteId + "&stationId=" + rowObject.StationId + "&callLetters=" + "@Model.CallLetters" + "'>Edit</a>";
+    }
+
+    function StationNoteDeleteFormatter(cellValue, options, rowObject) {
+
+        if (rowObject.DeletedUserId === null) {
+            return "<a href='#' onclick='DeleteStationNote(" + rowObject.StationNoteId + ", \"Y\"); return false;'>Delete</a>";
+        }
+        else {
+            return "<a href='#' onclick='DeleteStationNote(" + rowObject.StationNoteId + ", \"N\"); return false;'>Undelete</a>";
+        }
+@*        var message;
+        var deleteInd = 'Y';
+        message = deleteInd == 'Y' ? "Are you sure you want to delete this station note?" : "Are you sure you want to reactivate this station note?";
+        inf.messageBox(message, "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("DeleteStationNote", "StationAdmin")?stationNoteId=" + rowObject.StationNoteId + "&deleteInd=" + 'Y',
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });*@
+        //return "<a href='@Url.Action("DeleteStationNote")?stationNoteId=" + rowObject.StationNoteId + "&deleteInd=" + 'Y' + "' data-inf-confirm='Are you sure you want to delete this station note?'>Delete</a>";
+    }
+
+    function DeleteStationNote(stationNoteId, deleteInd) {
+
+        var message;
+        message = deleteInd == 'Y' ? "Are you sure you want to delete this station note?" : "Are you sure you want to reactivate this station note?";
+        inf.messageBox(message, "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("DeleteStationNote", "StationAdmin")?stationNoteId=" + stationNoteId + "&deleteInd=" + 'Y',
+                    context: document.body
+                }).done(function () {
+                    $('#stationNotesGrid').trigger('reloadGrid');
+                });
+            }
+        });
+    }
+
+    function AddEditStationNoteComplete() {
+        $(".ui-dialog-content").dialog("close");
+        $('#stationNotesGrid').trigger('reloadGrid');
+    }
+
+    function countRecords(grid, lableId) {
+        var count = $('#' + grid).getGridParam('reccount');
+        $("#" + lableId).text(count);
+    }
+
+
+    	
+    function countEnabledRecords(grid, lableId) {
+        var count = 50;
+        $("#" + lableId).text(count);
+    }
+</script>
+

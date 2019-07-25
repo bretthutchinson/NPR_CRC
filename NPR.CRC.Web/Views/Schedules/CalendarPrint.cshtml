@@ -1,0 +1,115 @@
+﻿@model NPR.CRC.Web.ViewModels.Schedules.CalendarPrintViewModel
+
+<link rel="Stylesheet" type="text/css" href="@Url.Content("~/Content/npr-program-calendar.css")" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/html2canvas.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/basic.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.debug.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.plugin.addimage.js")"></script>
+
+<div>
+<div id="title" style="text-align: center; font-size: 1.25em">
+            @Html.DisplayFor(model => model.StationDisplayName) Program Schedule<br />
+            @Html.DisplayFor(model => model.MonthName) @Html.DisplayFor(model => model.Year)
+            
+        </div>
+    <div class="buttons">
+                            <a id="printLinkButton" class="npr-program-calendar-monthbar-print"></a>
+                        </div>
+    <div class="calendar-print"></div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        initFunctionButtons();
+        loadTable();
+    })
+
+    function initFunctionButtons() {
+
+        $('.npr-program-calendar-monthbar-print')
+            .button({
+                label: "Print",
+                icons: {
+                    primary: "npr-program-calendar-print"
+                }
+            }).click(function () { testCanvass(); })
+            .css({ "font-weight": "bold" });
+    }
+
+    function loadTable() {
+        $('.calendar-print').append("<table class='calendar-print-table'></table>");
+        loadTableColumnHeading();
+    }
+
+
+    function loadTableColumnHeading() {
+        $('.calendar-print-table').append("<th></th>"
+            + "<th>Mon</th>"
+            + "<th>Tue</th>"
+            + "<th>Wed</th>"
+            + "<th>Thu</th>"
+            + "<th>Fri</th>"
+            + "<th>Sat</th>"
+            + "<th>Sun</th>");
+        loadTableRow("am");
+        loadTableRow("pm");
+        loadSchedule("", "Mon", 9, "am");
+        loadSchedule("", "blankMon", "blank9", "am")
+        loadSchedule("", "Mon", 10, "am");
+        loadSchedule("", "blankMon", "blank10", "am")
+        loadScheduleTitle("Ang Title ng programa","", "Mon", 10, "am");
+    }
+
+    function loadTableRow(format) {
+        for (var i = 1; i < 13; i++) {
+
+            $('.calendar-print-table').append("<tr class='calendar-print-table-row-" + i + format + "'></tr>");
+            $('.calendar-print-table').append("<tr class='calendar-print-table-row-blank" + i + format + "'><td class='calendar-print-table-cell-blank' ></td></tr>");
+            loadTableCell(i,format);
+        }
+    }
+
+    function loadTableCell(i,format) {
+        $('.calendar-print-table-row-' + i + format).append("<td class='calendar-print-table-cell' >" + i + format + "</td>");
+        loadDaysCell("Mon", i, format);
+        loadDaysCell("Tue", i, format);
+        loadDaysCell("Wed", i, format);
+        loadDaysCell("Thu", i, format);
+        loadDaysCell("Fri", i, format);
+        loadDaysCell("Sat", i, format);
+        loadDaysCell("Sun", i, format);
+    }
+
+
+    function loadDaysCell(day,i, format) {
+        $('.calendar-print-table-row-' + i + format).append("<td class='calendar-boxtop calendar-print-table-cell-" + day + "' ></td>");
+        $('.calendar-print-table-row-blank' + i + format).append("<td class='calendar-boxbottom calendar-print-table-cell-blank" + day + "' ></td>");
+    }
+
+    function loadSchedule(time,day, i, format) {
+        $('.calendar-print-table-row-' + i + format).find('.calendar-print-table-cell-' + day).append("<div class='calendar-schedule-shading' ></div>");
+    }
+
+    function loadScheduleTitle(title,time, day, i, format) {
+        $('.calendar-print-table-row-' + i + format).find('.calendar-print-table-cell-' + day).find('.calendar-schedule-shading').append(title);
+    }
+
+    /************** implement canvass start ******************/
+    function testCanvass() {
+        html2canvas(document.body, {
+            onrendered: function (canvas) {
+                //document.body.appendChild(canvas);
+                var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                var pdf = new jsPDF();
+
+                pdf.addImage(imgData, 'JPEG', 0, 0);
+                pdf.save("download.pdf");
+            }
+        });
+    }
+    /************** implement canvass end ******************/
+
+</script>        

@@ -1,0 +1,19 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.SelectProgramProducerViewModel
+
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.ProgramId)
+    @Inf.ValidationSummary(this)
+
+    <p>
+        @Html.LabelFor(model => model.ProducerId)
+        @Html.DropDownListFor(model => model.ProducerId, Model.ProducerList)
+    </p>
+    
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

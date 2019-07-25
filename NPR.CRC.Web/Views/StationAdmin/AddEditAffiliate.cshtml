@@ -1,0 +1,27 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.AddEditAffiliateViewModel
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.AffiliateName) </td>
+            <td>@Html.EditorFor(model => model.AffiliateName)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.AffiliateCode): </td>
+            <td>@Html.EditorFor(model => model.AffiliateCode)</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+    </table>
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

@@ -1,0 +1,76 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.CarriageListByStationViewModel
+
+@{
+    ViewBag.Title = "CarriageListByStation";
+}
+<p>
+    <span class="page-header">Carriage List by Station Report</span>
+</p>
+@using (Html.BeginForm()) //"CarriageListByStation", "Reports", FormMethod.Post, new { target = "_blank", name = "CarriageListByStation", id = "CarriageListByStation" }))
+{
+<div>
+    @Inf.ValidationSummary(this)
+    <div class="leftColumn" style="width: 70%;">
+        <div style="text-align: center; color: red">
+            <p>* Indicates a required field</p>
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.type)</span>
+            @Html.DropDownListFor(model => model.type, Model.CarriageType)				
+        </div> 
+        <div>
+           <span class="reportFieldLabel">@Html.LabelFor(model => model.Station)</span>
+           @Html.DropDownListFor(model => model.Station, Model.StationList)
+        </div>
+        <div>
+           <span class="reportFieldLabel">@Html.LabelFor(model => model.Band)</span>
+          @Html.DropDownListFor(model => model.Band, Model.BandList)
+        </div>
+         <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.StationStatus)</span>
+            @Html.DropDownListFor(model => model.StationStatus, Model.StationStatusList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.MemberStatus)</span>
+            @Html.DropDownListFor(model => model.MemberStatus, Model.MemberStatusList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.MonthsFrom)</span>
+            @Html.DropDownListFor(model => model.MonthsFrom, Model.MonthsFromList)
+		    @Html.DropDownListFor(model => model.YearsFrom, Model.YearsFromList)
+        </div>
+         <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.MonthsTo)</span>
+            @Html.DropDownListFor(model => model.MonthsTo, Model.MonthsToList)
+		    @Html.DropDownListFor(model => model.YearsTo, Model.YearsToList)			
+        </div>       
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Format)</span>
+            @Html.DropDownListFor(model => model.Format, Model.FormatList)
+        </div>    
+        <div>
+            <span class="reportFieldLabel"></span>
+            <input type="submit" id="generateReport" value="Generate Report" />
+        </div>
+    </div>
+</div>
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#YearsFrom').val(curretYear);
+        $('#MonthsFrom').val(curretMonth);
+        $('#YearsTo').val(curretYear);
+        $('#MonthsTo').val(curretMonth);
+
+    });
+
+
+</script>
+

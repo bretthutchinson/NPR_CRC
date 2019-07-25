@@ -1,0 +1,41 @@
+﻿<p>
+    <span class="page-header">Minority Status</span> | @Html.ActionLink("Add New Member Status", "AddEditMinorityStatus", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("MinorityStatusGrid")
+    .SetUrl(Url.Action("MinorityStatusGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "MinorityStatusId" })
+    .SetSortName("MinorityStatusName")
+
+    .AddColumn(new Column("MinorityStatusId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("MinorityStatusName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("minorityStatusNameColumnFormatter")
+        .SetSortable(true))        
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function minorityStatusNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditMinorityStatus")?minorityStatusId=" + rowObject.MinorityStatusId + "' class='inf-dialog'>" + rowObject.MinorityStatusName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";      
+    }
+</script>

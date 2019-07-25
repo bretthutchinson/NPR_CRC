@@ -1,0 +1,44 @@
+﻿<p>
+    <span class="page-header">Bands</span> | @Html.ActionLink("Add New Band", "AddEditBand", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("BandGrid")
+    .SetUrl(Url.Action("BandGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "BandId" })
+    .SetSortName("BandName")
+    .SetVirtualScroll(true)
+    .SetRowNum(100)
+    .SetHeight(500)    
+
+    .AddColumn(new Column("BandId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("BandName")
+        .SetLabel("Band")
+        .SetWidth(250)
+        .SetCustomFormatter("bandNameColumnFormatter")
+        .SetSortable(true))        
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function bandNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditBand")?bandId=" + rowObject.BandId + "' class='inf-dialog'>" + rowObject.BandName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";      
+    }
+</script>

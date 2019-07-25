@@ -1,0 +1,466 @@
+﻿/***
+	NPR colors - most/all elements throughout the site should be one of these:
+
+	red:		#ff3300; ( #f30; )
+	black:		#000000; ( #000; )
+	blue:		#3366cc; ( #36c; )
+	gray:		#606060;
+	light gray:	#e0e0e0;
+
+***/
+
+/*** globals ***/
+
+html {
+	height: 100%;
+}
+
+body {
+	font-size: .85em;
+	font-family: Gotham, "Gotham Narrow", Knockout, Sentinal, Verdana;
+	color: #606060;
+	background-color: #fff;
+	margin: 0px;
+	height: 100%;
+}
+
+a {
+	color: #36c;
+	text-decoration: none;
+}
+
+/*** layout ***/
+
+table.layout {
+	height: 100%;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+td.layout-top-left {
+	background-color: #606060;
+	color: #e0e0e0;
+	text-align: center;
+	height: 86px;
+	width: 200px;
+}
+
+	td.layout-top-left img {
+		border: 1px solid #fff;
+		margin: 18px;
+	}
+
+td.layout-top-right {
+	background-color: #606060;
+	color: #fff;
+}
+
+td.layout-middle-left {
+	background-color: #606060;
+	color: #fff;
+	padding: 5px;
+	vertical-align: top;
+}
+
+	td.layout-middle-left ul {
+		list-style-type: none;
+		padding-left: 0px;
+	}
+
+	td.layout-middle-left li {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+
+	td.layout-middle-left a {
+		color: #fff;
+	}
+
+td.layout-middle-right {
+	vertical-align: top;
+	padding: 10px;
+}
+
+td.layout-bottom {
+	background-color: #606060;
+	color: #e0e0e0;
+	text-align: center;
+	height: 43px;
+	font-size: 0.67rem;
+	font-weight: bold;
+}
+
+.leftColumn {
+	float: left;
+	width: 40%;
+	padding: 0px 0px;
+}
+
+.rightColumn {
+	float: right;
+	width: 59%;
+	padding: 0px 0px;
+}
+
+.padRight {
+	padding-right: 50px;
+	display: inline-block;
+}
+
+.fieldDisplay {
+	padding-left: 10px;
+	height: 24px;
+}
+
+.reportFieldLabel {
+    width: 200px;
+    padding-right: 5px;
+    padding-left: 10px;
+    height: 30px;
+    display: inline-block;
+}
+
+.stationAddressDisplay {
+	padding-left: 20px;
+	height: 24px;
+}
+
+.sectionHeader {
+	padding-left: 10px;
+	padding-top: 5px;
+	height: 24px;
+	font-weight: bold;
+}
+
+.gridSeperator {
+	clear: both;
+	height: 15px;
+}
+
+.gridContainer {
+	padding-left: 10px;
+	width: 850px;
+	overflow: auto;
+}
+
+/*** inputs ***/
+
+input,
+select,
+textarea {
+	font-size: 0.80rem;
+	color: #303030;
+}
+
+	input[type=email] {
+		width: 200px;
+	}
+
+	input[type=password] {
+		width: 200px;
+	}
+
+.textAreaSize {
+    width: 400px;
+    height: 100px;
+}
+
+.labelStyle {
+    font-weight: bold;
+}
+
+    .labelStyle::after {
+        content: ":";
+    }
+
+/*** validation ***/
+
+.field-validation-error {
+	display: none;
+}
+
+.field-validation-valid {
+	display: none;
+}
+
+.input-validation-error {
+	border: 1px solid #800000;
+	background-color: #fee;
+}
+
+.validation-summary-container {
+	background-color: #ffffdd;
+	border-top: 2px solid #36c;
+	border-bottom: 2px solid #36c;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	padding: 10px;
+}
+
+.validation-summary-errors {
+	color: #36c;
+}
+
+	.validation-summary-errors ul {
+		margin: 0px;
+		padding: 0px;
+		list-style-type: none;
+	}
+
+.validation-summary-valid {
+	display: none;
+}
+
+label.required {
+	color: #f30;
+}
+
+	label.required:before {
+		content: "*";
+	}
+
+.invalid-text {
+	color: #f30;
+}
+
+/*** headers ***/
+
+.home-header {
+	text-align: center;
+	font-size: 2.0rem;
+    margin-left: -213px;
+}
+
+.page-header {
+	color: #36c;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+
+.section-header {
+	font-weight: bold;
+}
+
+.top-menu {
+	width: 100%;
+}
+
+	.top-menu td {
+		text-align: center;
+		vertical-align: bottom;
+	}
+
+	.top-menu a {
+		color: #fff;
+	}
+
+.top-menu-header {
+	font-size: 1.5rem;
+}
+
+.left-menu-header {
+	font-size: 1.25rem;
+}
+
+/*** jquery ui overrides/customizations ***/
+
+.ui-widget {
+	color: #303030;
+	font-size: .85rem;
+	font-family: Gotham, "Gotham Narrow", Knockout, Sentinal, Verdana;
+}
+
+	.ui-widget input,
+	.ui-widget select,
+	.ui-widget textarea {
+		color: #303030;
+		font-size: .85rem;
+		font-family: Gotham, "Gotham Narrow", Knockout, Sentinal, Verdana;
+	}
+
+.ui-tooltip {
+	background: #ffffdd;
+	color: #f30;
+	border: 2px solid #f30;
+	padding: 10px;
+}
+
+.ui-jqgrid {
+	margin-top: 10px;
+}
+
+.ui-jqgrid-btable a {
+	color: #36c;
+}
+
+.ui-datepicker-trigger {
+	position: relative;
+	top: 5px;
+	cursor: pointer;
+}
+
+.ui-dialog-titlebar-close {
+	display: none;
+}
+
+.ui-menu {
+	padding: 0px;
+}
+
+	.ui-menu li {
+		background-color: #808080;
+		color: #fff;
+	}
+
+		.ui-menu li a {
+			margin-left: 0px;
+		}
+
+/*** "inf" styles ***/
+
+.inf-date {
+	text-align: right;
+	width: 75px;
+}
+
+.inf-integer {
+	text-align: right;
+	width: 65px;
+}
+
+.inf-zipcode {
+	width: 75px;
+}
+
+.inf-state {
+}
+
+.inf-salutation {
+}
+
+.inf-dialogbuttons {
+	/*border-top: 2px solid #606060;*/
+	margin-top: 15px;
+	padding-top: 15px;
+	text-align: right;
+}
+
+.inf-pagebuttons {
+	border-top: 2px solid #606060;
+	margin-top: 15px;
+	padding-top: 15px;
+}
+
+select.inf-checkboxlist {
+	height: 100px;
+	width: 400px;
+}
+
+	select.inf-checkboxlist + ul {
+		margin: 0px;
+		padding: 0px;
+		list-style-type: none;
+		overflow-y: auto;
+		border: 1px inset #000;
+	}
+
+form.inf-exportgrid {
+	display: inline-block;
+}
+
+	form.inf-exportgrid input[type=submit] {
+		height: 24px;
+		width: 24px;
+		background-image: url(Images/csv.png);
+		background-repeat: no-repeat;
+		background-size: contain;
+		background-color: transparent;
+		border: none;
+		position: relative;
+		top: -10px;
+	}
+
+/**** Custom ****/
+.defaultLink {
+	color: #3266CC !important;
+	text-decoration: underline;
+    cursor: pointer;
+}
+
+/**** Navigation Drop Down Menu *****/
+
+div.dropDownMenu
+{
+    display: table-cell;
+    font-weight: bold;
+}
+
+div.dropDownMenuLabel a
+{
+    color: #232323;
+}
+
+div.dropDownMenuList
+{
+    position: absolute;
+    background-color: #F4F4F4;
+    -moz-box-shadow: 3px 3px 5px #8e8d8d;
+    -webkit-box-shadow: 3px 3px 5px #8e8d8d;
+    box-shadow: 3px 3px 5px #8e8d8d;
+}
+
+div.dropDownMenuList
+{
+    padding: 5px;
+}
+
+    div.dropDownMenuList div
+    {
+        padding: 3px;
+    }
+
+    div.dropDownMenuList a
+    {
+        color: #000;
+    }
+
+
+div.navDropDownMenu
+{
+    cursor: pointer;
+    display: table-cell;
+}
+
+div.navDropDownMenuList
+{
+    position: absolute;
+    background-color: lightgray;
+    -moz-box-shadow: 3px 3px 5px #8e8d8d;
+    -webkit-box-shadow: 3px 3px 5px #8e8d8d;
+    box-shadow: 3px 3px 5px #8e8d8d;
+    z-index: 999999;
+}
+
+div.navDropDownMenuList
+{
+    padding: 5px;
+}
+
+    div.navDropDownMenuList div
+    {
+        padding: 3px;
+    }
+
+    div.navDropDownMenuList a
+    {
+        font-weight: bold;
+        font-size: 12px;
+        color: #000;
+    }
+
+div.menuHighlight 
+{
+    background-color: #a5bfe1;
+}

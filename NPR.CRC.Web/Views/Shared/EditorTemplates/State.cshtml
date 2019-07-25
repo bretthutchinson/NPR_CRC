@@ -1,0 +1,9 @@
+﻿@model System.Int64?
+@using InfoConcepts.Library.Utilities
+@using InfoConcepts.Library.Extensions
+@{
+    var stateList = InfLookupHelper.GetLookupList("State", "StateId", "Abbreviation").ToSelectListItems()
+        .AddBlankFirstItem()
+        .SetSelected(Model);
+}
+@Html.DropDownListFor(model => model, stateList, new { @class = "inf-state" })

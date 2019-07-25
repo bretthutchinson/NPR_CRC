@@ -1,0 +1,23 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.AddEditBandViewModel
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.BandName) </td>
+            <td>@Html.EditorFor(model => model.BandName)</td>
+        </tr>        
+        <tr>
+            <td></td>
+            <td>
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+    </table>
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

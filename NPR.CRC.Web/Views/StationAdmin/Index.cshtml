@@ -1,0 +1,279 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.SearchStationsViewModel
+
+<p>
+    <span class="page-header">Search Stations</span> | @Html.ActionLink("Add New Station", "AddEditStation")
+</p>
+
+
+<table>
+    <tr>
+        <td>@Html.Label("StationId", "Select a Station"): </td>
+        <td>@Html.DropDownList("StationId", Model.StationList, new { @style="display:none"  })
+            @Html.EditorFor(model => Model.StationName)
+        </td>
+
+        <td>@Html.Label("RepeaterStatusId", "Repeater Status"): </td>
+        <td>@Html.DropDownList("RepeaterStatusId", Model.RepeaterStatusList)</td>
+
+        <td>@Html.Label("MetroMarketId", "Metro Market"): </td>
+        <td>@Html.DropDownList("MetroMarketId", Model.MetroMarketList)</td>
+    </tr>
+
+    <tr>
+        <td>@Html.Label("Enabled", "Enabled"): </td>
+        <td>@Html.DropDownList("Enabled", Model.EnabledList)</td>
+
+        <td>@Html.Label("MemberStatusId", "Member Status"): </td>
+        <td>@Html.DropDownList("MemberStatusId", Model.MemberStatusList)</td>
+
+        <td>@Html.Label("DMAMarketId", "DMA Market"): </td>
+        <td>@Html.DropDownList("DMAMarketId", Model.DMAMarketList)</td>
+    </tr>
+
+    <tr>
+        <td>@Html.Label("BandId", "Band"): </td>
+        <td>@Html.DropDownList("BandId", Model.BandList)</td>
+
+        <td>@Html.Label("StateId", "State"): </td>
+        <td>@Html.DropDownList("StateId", Model.StateList)</td>
+
+        <td></td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td>@Html.Label("LicenseeTypeId", "Licensee Type"): </td>
+        <td>@Html.DropDownList("LicenseeTypeId", Model.LicenseeTypeList)</td>
+
+        <td>@Html.Label("AffiliateId", "Affiliation"): </td>
+        <td colspan="3">@Html.DropDownList("AffiliateId", Model.AffiliateList)</td>
+    </tr>
+    <tr>
+
+        <td>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+                <button id="searchButton">Search</button>
+                <button id="displayAllButton">Display All Stations</button>
+        </td>
+        <td colspan="2">
+                <span style="margin-left:50px">Search Result Count:</span>
+                 <span id="rCount" style="color:darkblue"></span>
+        </td>
+        <td  style ="margin-top:10px">
+               
+            <button id="exportButton">Export Grid</button>
+            <input type="hidden" value="N" name="process" id="process" />
+            <img src="~/content/images/excel.gif"/>
+        </td>
+    </tr>
+</table>
+
+
+  
+
+
+@(Html.Grid("StationsGrid")
+    .SetUrl(Url.Action("StationsGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("StationDisplayName")
+    .SetVirtualScroll(true)
+    .SetHeight(500)
+    .SetDataType(MvcJqGrid.Enums.DataType.Json)
+    
+    .AddColumn(new Column("StationId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("StationDisplayName")
+        .SetLabel("Station")
+        .SetWidth(125)
+        .SetCustomFormatter("stationDisplayNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("RepeaterStatusName")
+        .SetLabel("Repeater Status")
+        .SetWidth(200)
+        .SetSortable(true))
+
+    .AddColumn(new Column("FlagshipStationDisplayName")
+        .SetLabel("Flagship")
+        .SetWidth(85)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("City")
+        .SetLabel("City")
+        .SetWidth(120)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("StateAbbreviation")
+        .SetLabel("State")
+        .SetWidth(50)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("Frequency")
+        .SetLabel("Frequency")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Left)
+        .SetSortable(true))
+
+    .AddColumn(new Column("MemberStatusName")
+        .SetLabel("Member Status")
+        .SetWidth(100)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("MetroMarketRank")
+        .SetLabel("Metro Ranking")
+        .SetWidth(95)
+        .SetAlign(MvcJqGrid.Enums.Align.Left)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DMAMarketRank")
+        .SetLabel("DMA Ranking")
+        .SetWidth(95)
+        .SetAlign(MvcJqGrid.Enums.Align.Left)
+        .SetSortable(true))
+
+    .AddColumn(new Column("LicenseeTypeName")
+        .SetLabel("Licensee Type")
+        .SetWidth(95)
+        .SetSortable(true))
+        
+    //.AddColumn(new Column("AffiliateCodesList")
+    //    .SetLabel("Affiliations")
+    //    .SetWidth(125)
+    //    .SetSortable(true))
+        
+    .AddColumn(new Column("Timezonecode")
+        .SetLabel("Timezone")
+        .SetWidth(150)
+        .SetSortable(true))
+    
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(55)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .OnLoadComplete("loadComp();")
+)
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script>
+    function loadComp() {
+        $('#rCount').text($('#StationsGrid').getGridParam('records'));
+    }
+
+    $(document).ready(function () {
+
+        $("#StationId").val('');
+        $("#StationName").val('');
+        var $grid = $("#StationsGrid");
+        $("#BandId").val('1, 8');
+
+
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+
+        setTimeout(function () { $grid.jqGrid('setGridParam', { datatype: 'json' }); $("#searchButton").click(); }, 500);
+
+        $("#exportButton").click(function (e) {
+            var stationId = $('#StationId').val();
+            var repeaterStatusId = $('#RepeaterStatusId').val();
+            var metroMarketId = $('#MetroMarketId').val();
+            var enabled = $('#Enabled').val();
+            var memberStatusId = $('#MemberStatusId').val();
+            var dmaMarketId = $('#DMAMarketId').val();
+            var bandId = $('#BandId').val();
+            var stateId = $('#StateId').val();
+            var licenseeTypeId = $('#LicenseeTypeId').val();
+            var affiliateId = $('#AffiliateId').val();
+
+
+            var url = "@Url.Action( "StationsGridDataReport","Reports")?stationId=" + stationId
+            url = url + "&repeaterStatusId=" + repeaterStatusId;
+            url = url + "&metroMarketId=" + metroMarketId;
+            url = url + "&enabled=" + enabled;
+            url = url + "&memberStatusId=" + memberStatusId;
+            url = url + "&dmaMarketId=" + dmaMarketId;
+            url = url + "&bandId=" + bandId;
+            url = url + "&stateId=" + stateId;
+            url = url + "&licenseeTypeId=" + licenseeTypeId;
+            url = url + "&affiliateId=" + affiliateId;
+
+            var inputs = '';
+
+            $('<form action="' + url + '" method="' + ('post') + '">' + inputs + '</form>')
+            .appendTo('body').submit().remove();
+
+        });
+        
+
+        $("#displayAllButton").click(function () {
+            resetFilters();
+            $("#searchButton").trigger("click");
+        });
+
+        $("#StationName").watermark("Type a Station Name");
+
+        $("#StationName").autocomplete({
+            source: "@Url.Action("StationSearch", "Reports")",
+            minLength: 3,
+            select: function (event, ui) {
+                $(this).val(ui.item.label);
+                $("#StationId").val(ui.item.value);
+                $("#StationId").trigger("change");
+                //$("#StationName").val('');
+                return false;
+            }
+        });
+
+        $("#StationName").change(function(){
+            //if ($(this).val('')) {
+            //    //$("#StationId").val('');
+            //    $("#StationId").trigger("change")
+            //}
+        });
+    });
+
+    function stationDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("StationDetail")?stationId=" + rowObject.StationId + "'>" + rowObject.StationDisplayName + "</a>";
+    }
+
+    function applyFilters() {
+        var $grid = $("#StationsGrid");
+        //alert($("#StateId").val());
+        $grid.addPostData("#StationId");
+        $grid.addPostData("#RepeaterStatusId");
+        $grid.addPostData("#MetroMarketId");
+        $grid.addPostData("#Enabled");
+        $grid.addPostData("#MemberStatusId");
+        $grid.addPostData("#DMAMarketId");
+        $grid.addPostData("#BandId");
+        $grid.addPostData("#StateId");
+        $grid.addPostData("#LicenseeTypeId");
+        $grid.addPostData("#AffiliateId");
+        //$("#StationId").val('');
+    }
+
+    function resetFilters() {
+        $("#StationId").val("");
+        $("#RepeaterStatusId").val("");
+        $("#MetroMarketId").val("");
+        $("#Enabled").val("Both");
+        $("#MemberStatusId").val("");
+        $("#DMAMarketId").val("");
+        $("#BandId").val("");
+        $("#StateId").val("");
+        $("#LicenseeTypeId").val("");
+        $("#AffiliateId").val("");
+    }
+
+
+</script>

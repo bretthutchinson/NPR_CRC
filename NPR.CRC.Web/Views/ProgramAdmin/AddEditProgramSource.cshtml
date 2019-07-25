@@ -1,0 +1,32 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.AddEditProgramSourceViewModel
+
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramSourceName): </td>
+            <td>@Html.EditorFor(model => model.ProgramSourceName)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramSourceCode): </td>
+            <td>@Html.EditorFor(model => model.ProgramSourceCode)</td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+    </table>
+    
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

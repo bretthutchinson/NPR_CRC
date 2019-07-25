@@ -1,0 +1,41 @@
+﻿<p>
+    <span class="page-header">Affiliates</span> | @Html.ActionLink("Add Affiliate", "AddEditAffiliate", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("AffiliatesGrid")
+    .SetUrl(Url.Action("AffiliatesGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "AffiliateId" })
+    .SetSortName("AffiliateName")
+
+    .AddColumn(new Column("AffiliateId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("AffiliateName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("affiliateNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("AffiliateCode")
+        .SetLabel("Code")
+        .SetWidth(75)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetSortable(true))
+)
+
+<script>
+    function affiliateNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditAffiliate")?affiliateId=" + rowObject.AffiliateId + "' class='inf-dialog'>" + rowObject.AffiliateName + "</a>";
+    }
+</script>

@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <script>
+        var inf = inf || {};
+        inf.siteRoot = "@Url.Content("~/")";
+    </script>
+    @Styles.Render("~/bundles/css")
+    @Scripts.Render("~/bundles/js")
+    <link rel="Stylesheet" type="text/css" href="@Url.Content("~/Content/NoPrint.css")" media="print"/>
+</head>
+<body>
+    <table class="layout">
+        <tr class="no-print">
+            <td class="layout-top-left">
+                <a href="@Url.Action("Index", "Schedules")"" title="NPR">
+                    <img alt="NPR" src="@Url.Content("~/Content/Images/logo.png")" /></a>
+            </td>
+            <td class="layout-top-right">
+                @RenderSection("TopMenu", required: true)
+            </td>
+        </tr>
+        <tr>
+            <td class="layout-middle-left">
+                @RenderSection("LeftMenu", required: false)
+            </td>
+            <td class="layout-middle-right">
+                @RenderBody()
+            </td>
+        </tr>
+        <tr>
+            <td class="layout-bottom" colspan="2">
+                Notice: NPR uses and licenses third parties to use station carriage data on an aggregated basis for purposes of reporting on public radio audience and programming.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

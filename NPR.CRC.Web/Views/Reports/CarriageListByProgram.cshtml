@@ -1,0 +1,264 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.CarriageListByProgramViewModel
+
+@{
+    ViewBag.Title = "CarriageListByProgram";
+}
+
+<p >  
+    <h3 class="page-header">
+    Carriage List by Program Report
+    </h3>
+</p>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    @Inf.ValidationSummary(this)
+
+    <table style="width:1000px">
+        <tr>
+            <td>
+            
+                @Html.LabelFor(model => model.CarriageType)
+            </td>
+            <td>
+                @Html.RadioButtonFor(model => model.type, "Regular", new { id = "Regular" })Regular          
+			    @Html.RadioButtonFor(model => model.type, "NPR_Newscasts", new { id = "Newscasts" })NPR Newscasts
+
+            <td>
+                @Html.LabelFor(model => model.Band)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.Band, Model.BandList)
+            </td>
+
+
+
+
+        </tr>
+ 
+        <tr>
+            <td>
+                @Html.LabelFor(model => model.ProgramEnabled)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.ProgramEnabled, Model.ProgramEnabledList)
+            </td>
+            <td>
+                @Html.LabelFor(model => model.StationEnabled)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.StationEnabled, Model.StationEnabledList)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.LabelFor(model => model.ProgramID)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.ProgramID, Model.ProgramList)
+            </td>
+            <td>
+                @Html.LabelFor(model => model.MemberStatus)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.MemberStatus, Model.MemberStatusList)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.LabelFor(model => model.MonthsFrom)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.MonthsFrom, Model.MonthsFromList)
+                @Html.DropDownListFor(model => model.YearsFrom, Model.YearsFromList)
+            </td>
+            <td>
+                @Html.LabelFor(model => model.StationId)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.StationId, Model.StationList)
+            </td>
+
+
+        </tr>
+        <tr>
+            <td>
+                @Html.LabelFor(model => model.MonthsTo)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.MonthsTo, Model.MonthsToList)
+                @Html.DropDownListFor(model => model.YearsTo, Model.YearsToList)
+            </td>
+            <td>
+                @Html.LabelFor(model => model.City)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.City, Model.StationCityList)
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="1">
+                @Html.LabelFor(model => model.ReportFormat)  
+            </td>
+            <td colspan="1">
+                @Html.DropDownListFor(model => model.ReportFormat, Model.ReportFormatList)  
+            </td>
+            <td>
+                @Html.LabelFor(model => model.StateId)
+            </td>
+            <td>
+                @Html.DropDownListFor(model => model.StateId, Model.StationStateList)
+            </td>
+        </tr>
+        <tr>
+            <td>  </td>
+
+        </tr>
+         <tr>
+            <td colspan="2">
+                <input type="submit" value="Generate Report" class="bmargin" />
+            </td>
+ 
+             <td colspan="2"></td>
+        </tr>
+    </table>
+    
+}
+
+<style type="text/css">
+
+    .bmargin
+    {
+        margin-left: 100px;
+    }
+    #top
+    {
+        margin-top: 40px;
+    }
+.label
+{
+        width: 20%;
+        float: left;
+        
+        
+}
+   
+.content
+{
+        width: 80%;
+        float: left;
+        padding: 0 0 20px 0;
+}
+
+   
+
+</style>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var band = $('#Band').val();
+        var stationEnabled = $('#StationEnabled').val();
+        var memberStatus = $('#MemberStatus').val();
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#YearsFrom').val(curretYear);
+        $('#MonthsFrom').val(curretMonth);
+        $('#YearsTo').val(curretYear);
+        $('#MonthsTo').val(curretMonth);
+        
+        setStationList(band, stationEnabled, memberStatus);
+
+        $('input:radio[id=Regular]').change(function () {
+            var isReg = $('#ProgramID').val();
+            if (isReg == 2072) { $('#ProgramID').val(''); }
+        });
+
+        $('input:radio[id=Newscasts]').change(function () {
+           
+            $('#ProgramID').val(2072);
+            $('#ProgramID').trigger("change");
+        });
+
+        $('#ProgramID').change(function () {
+            var isReg = $(this).val();
+            if (isReg == 2072) {
+                $('input:radio[id=Newscasts]').prop('checked', true);
+            } else {
+                $('input:radio[id=Regular]').prop('checked', true);
+            }
+        });
+
+        
+        $('#Band').change(function () {
+            
+            var band = $('#Band').val();
+            var stationEnabled = $('#StationEnabled').val();
+            var memberStatus = $('#MemberStatus').val();
+
+            setStationList(band, stationEnabled, memberStatus);
+            
+
+        });
+
+        $('#StationEnabled').change(function () {
+
+            var band = $('#Band').val();
+            
+            var stationEnabled = $('#StationEnabled').val();
+            var memberStatus = $('#MemberStatus').val();
+
+            setStationList(band, stationEnabled, memberStatus);
+            
+
+        });
+
+        $('#MemberStatus').change(function () {
+            
+            var band = $('#Band').val();
+            var stationEnabled = $('#StationEnabled').val();
+            var memberStatus = $('#MemberStatus').val();
+
+            setStationList(band, stationEnabled, memberStatus);
+           
+
+        });
+
+    });
+
+
+    function setStationList(band, stationEnabled, memberStatus) {
+
+        $('#Station').empty();
+        var $Station = $("#Station");
+
+        var url = "@Url.Action("ShowStationList")";
+        var requestData = {
+
+            Band: band,
+            StationEnabled: stationEnabled,
+            MemberStatus: memberStatus
+        };
+
+        $.getJSON(url, requestData, function (responseData) {
+            $.each(responseData, function (index, value) {
+              
+                $("<option></option")
+                    .attr("value", value)
+                    .text(value)
+                    .appendTo($Station);
+            });
+
+            $Station.trigger("change");
+        });
+    }
+
+</script>

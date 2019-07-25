@@ -1,0 +1,92 @@
+﻿@model NPR.CRC.Web.ViewModels.UserAdmin.AddEditStationLinkViewModel
+
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    
+    @Html.AntiForgeryToken()
+    
+    @Html.HiddenFor(model => model.UserId)
+
+    <p class="page-header">
+        @(Model.StationId.HasValue ? "Edit Station Link" : "Add Station Link")
+    </p>
+
+  
+    @Inf.ValidationSummary(this)
+
+    <p>
+        @Html.LabelFor(model => model.StationId)
+        @Html.EditorFor(model => model.StationId)
+    </p>
+
+    <p>
+        @Html.EditorFor(model => model.PrimaryUserInd)
+        @Html.LabelFor(model => model.PrimaryUserInd)
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        @Html.EditorFor(model => model.GridWritePermissionsInd)
+        @Html.LabelFor(model => model.GridWritePermissionsInd)
+    </p>
+    
+    <div class="inf-dialogbuttons">
+
+        <input type="submit" value="Save" id="btnSubmit" />
+        <input type="button" value="Cancel"  id="cancel" />
+
+    </div>
+}
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        var SStation = "N";
+        var SPrimary = "N";
+        var SGrid = "N";
+
+        $("#StationId").change(function () {
+            SStation = "Y"
+        });
+
+        $("#PrimaryUserInd").change(function () {
+            SPrimary = "Y"
+        });
+
+        $("#GridWritePermissionsInd").change(function () {
+            SGrid = "Y"
+        });
+
+        $("#cancel").click(function () {
+
+          
+            if (SStation == "Y" || SPrimary == "Y" || SGrid == "Y") {
+                inf.messageBox("The data in one or more fields has changed.  Do you want to save these changes?", "Warning", ["Yes", "No"], function (value) {
+                    if (value == "Yes") {
+                        
+                        $("#btnSubmit").trigger("click");
+                        //closeDialog('#cancel');
+                    }
+                    else {
+                      
+                      $('.layout').next().next().remove();
+                       $('.layout').next().remove();
+
+                     }
+                });
+            }
+            else {
+               
+                
+                $('.layout').next().next().remove();
+                $('.layout').next().remove();
+               
+            }
+        });
+    });
+
+    
+
+</script>

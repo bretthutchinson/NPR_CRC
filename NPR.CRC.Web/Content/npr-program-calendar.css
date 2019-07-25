@@ -1,0 +1,248 @@
+﻿.ui-widget
+{
+	font-size: 1em;
+}
+
+.ui-autocomplete
+{
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 200px;
+}
+
+.ui-autocomplete-loading
+{
+	background-image: url(../Content/Images/ui-anim_basic_16x16.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+}
+
+.npr-program-calendar, .npr-newscast-calendar
+{
+	margin-left: auto;
+	margin-right: auto;
+	width: auto;
+}
+
+.npr-program-calendar-titlebar
+{
+	padding-bottom: 6px;
+	text-align: center;
+	position: relative;
+}
+
+.npr-program-calendar-titletext
+{
+}
+
+.npr-program-calendar-monthbar
+{
+	text-align: center;
+	position: relative;
+}
+
+.npr-program-calendar-monthbar-next, .npr-program-calendar-monthbar-prev
+{
+	display: none;
+}
+
+.npr-program-calendar-monthtext
+{
+	margin-left: 16px;
+	margin-right: 16px;
+}
+/*
+.npr-program-calendar-addProgram, .npr-program-calendar-addNewscast, .npr-program-calendar-monthbar-print, .npr-program-calendar-monthbar-submit
+{
+	margin-left: 2px;
+	float: right;
+	position: relative;
+}
+    */
+.npr-program-calendar-print
+{
+	background-image: url(../Content/Images/print.png) !important;
+}
+
+.npr-program-calendar-submit
+{
+	background-image: url(../Content/Images/submit.png) !important;
+}
+
+.npr-list-calendar-export
+{
+    background-image: url(../Content/Images/excel.gif) !important;   
+}
+
+.npr-program-calendar-dialog #ProgramName
+{
+	width: 250px;
+}
+
+.npr-program-calendar-dialog #StartHour
+{
+	text-align: right;
+}
+
+.npr-program-calendar-dialog #StartMinute
+{
+	text-align: right;
+}
+
+.npr-program-calendar-dialog #EndHour
+{
+	text-align: right;
+}
+
+.npr-program-calendar-dialog #EndMinute
+{
+	text-align: right;
+}
+
+.newscast
+{
+	background-color: #294c7a !important;
+}
+
+.syndicated
+{
+    font-weight: bold;
+    font-family: "Garamond";
+	background-color: #777777 !important;
+	/*background-color: #3266cc !important;*/
+	color: #fff !important;
+    margin-left: auto;
+    margin-right: 0px;
+    border-top: 1px solid #7FC3E2;
+    border-bottom: 1px solid #7FC3E2;
+}
+
+.local {
+    font-weight: bold;
+    font-family: "Garamond";
+    background-color: #3232CC !important;
+    color: #fff !important;
+    margin-left: auto;
+    margin-right: 0px;
+    border-top: 1px solid #7FC3E2;
+    border-bottom: 1px solid #7FC3E2;
+}
+
+.offAir
+{
+    font-weight: bold;
+    font-family: "Garamond";
+	background-color: #000 !important;
+	color: #fff !important;	
+    margin-left: auto;
+    margin-right: 0px;
+    border-top: 1px solid #7FC3E2;
+    border-bottom: 1px solid #7FC3E2;
+}
+
+.regular
+{
+    font-weight: 600;
+    font-family: "Arial Bold";
+	background-color: #fff94f !important;
+	color: #FF0000 !important;
+    margin-left: auto;
+    margin-right: 0px;
+    border-top: 1px solid #7FC3E2;
+    border-bottom: 1px solid #7FC3E2;
+}
+
+.validationError
+{
+	border: 1px solid #ff0000;
+}
+
+/*added for calendar */
+.main-container {
+    position: relative;
+    /*top: -957px;*/
+}
+
+table.boxfloat
+{
+    border: 2px solid;
+    float: left;
+    position: relative;
+    top: -963px;
+    left: 63px;
+    background: none;
+    margin-left: auto;
+    margin-right: 0px;
+    /*overflow: hidden;
+    border-collapse: collapse;
+    z-index: 1000;*/
+}
+
+/*added for calendar-print */
+.calendar-print-table {
+    border-spacing: 0px;
+    border-collapse:collapse;
+    border: 1px solid;
+    /*width: 100%;*/
+}
+
+.calendar-print-table th {
+    text-align: center !important;
+    font-weight: bold;
+    border: 1px solid;
+}
+
+.calendar-print-table td {
+    padding: 0px;
+    border-spacing: 0px;
+}
+
+.calendar-print-table-cell-blank {
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    height: 15px !important;
+
+    width: 50px;
+	vertical-align: middle;
+    white-space: nowrap;
+	font-weight: normal;
+    font-size: 13px;
+}
+
+.calendar-print-table-cell {
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    height: 15px !important;
+	text-align: right;
+}
+
+.calendar-boxtop {
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    width: 90px;
+}
+
+.calendar-boxbottom
+{
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    width: 90px;
+}
+
+.calendar-schedule-shading
+{
+    height:17px !important;
+    background-color: gray;
+    margin-left: 4px;
+    margin-right: 4px;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    width: 80px;
+    font-size:smaller;
+    font: bold;
+    color: black;
+}

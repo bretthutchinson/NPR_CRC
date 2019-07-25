@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>NPR.CRC.Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{0e23aa86-4e39-4f0d-b92a-c21b3096e166}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>NPR.CRC.Database</RootNamespace>
+    <AssemblyName>NPR.CRC.Database</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- VS10 without SP1 will not have VisualStudioVersion set, so do that here -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <!-- Default to the v10.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="Scripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\TimeZone.sql" />
+    <Build Include="dbo\Tables\StationUser.sql" />
+    <Build Include="dbo\Tables\StationNote.sql" />
+    <Build Include="dbo\Tables\StationAffiliate.sql" />
+    <Build Include="dbo\Tables\Station.sql" />
+    <Build Include="dbo\Tables\State.sql" />
+    <Build Include="dbo\Tables\ScheduleProgram.sql" />
+    <Build Include="dbo\Tables\ScheduleNewscast.sql" />
+    <Build Include="dbo\Tables\Schedule.sql" />
+    <Build Include="dbo\Tables\Salutation.sql" />
+    <Build Include="dbo\Tables\RepeaterStatus.sql" />
+    <Build Include="dbo\Tables\ProgramSource.sql" />
+    <Build Include="dbo\Tables\ProgramProducer.sql" />
+    <Build Include="dbo\Tables\ProgramFormatType.sql" />
+    <Build Include="dbo\Tables\Program.sql" />
+    <Build Include="dbo\Tables\Producer.sql" />
+    <Build Include="dbo\Tables\MinorityStatus.sql" />
+    <Build Include="dbo\Tables\MetroMarket.sql" />
+    <Build Include="dbo\Tables\MemberStatus.sql" />
+    <Build Include="dbo\Tables\MajorFormat.sql" />
+    <Build Include="dbo\Tables\LicenseeType.sql" />
+    <Build Include="dbo\Tables\DMAMarket.sql" />
+    <Build Include="dbo\Tables\CRCUser.sql" />
+    <Build Include="dbo\Tables\CarriageType.sql" />
+    <Build Include="dbo\Tables\Band.sql" />
+    <Build Include="dbo\Tables\Affiliate.sql" />
+    <Build Include="dbo\Tables\InfLog.sql" />
+    <Build Include="Security\crcuser.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfReverseLookup_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfLookupList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfLookupById_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfLog_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_TimeZones_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_TimeZone_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_TimeZone_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationUsers_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationUser_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationUser_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Stations_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationNotes_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationNote_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationNote_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAffiliates_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAffiliate_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAffiliate_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Station_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Station_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_States_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_State_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_State_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedules_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_SchedulePrograms_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleProgram_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleProgram_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscasts_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscast_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscast_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedule_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedule_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Salutations_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Salutation_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Salutation_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_RepeaterStatuses_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_RepeaterStatus_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_RepeaterStatus_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramSources_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramSource_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramSource_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Programs_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramProducersByProgramId_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramProducersByProducerId_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramProducer_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramFormatTypes_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramFormatType_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramFormatType_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Program_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Program_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Producers_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Producer_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Producer_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MinorityStatuses_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MinorityStatus_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MinorityStatus_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MetroMarkets_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MetroMarket_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MetroMarket_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MemberStatuses_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MemberStatus_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MemberStatus_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MajorFormats_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MajorFormat_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MajorFormat_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_LicenseeTypes_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_LicenseeType_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_LicenseeType_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_DMAMarkets_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_DMAMarket_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_DMAMarket_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUsersByEmail_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUsers_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUser_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUser_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageTypes_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageType_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageType_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Bands_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Band_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Band_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Affiliates_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Affiliate_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Affiliate_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserByLogin_Get.sql" />
+    <Build Include="Security\WORKGROUP_TechnicalTeam.sql" />
+    <Build Include="Security\WORKGROUP_Domain Admins.sql" />
+    <Build Include="Security\sa.sql" />
+    <Build Include="Security\NT SERVICE_Winmgmt.sql" />
+    <Build Include="Security\NT SERVICE_SQLWriter.sql" />
+    <Build Include="Security\NT SERVICE_SQLSERVERAGENT.sql" />
+    <Build Include="Security\NT SERVICE_ReportServer.sql" />
+    <Build Include="Security\NT Service_MSSQLSERVER.sql" />
+    <Build Include="Security\NT AUTHORITY_SYSTEM.sql" />
+    <Build Include="Security\crcuser_1.sql" />
+    <Build Include="Security\cecrpuser.sql" />
+    <Build Include="dbo\Tables\InfEmailTemplate.sql" />
+    <Build Include="dbo\Tables\InfEmailAttachment.sql" />
+    <Build Include="dbo\Tables\InfEmail.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationsForUserId_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailUnsent_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailTemplateByName_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailSuccess_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailError_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailAttachmentsForEmail_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmailAttachment_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfEmail_Insert.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserPasswordReset_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserPassword_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserByResetPasswordToken_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserByEmail_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCManager_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationsSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationsList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramsSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramsByName_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProducersList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_FlagshipStationsList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUsersSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MajorFormatValidateNameIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MajorFormatValidateCodeIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CRCUserValidateEmailIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_AffiliateValidateNameIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_AffiliateValidateCodeIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationDetail_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAssociates_Get.sql" />
+    <Build Include="dbo\Functions\FN_GetUserDisplayName.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleYearsList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MonthsList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleCreate_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationNote_Del.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedule_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedule_Get_2.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_InfIsValueUnique_Get.sql" />
+    <Build Include="Security\CaseManagementUser_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CalendarProgramSearch_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramScheduleByMonth_Get_1.sql" />
+    <Build Include="Security\ngcstsuser.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramProducer_DELETE.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscast_Del.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MetroMarket_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_DMAMarket_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_MemberStatusEnabled_Get.sql" />
+    <Build Include="dbo\Functions\FN_CalculateQuarterHours.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleCalendar_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleCalendarStatus_Save.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationsEnabledList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationNotesReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationLinkStatus_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationLinkPrimaryUser_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramEnabledList_Get.sql" />
+    <Build Include="dbo\Tables\SurveySeason.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_SurveySeason_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramLineUpReport_Get.sql" />
+    <Build Include="Security\WORKGROUP_nsaeed.sql" />
+    <Build Include="Security\WORKGROUP_bhutchinson.sql" />
+    <Build Include="Security\nsaeed.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationListForGrid_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_UpdateStationPrimaryId.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_UserStationLink_Del.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationUsersReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramProducerSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\Station_Test.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAQHCume_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageListByProgramReport_GET.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramStationReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageListByStationReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_AddDropProgramReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramLookup_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationListALL_Get.sql" />
+    <Build Include="Security\WORKGROUP_BusinessTeam_1.sql" />
+    <Build Include="Security\WORKGROUP_RBansal_1.sql" />
+    <Build Include="dbo\Stored Procedures\Station_Regular_1.sql" />
+    <Build Include="dbo\Stored Procedures\Station_Off.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationListAsMemberBand_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationDataReport_GET_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Schedule_Del_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_RepeaterStationReport_GET_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramRegularMulticast_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramRegular_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramMulticast_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_GridDataReport_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_FormatCalculationReport_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageWorkBookReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageTypeEnabled_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CallLetters_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_UserStationLink_Delete.sql" />
+    <Build Include="dbo\Stored Procedures\DT_Affiliate.sql" />
+    <Build Include="dbo\Stored Procedures\DT_CRCUsers_Save.sql" />
+    <Build Include="dbo\Stored Procedures\DT_GridToSchedule.sql" />
+    <Build Include="dbo\Stored Procedures\DT_MajorFormat.sql" />
+    <Build Include="dbo\Stored Procedures\DT_NormalizeScheduleProgramData.sql" />
+    <Build Include="dbo\Stored Procedures\DT_PEModularToScheduleNewscast.sql" />
+    <Build Include="dbo\Stored Procedures\DT_PERegularToScheduleProgram1.sql" />
+    <Build Include="dbo\Stored Procedures\DT_PERegularToScheduleProgram2.sql" />
+    <Build Include="dbo\Stored Procedures\DT_PERegularToScheduleProgram3.sql" />
+    <Build Include="dbo\Stored Procedures\DT_PERegularToScheduleProgram4.sql" />
+    <Build Include="dbo\Stored Procedures\DT_Producer.sql" />
+    <Build Include="dbo\Stored Procedures\DT_Program.sql" />
+    <Build Include="dbo\Stored Procedures\DT_ProgramFormatType.sql" />
+    <Build Include="dbo\Stored Procedures\DT_ProgramProducer.sql" />
+    <Build Include="dbo\Stored Procedures\DT_ProgramSource.sql" />
+    <Build Include="dbo\Stored Procedures\DT_Station.sql" />
+    <Build Include="dbo\Stored Procedures\DT_StationAffiliate.sql" />
+    <Build Include="dbo\Stored Procedures\DT_StationNote.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CalendarActiveProgramSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CallLettersIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Check.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Check1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ParticipatingStationReport_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramCodeIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ProgramStationReport_Get_1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleProgramRecordDaysCount_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationCity_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_Test.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_TestCarriageListByProgramReport_GET_1.sql" />
+    <Build Include="dbo\Stored Procedures\Test.sql" />
+    <Build Include="dbo\Stored Procedures\Test_Dynamic.sql" />
+    <Build Include="dbo\Stored Procedures\Test_Dynamic1.sql" />
+    <Build Include="dbo\Stored Procedures\Test_Station.sql" />
+    <None Include="Scripts\ScriptsIgnoredOnImport.sql" />
+    <Build Include="dbo\Stored Procedures\Procedure1.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_FormatCalculationReport_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_CarriageWorkBookFile_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_FormatCalculationReport_Get_2.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleSearchManage_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationsActiveList_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationAffiliate_Del.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_aMigrate_Data_New.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_aMigrate_Normalize_NewsCast.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Get_Day_Recs_From_GridID.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Get_Grid_IDs.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Get_Grid_IDs_alt2.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Get_Grid_IDs_rev.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Insert_Day_Recs_For_ScheduleID.sql" />
+    <Build Include="dbo\Stored Procedures\ADT_Insert_Day_Recs_For_ScheduleID_New.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_FormatCalculationReport_Get_3.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleIsUnique_Get.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscastTimezonShiftBackward_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleNewscastTimezonShiftForward_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleProgramTimezonShiftBackward_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_ScheduleProgramTimezonShiftForward_Update.sql" />
+    <Build Include="dbo\Stored Procedures\PSP_StationActiveSearch_Get.sql" />
+    <Build Include="dbo\Stored Procedures\SearchAllTables.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DatabaseToProject.scmp" />
+    <None Include="InfSetPermissions.sql" />
+  </ItemGroup>
+</Project>

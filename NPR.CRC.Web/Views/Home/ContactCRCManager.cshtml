@@ -1,0 +1,31 @@
+﻿@model NPR.CRC.Web.ViewModels.Home.SignInViewModel
+
+
+@{
+    Layout = "~/Views/Shared/_SiteLayout.cshtml";
+}
+
+@section TopMenu {
+  
+        @Html.Partial("~/Views/Shared/_StationUserMenu.cshtml")
+    
+}
+
+
+<div style="width:600px;margin: 0 auto;">
+
+ <p class="page-header">Contact CRC Manager</p>
+
+<p style="text-align:center;font-size: 12px">If you are experiencing problems with your CRC account, please send us an email. </p>
+
+<p style="font-weight: bold;font-size: 15px; margin-left:40px;">Email:</p>
+
+<p style="text-align:center;font-size: 12px">
+        
+    @Model.CRCManagerFirstName @Model.CRCManagerMiddleName @Model.CRCManagerLastName , CRC Manager <a href="mailto:@(Model.CRCManagerEmail)?subject=Help with CRC site">@(Model.CRCManagerEmail)</a>. 
+
+   @* @Model.CRCManagerFirstName @Model.CRCManagerMiddleName @Model.CRCManagerLastName , CRC Manager , @Html.ActionLink(Model.CRCManagerEmail, "SendEmail") *@
+   
+</div>
+
+

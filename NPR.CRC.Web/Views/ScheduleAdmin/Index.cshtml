@@ -1,0 +1,303 @@
+﻿@model NPR.CRC.Web.ViewModels.ScheduleAdmin.ManageSchedulesViewModel
+
+<p class="page-header">Manage Schedules</p>
+<table>
+    <tr>
+        <td>
+        @Html.LabelFor(model => model.Month): 
+        @Html.DropDownListFor(model => model.Month, Model.MonthsList)
+        @Html.DropDownListFor(model => model.Year, Model.YearsList)
+
+        </td>
+        <td>
+        @Html.LabelFor(model => model.Status): 
+        @Html.DropDownListFor(model => model.Status, Model.StatusList)
+        </td>
+        <td>
+            <button id="searchButton">Display</button>
+        </td>
+    </tr>    
+</table>
+<table><tr>
+    <td>
+<div style="text-align: left; display: block; float: left;">
+    @Inf.ExportGridButton(this, "SearchSchedulesGrid", "Schedules.csv")
+    <a href="mailto:" id="sendEmail" title="Send Email"><img src="@Url.Content("~/Content/Images/email.png")" /></a>
+</div>
+        </td><td style="width:300px">
+ <span style="margin-left:50px">Search Result Count:</span>
+ <span id="rCount" style="color:darkblue"></span>
+            </td>
+    <td>
+<div style="text-align: center;">
+    <input id="btnProcessSchedules" type="button" value="Process Schedules" onclick="processSchedules();"/>
+</div>
+        </td>
+    </tr>
+    </table>
+@(Html.Grid("SearchSchedulesGrid")
+    .SetDataType(MvcJqGrid.Enums.DataType.Local)
+    .OnBeforeRequest("applyFilters()")
+    //.SetSortName("StationDisplayName")
+    .SetScroll(true)
+    .SetHeight(400)
+    .SetRowNum(200)
+    .SetGridView(true)
+
+    .AddColumn(new Column("Select")
+        .SetLabel("Export")
+        .SetWidth(65)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Checkbox, "disabled: false"))        
+
+    .AddColumn(new Column("ScheduleId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("StationId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("StationDisplayName")
+        .SetLabel("Station")
+        .SetWidth(120)
+        .SetCustomFormatter("stationDisplayNameColumnFormatter")
+        .SetSortable(true))
+
+    .AddColumn(new Column("Status")
+        .SetLabel("Status")
+        .SetWidth(100)
+        .SetCustomFormatter("statusColumnFormatter")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("SubmittedDate")
+        .SetLabel("Submitted Date")
+        .SetWidth(100)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("SubmittedUserDisplayName")
+        .SetLabel("Submitted By")
+        .SetWidth(110)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("AcceptedDate")
+        .SetLabel("Accepted Date")
+        .SetWidth(125)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("PrimaryUserDisplayName")
+        .SetLabel("Primary Contact")
+        .SetWidth(110)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("PrimaryUserEmail")
+        .SetLabel("Email")
+        .SetWidth(200)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Email)
+        .SetSortable(true))
+
+    .AddColumn(new Column("PrimaryUserPhone")
+        .SetLabel("Phone")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("Accepted")
+        .SetWidth(65)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("checkboxFormatterA"))
+        
+    .AddColumn(new Column("Unaccepted")
+        .SetWidth(65)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("checkboxFormatterU"))
+        
+    .OnLoadComplete("loadComp();")
+)
+
+<script>
+
+    function loadComp() {
+        $('#rCount').text($('#SearchSchedulesGrid').getGridParam('records'));
+    }
+
+    $(document).ready(function () {
+
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#Year').val(curretYear);
+        $('#Month').val(curretMonth);
+
+        var $grid = $("#SearchSchedulesGrid");
+
+        function loadComp() {
+            $('#rCount').text($('#StationsGrid').getGridParam('records'));
+        }
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid("setGridParam", {
+                datatype: "json",
+                jsonReader: {
+                    repeatitems: false,
+                    id: "StationId"
+                },
+                url: "@Url.Action("SearchSchedulesGridDataManage")"
+            });
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+
+        $("#sendEmail").click(function () {
+            var selectedEmails = $grid.getSelectedRowProperties("PrimaryUserEmail");
+            var str = String(selectedEmails).replace(/,/g, ";");
+            $(this).attr("href", "mailto:" + str);
+        });
+
+        if ($("#Status").val() != '' && document.referrer.indexOf("/Schedules/Calendar?") != -1) {
+            $("#searchButton").click();
+        }
+
+    });
+
+    function stationDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        if (rowObject.ScheduleId) {
+            return "<a href='@Url.Action("Calendar", "Schedules")?scheduleId=" + rowObject.ScheduleId + "'>" + rowObject.StationDisplayName + "</a>";
+        }
+        else {
+            return rowObject.StationDisplayName;
+        }
+    }
+
+    function statusColumnFormatter(cellValue, options, rowObject) {
+        if (rowObject.ScheduleId) {
+            return rowObject.Status;
+        }
+        else {
+            return "<a href='@Url.Action("CreateNew", "Schedules")?stationId=" + rowObject.StationId + "&month=" + rowObject.Month + "&year=" + rowObject.Year + "'>Create Schedule</a>";
+        }
+    }
+
+    function checkboxFormatterA(cellValue, options, rowObject) {
+        if (rowObject.Status !== "Accepted") {
+            return checkboxFormatter("A", cellValue, options, rowObject);
+        }
+        else {
+            return " ";
+        }
+    }
+
+    function checkboxFormatterU(cellValue, options, rowObject) {
+        if (rowObject.Status === "Accepted") {
+            return checkboxFormatter("U", cellValue, options, rowObject);
+        }
+        else {
+            return " ";
+        }
+    }
+
+    function checkboxFormatter(ColumnType, cellValue, options, rowObject) {
+        var groupName, value;
+
+        switch (ColumnType) {
+            case "A":
+                groupName = "grpAccepted";
+                break;
+            case "U":
+                groupName = "grpUnAccepted";
+                break;
+            case "S":
+                groupName = "grpSelected";
+                break;
+        }
+
+        value = rowObject.ScheduleId == null ? " " : rowObject.ScheduleId;
+        if (rowObject.SubmittedUserDisplayName === null) {
+            return " ";
+        }
+        else {
+            return "<input type=\"checkbox\" id=\"" + groupName + value + "\" value=\"" + value + "\" name=\"" + groupName + "\" onchange=\"checkStatus(this.value, '" + ColumnType + "', '" + groupName + "');\">";
+        }
+    }
+
+    function checkStatus(value, columnType, groupName) {
+
+        $element = $("#" + groupName + value);
+        if ($element.is(":checked")) {
+            switch (columnType) {
+                case "A":
+                    $("#grpUnAccepted" + value).prop("checked", false);
+                    break;
+                case "U":
+                    $("#grpAccepted" + value).prop("checked", false);
+                    break;
+            }
+        }
+    }
+
+    function processSchedules() {
+        var selectedScheduleIds = [];
+
+        $("#SearchSchedulesGrid").find("input[name=grpAccepted]").each(function () {
+            var accepted = this;
+            var $parent = $(accepted).parent().parent();
+            var selectedSchedules = [];
+            var scheduleId, status;
+
+            scheduleId = $.trim($parent.children('td[aria-describedby="SearchSchedulesGrid_ScheduleId"]').text());
+
+            if ($(accepted).is(":checked")) {
+                status = $(accepted).is(":checked") ? "A" : "U";
+                selectedSchedules.push(scheduleId, status);
+                selectedScheduleIds.push(selectedSchedules);
+            }
+        });
+
+        $("#SearchSchedulesGrid").find("input[name=grpUnAccepted]").each(function () {
+            var unaccepted = this;
+            var $parent = $(unaccepted).parent().parent();
+            var selectedSchedules = [];
+            var scheduleId, status;
+
+            scheduleId = $.trim($parent.children('td[aria-describedby="SearchSchedulesGrid_ScheduleId"]').text());
+
+            if ($(unaccepted).is(":checked")) {
+                status = $(unaccepted).is(":checked") ? "U" : "A";
+                selectedSchedules.push(scheduleId, status);
+                selectedScheduleIds.push(selectedSchedules);
+            }
+        });
+
+        if (selectedScheduleIds.length > 0) {
+            var url, data;
+
+            url = "@Url.Action("UpdateScheduleStatus", "ScheduleAdmin")"
+            data = JSON.stringify({ schedulesList: selectedScheduleIds });
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                datatype: "json",
+                contentType: "application/json, charset=utf-8",
+                data: data,
+                success: function (data) {
+                    $("#SearchSchedulesGrid").trigger("reloadGrid");
+                }
+            });
+        };
+    }
+
+    function applyFilters() {
+        var $grid = $("#SearchSchedulesGrid");
+
+        $grid.addPostData("#Month");
+        $grid.addPostData("#Year");
+        $grid.addPostData("#Status");
+
+    }
+
+</script>

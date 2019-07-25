@@ -1,0 +1,50 @@
+﻿<p>
+    <span class="page-header">Producers / Contacts</span> | @Html.ActionLink("Add Producer / Contact", "AddEditProducerContact", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("ProducerContactGrid")
+    .SetUrl(Url.Action("ProducerContactGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ProducersContactsId" })
+    .SetSortName("FullName")
+    .SetVirtualScroll(true)
+    .SetHeight(500)
+
+    .AddColumn(new Column("ProducerId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("FullName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("producerContactNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("Role")
+        .SetLabel("Role")
+        .SetWidth(75)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("Email")
+        .SetLabel("Email")
+        .SetWidth(150)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("Phone")
+        .SetLabel("Phone")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function producerContactNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditProducerContact")?producerId=" + rowObject.ProducerId + "' class='inf-dialog'>" + rowObject.FullName + "</a>";
+    }
+</script>

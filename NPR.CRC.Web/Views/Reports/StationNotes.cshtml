@@ -1,0 +1,194 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.StationNotesViewModel
+
+@{
+    ViewBag.Title = "Carriage List By Station Report";
+}
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var $grid = $("#StationNotesReportGrid");
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid("setGridParam", {
+                datatype: "json",
+                jsonReader: {
+                    repeatitems: false,
+                    id: "StationId"
+                },
+                url: "@Url.Action("StationNotesReportGridData")"
+            });
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+
+        $("input[name='stationSelect']").change(function (e) {
+            if ($(this).val() === "All") {
+                $("#StationId").val('');
+                $("#StationName").val('');
+            }
+        });
+
+        $("#StationName").watermark("Type Station Name");
+        
+        $("#StationName").keypress(function () {
+            var $stationName = $("#StationName").val();
+            if ($stationName.length > 1) {
+                $("#stationOne").prop("checked", true);
+            }
+            else {
+                $("#stationAll").prop("checked", true);
+                $("#StationId").val('');
+            }
+        });
+       
+        
+        $("#StationName").autocomplete({
+            source: "@Url.Action("StationSearch", "Reports")",
+            minLength: 3,
+            select: function (event, ui) {
+                $(this).val(ui.item.label);
+                $("#StationId").val(ui.item.value);
+                return false;
+            }
+        });
+    });
+
+    function applyFilters() {
+        var $grid = $("#StationNotesReportGrid");
+
+        $grid.addPostData("#StationId");
+        $grid.addPostData("#Keyword");
+        $grid.addPostData("#LastUpdatedFromDate");
+        $grid.addPostData("#LastUpdatedToDate");
+        $grid.addPostData("#NoteStatus");
+    }
+
+    function StationNotesEditFormatter(cellValue, options, rowObject) {
+
+        if (rowObject.DeletedUserId === null) {
+            return "<a class='inf-dialog' href='@Url.Action("AddEditStationNote", "StationAdmin")?stationNoteId=" + rowObject.StationNoteId + "&stationId=" + rowObject.StationId + "&callLetters=\"" + rowObject.StationName + "\"'>Edit</a>";
+        }
+        else {
+            return "";
+        }
+    }
+
+    function StationNoteDeleteFormatter(cellValue, options, rowObject) {
+        if (rowObject.DeletedUserId === null) {
+            return "<a href='#' onclick='DeleteStationNote(" + rowObject.StationNoteId + ", \"Y\"); return false;'>Delete</a>";
+        }
+        else {
+            return "<a href='#' onclick='DeleteStationNote(" + rowObject.StationNoteId + ", \"N\"); return false;'>Undelete</a>";
+        }
+    }
+
+    function DeleteStationNote(stationNoteId, deleteInd) {
+        
+        var message;
+        message = deleteInd == 'Y' ? "Are you sure you want to delete this station note?" : "Are you sure you want to reactivate this station note?";
+        inf.messageBox(message, "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("DeleteStationNote", "StationAdmin")?stationNoteId=" + stationNoteId + "&deleteInd=" + 'Y',
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });
+    }
+
+    function ReloadGrid() {
+        var $grid = $("#StationNotesReportGrid");
+        $grid.jqGrid().trigger("reloadGrid");
+    }
+
+    function AddEditStationNoteComplete() {
+        $(".ui-dialog-content").dialog("close");
+        $('#StationNotesReportGrid').trigger('reloadGrid');
+    }
+</script>
+<p>
+    <span class="page-header">Station Notes</span>
+</p>
+<div style="width: 63%;">
+    @Html.HiddenFor(model => model.StationId)
+    <table id="stationNotesReport">
+        <tr>
+            <td>@Html.LabelFor(model => model.Keyword):</td>
+            <td colspan="2">@Html.EditorFor(model => model.Keyword)</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label id="stationSelectLbl">Station:</label></td>
+            <td><input type="radio" name="stationSelect" id="stationAll" value="All" checked="checked"/><label for="stationAll">All</label></td>
+            <td><input type="radio" name="stationSelect" id="stationOne" value="One" /><label for="stationOne">One</label></td>
+            <td>@Html.EditorFor(model => model.StationName)</td>
+        </tr>
+        <tr>
+            <td colspan="2">@Html.LabelFor(model => model.LastUpdatedFromDate):</td>
+            <td>@Html.EditorFor(model => model.LastUpdatedFromDate)</td>
+            <td>@Html.LabelFor(model => model.LastUpdatedToDate): @Html.EditorFor(model => model.LastUpdatedToDate)</td>
+        </tr>
+        <tr>
+            <td colspan="4">@Html.LabelFor(model => model.NoteStatus): @Html.DropDownListFor(model => model.NoteStatus, Model.NoteStatusList)</td>
+        </tr>
+        <tr>
+            <td colspan="4"><input id="searchButton" type="button" value="Search"/></td>
+        </tr>
+        <tr>
+            <td colspan="4"><br />@Inf.ExportGridButton(this, "StationNotesReportGrid", "StationNotes.csv")</td>
+        </tr>
+    </table>
+    @(Html.Grid("StationNotesReportGrid")
+        .SetDataType(MvcJqGrid.Enums.DataType.Local)
+        .OnBeforeRequest("applyFilters()")
+        .SetSortName("StationName")
+        .SetRowNum(300)
+        
+    
+        .AddColumn(new Column("StationId")
+            .SetHidden(true))
+    
+        .AddColumn(new Column("StationNoteId")
+            .SetLabel("Edit")
+            .SetCustomFormatter("StationNotesEditFormatter")
+            .SetAlign(MvcJqGrid.Enums.Align.Center)
+            .SetWidth(90))        
+            
+        .AddColumn(new Column("StationName")
+            .SetLabel("Station")
+            .SetAlign(MvcJqGrid.Enums.Align.Left)
+            .SetWidth(120)
+            .SetSortable(true))
+    
+        .AddColumn(new Column("NoteText")
+            .SetLabel("Note")
+            .SetWidth(350)
+            .SetSortable(true))
+    
+        .AddColumn(new Column("LastUpdatedDate")
+            .SetLabel("Last Updated Date")
+            .SetWidth(125)
+            .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+            .SetAlign(MvcJqGrid.Enums.Align.Center)
+            .SetSortable(true))
+    
+        .AddColumn(new Column("LastUpdatedUserId")
+            .SetHidden(true))
+    
+        .AddColumn(new Column("LastUpdatedUser")
+            .SetLabel("Last Updated By")
+            .SetWidth(110)
+            .SetAlign(MvcJqGrid.Enums.Align.Center)
+            .SetSortable(true))
+            
+        .AddColumn(new Column("DeletedUserId")
+            .SetHidden(true))        
+    
+        .AddColumn(new Column("StationNoteId")
+            .SetLabel("Delete")
+            .SetCustomFormatter("StationNoteDeleteFormatter")
+            .SetAlign(MvcJqGrid.Enums.Align.Center)
+            .SetWidth(100))           
+        )
+</div>

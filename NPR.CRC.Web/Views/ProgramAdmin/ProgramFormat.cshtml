@@ -1,0 +1,59 @@
+﻿<p>
+    <span class="page-header">Program Formats</span> | @Html.ActionLink("Add Program Format", "AddEditProgramFormat", null, new { @class = "inf-dialog" })
+</p>
+<div style="text-align: right; width: 675px; display: inline; margin-bottom: 4px;">
+    <div style="display: inline; right: 0px; margin-bottom: 0px;">@Inf.ExportGridButton(this, "ProgramFormatTypeGrid", "ProgramFormatType.csv")</div>
+</div>
+
+
+@(Html.Grid("ProgramFormatTypeGrid")
+    .SetUrl(Url.Action("ProgramFormatTypeGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ProgramFormatId" })
+    .SetSortName("ProgramFormatTypeName")
+    .SetHeight(3000)
+    .SetVirtualScroll(true)
+    .SetRowNum(3000)
+
+    .AddColumn(new Column("ProgramFormatTypeId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("ProgramFormatTypeName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("programFormatNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("ProgramFormatTypeCode")
+        .SetLabel("Code")
+        .SetWidth(75)
+        .SetSortable(true))
+    
+    .AddColumn(new Column("MajorFormatName")
+        .SetLabel("Major Format")
+        .SetWidth(175)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function programFormatNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditProgramFormat")?programFormatTypeId=" + rowObject.ProgramFormatTypeId + "' class='inf-dialog'>" + rowObject.ProgramFormatTypeName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";
+    }
+</script>

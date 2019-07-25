@@ -1,0 +1,27 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.AddEditCarriageTypeViewModel
+
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.CarriageTypeName): </td>
+            <td>@Html.EditorFor(model => model.CarriageTypeName)</td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+    </table>
+    
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

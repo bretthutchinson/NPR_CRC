@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [TaskTrackerUser]
+    WITH PASSWORD = N'eC{rWq5m`molHb{z7zwsF>h%msFT7_&#$!~<O!t1^ltspm{h', SID = 0xD0A50826C44DAB4298059B418264D338, DEFAULT_LANGUAGE = [us_english], CHECK_POLICY = OFF;
+

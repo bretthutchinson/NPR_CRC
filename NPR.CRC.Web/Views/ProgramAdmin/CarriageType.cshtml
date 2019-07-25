@@ -1,0 +1,42 @@
+﻿<p>
+    <span class="page-header">Carriage Types</span> | @Html.ActionLink("Add Carriage Type", "AddEditCarriageType", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("CarriageTypeGrid")
+    .SetUrl(Url.Action("CarriageTypeGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "CarriageTypeId" })
+    .SetSortName("CarriageTypeName")
+
+    .AddColumn(new Column("CarriageTypeId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("CarriageTypeName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("CarriageTypeNameColumnFormatter")
+        .SetSortable(true))        
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function CarriageTypeNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditCarriageType")?carriageTypeId=" + rowObject.CarriageTypeId + "' class='inf-dialog'>" + rowObject.CarriageTypeName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";
+    }
+</script>

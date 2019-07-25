@@ -1,0 +1,143 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.SearchByProgramViewModel
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<p>
+    <span class="page-header">Search by Program</span> | @Html.ActionLink("Add New Program", "AddEditProgram")
+</p>
+
+<table>
+    <tr>
+        <td>Programs:</td>
+        <td colspan="3">
+            @Inf.ProgramSearch(this, Model.ProgramSearch)
+        </td>
+    </tr>
+    <tr>
+        <td>@Html.Label("ProgramSourceId", "Program Source"): </td>
+        <td>@Html.DropDownList("ProgramSourceId", Model.ProgramSourceList)</td>
+
+        <td>@Html.Label("Enabled", "Program Enabled"): </td>
+        <td>@Html.DropDownList("Enabled", Model.ProgramEnabledList)</td>
+    </tr>
+    <tr>
+        <td>@Html.Label("ProgramFormatTypeId", "Program Format Type"): </td>
+        <td>@Html.DropDownList("ProgramFormatTypeId", Model.ProgramFormatTypeList)</td>
+
+        <td>@Html.Label("MajorFormatId", "Major Format"): </td>
+        <td>@Html.DropDownList("MajorFormatId", Model.MajorFormatList)</td>
+    </tr>
+    <tr>
+        <td colspan="1">
+                <button id="searchButton">Search</button>
+                <button id="displayAllButton">Display All Programs</button>
+        </td>
+        <td colspan="2">
+                <span style="margin-left:50px">Search Result Count:</span>
+                 <span id="rCount" style="color:darkblue"></span>
+        </td>
+        @*<p>
+            <button id="searchButton">Search</button>
+            <button id="displayAllButton">Display All Programs</button>
+        </p>*@
+        </tr>
+    </table>
+@(Html.Grid("SearchByProgramGrid")
+    .SetUrl(Url.Action("SearchByProgramGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ProgramId" })
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("ProgramName")
+    .SetVirtualScroll(true)
+    .SetRowNum(50)
+    .SetHeight(300)
+
+    .AddColumn(new Column("ProgramId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("ProgramName")
+        .SetLabel("Program Name")
+        .SetWidth(200)
+        .SetCustomFormatter("programNameColumnFormatter")
+        .SetSortable(true))
+
+    .AddColumn(new Column("ProgramSourceName")
+        .SetLabel("Program Source")
+        .SetWidth(300)
+        .SetSortable(true))
+
+    .AddColumn(new Column("ProgramFormatTypeName")
+        .SetLabel("Program Format Type")
+        .SetSortable(true))
+
+    .AddColumn(new Column("ProgramCode")
+        .SetLabel("Program Code")
+        .SetWidth(90)
+        .SetSortable(true))
+
+    .AddColumn(new Column("MajorFormatName")
+        .SetLabel("Major Format")
+        .SetWidth(90)
+        .SetSortable(true))
+
+    .AddColumn(new Column("ManageProgramProducers")
+        .SetLabel("Producers/Contacts")
+        .SetWidth(120)
+        .SetCustomFormatter("managerProgramProducersColumnFormatter")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(false))
+
+    .AddColumn(new Column("Enabled")
+        .SetLabel("Program Enabled")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .OnLoadComplete("loadComp();")
+)
+<script>
+    function loadComp() {
+        $('#rCount').text($('#SearchByProgramGrid').getGridParam('records'));
+    }
+
+    $(document).ready(function () {
+        initProgramSearchControls("@Url.Content("~/Schedules/ProgramCalendarSearch")");
+
+        var $grid = $("#SearchByProgramGrid");
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+
+        $("#displayAllButton").click(function () {
+            resetFilters();
+            $("#searchButton").trigger("click");
+        });
+    });
+
+    function programNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditProgram")?programId=" + rowObject.ProgramId + "'>" + rowObject.ProgramName + "</a>";
+    }
+
+    function managerProgramProducersColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("ManageProgramProducers")?programId=" + rowObject.ProgramId + "'>Manage</a>";
+    }
+
+    function applyFilters() {
+        var $grid = $("#SearchByProgramGrid");
+
+        //$grid.addPostData("#ProgramName");
+        $grid.addPostData("#ProgramId");
+        $grid.addPostData("#ProgramSourceId");
+        $grid.addPostData("#Enabled");
+        $grid.addPostData("#ProgramFormatTypeId");
+        $grid.addPostData("#MajorFormatId");
+    }
+
+    function resetFilters() {
+        $("#ProgramName").val("");
+        $("#ProgramId").val("");
+        $("#ProgramSourceId").val("");
+        $("#Enabled").val("");
+        $("#ProgramFormatTypeId").val("Both");
+        $("#MajorFormatId").val("");
+    }
+</script>

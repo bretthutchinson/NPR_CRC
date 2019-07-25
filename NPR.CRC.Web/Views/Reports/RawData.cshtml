@@ -1,0 +1,216 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.RawDataViewModel
+
+@{
+    ViewBag.Title = "RawData";
+}
+<style type="text/css">
+    .bmargin 
+    {
+        margin-left: 100px;
+    }
+
+    #top 
+    {
+        margin-top: 40px;
+    }
+
+    #StartEndHours 
+    {
+        display: inline-block; 
+        vertical-align: top; 
+        padding-left: 14px;    
+        padding-bottom: 10px;
+        margin-left:130px;
+    }
+
+    .label 
+    {
+        width: 20%;
+        float: left;
+        color: red;
+    }
+        #d 
+        {
+            color: red;
+        }
+
+    .content 
+    {
+        width: 80%;
+        float: left;
+        padding: 0 0 20px 0;
+    }
+
+    .underline 
+    {
+        text-decoration: underline;
+    }
+</style>
+
+<p>
+    <span class="page-header">Raw Data</span>	
+</p>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+<div>
+    @Inf.ValidationSummary(this)
+    <div class="leftColumn" style="width: 45%;">
+        <div style="text-align: center; color: red">
+            <p>* Indicates a required field</p>
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Duration)</span>
+                @Html.DropDownListFor(model => model.Duration, Model.DurationList)
+            <div id="StartEndHours">
+			    <div>
+                    @Html.Label("*Start Hour:", new { id = "d" })   
+				    @Html.DropDownListFor(model => model.StartHours, Model.StartHoursList)
+                
+                    @Html.Label("*End Hour:", new { id = "d" })   
+				    @Html.DropDownListFor(model => model.EndingHours, Model.EndigHoursList)
+			    </div>
+				<div style="text-align:center;" >
+				    <a class="defaultLink" id="checkWeekDays" >Weekdays</a>
+				    <a class="defaultLink" id="checkAll">7 Days </a>
+				</div>
+				<div>
+                    @Html.Label("*Days:", new { id = "d" })    
+
+
+                    @Html.CheckBoxFor(model => model.DayMon)
+                    @Html.LabelFor(model => model.DayMon)
+    
+                    @Html.CheckBoxFor(model => model.DayTue)
+                    @Html.LabelFor(model => model.DayTue)
+
+                    @Html.CheckBoxFor(model => model.DayWed)
+                    @Html.LabelFor(model => model.DayWed)
+
+                    @Html.CheckBoxFor(model => model.DayThu)
+                    @Html.LabelFor(model => model.DayThu)
+                    
+                    @Html.CheckBoxFor(model => model.DayFri)
+                    @Html.LabelFor(model => model.DayFri)
+                    
+                    @Html.CheckBoxFor(model => model.DaySat)
+                    @Html.LabelFor(model => model.DaySat)
+
+                    @Html.CheckBoxFor(model => model.DaySun)
+                    @Html.LabelFor(model => model.DaySun)
+				</div>
+			</div>	
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Month)</span>
+            @Html.DropDownListFor(model => model.Month, Model.MonthList) @Html.DropDownListFor(model => model.Year, Model.YearList)	
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.StationStatus)</span>
+            @Html.DropDownListFor(model => model.StationStatus, Model.StationStatusList)  
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.MemberStatus)</span>
+            @Html.DropDownListFor(model => model.MemberStatus, Model.MemberStatusList)  
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Station)</span>
+            @Html.RadioButtonFor(model => model.Station, "All", new { id = "RadioAll" })All
+		    @Html.RadioButtonFor(model => model.Station, "One", new { id = "RadioOne" })One
+            @Html.DropDownListFor(model => model.StationsList, Model.StationList)
+        </div>
+     
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model=>model.Band)</span>
+            @Html.DropDownListFor(model=>model.Band,Model.BandList)
+        </div>
+        <div>
+            <span class="reportFieldLabel"></span>
+            <input type="submit" id="generateReport" value="Generate Report" />
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.FormatType,"",new { style = "display:" + "none" + ";" })</span>
+            @Html.DropDownListFor(model => model.FormatType, Model.FormatTypeList,"",new { style = "display:" + "none" + ";" })
+        </div>
+    </div>
+</div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#Year').val(curretYear);
+        $('#Month').val(curretMonth);
+
+        if (!($('#RadioOne').is(':checked'))) {
+            $("#StationsList").hide();
+        }
+
+        if ($("#Duration").val() != "Custom") {
+            $("#StartEndHours").hide();
+            UncheckBox();
+        }
+        
+        $("#Duration").change(function () {
+            if ($("#Duration").val() == "Custom") {
+                $("#StartEndHours").show();
+            }
+            else {
+                $("#StartHours").prop('selectedIndex', 0);
+                $("#EndingHours").prop('selectedIndex', 0);
+                UncheckBox();
+                $("#StartEndHours").hide();
+
+            }
+        });
+
+        $("#RadioOne").change(function () {
+            if ($('#RadioOne').is(':checked')) {
+                $("#StationsList").show();
+            }
+            else {
+                $("#StationsList").hide();
+            }
+        });
+
+        $("#RadioAll").change(function () {
+            if ($("#RadioAll").is(':checked')) {
+                
+                $("#StationsList").hide();
+                $("#StationsList").prop('selectedIndex', 0);
+            }
+        });
+        
+        $('#checkAll').click(function () {
+            $('input:checkbox').prop('checked', true);
+        });
+
+        $("#checkWeekDays").click(function () {
+            $("#DaySun").prop('checked', false);
+            $("#DayMon").prop('checked', true);
+            $("#DayTue").prop('checked', true);
+            $("#DayWed").prop('checked', true);
+            $("#DayThu").prop('checked', true);
+            $("#DayFri").prop('checked', true);
+            $("#DaySat").prop('checked', false);
+        });
+
+        function UncheckBox() {
+            $("#DaySun").prop('checked', false);
+            $("#DayMon").prop('checked', false);
+            $("#DayTue").prop('checked', false);
+            $("#DayWed").prop('checked', false);
+            $("#DayThu").prop('checked', false);
+            $("#DayFri").prop('checked', false);
+            $("#DaySat").prop('checked', false);
+        }
+
+        $("#submit").click(function () {
+           $ (".validation-summary-container").hide();
+        });
+    });
+
+</script>

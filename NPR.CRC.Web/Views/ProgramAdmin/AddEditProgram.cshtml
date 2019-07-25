@@ -1,0 +1,51 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.AddEditProgramViewModel
+
+<p class="page-header">
+    @(Model.ProgramId.HasValue ? "Edit Program" : "Add Program")
+</p>
+
+@using (Html.BeginForm())
+{
+    @Inf.ValidationSummary(this)
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramName): </td>
+            <td>@Html.EditorFor(model => model.ProgramName)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramSourceId): </td>
+            <td>@Html.DropDownListFor(model => model.ProgramSourceId, Model.ProgramSourceList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramFormatTypeId): </td>
+            <td>@Html.DropDownListFor(model => model.ProgramFormatTypeId, Model.ProgramFormatTypeList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.ProgramCode): </td>
+            <td>@Html.EditorFor(model => model.ProgramCode)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.CarriageTypeId): </td>
+            <td>@Html.DropDownListFor(model => model.CarriageTypeId, Model.CarriageTypeList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.EnabledInd): </td>
+            <td>@Html.EditorFor(model => model.EnabledInd)</td>
+        </tr>
+    </table>
+        
+    if(Model.ProgramId != null){
+        @Html.Action("_ManageProgramProducers", "ProgramAdmin",  new { programId = Model.ProgramId })   
+    }
+   
+    <p class="inf-pagebuttons">
+        <input type="submit" value="Save" />
+        @Html.ActionLink("Cancel", "Index", null, new { @class = "inf-button" })
+    </p>
+}

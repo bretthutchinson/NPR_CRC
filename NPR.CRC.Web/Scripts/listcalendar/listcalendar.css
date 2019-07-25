@@ -1,0 +1,64 @@
+﻿.npr-program-list, .npr-newscast-list
+{
+	margin-left: auto;
+	margin-right: auto;
+	width: 768px;
+}
+.npr-program-list table
+{
+    width: 580px;
+}
+.npr-newscast-list table
+{
+    width: 580px;
+}
+.npr-program-list .scrollable
+{
+    width: 597px;
+}
+.npr-newscast-list .scrollable
+{
+    width: 597px;
+}
+.listCalendar
+{
+    font-family:Lucida Grande,Lucida Sans,Arial,sans-serif;
+}
+.listCalendar .scrollable
+{
+    height: 547px;
+    overflow-x: hidden;
+    overflow-y:auto;
+}
+.listCalendar td
+{
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    text-align: left;
+}
+.listCalendar tr:last-child td
+{
+    border-bottom: 1px solid #ddd;
+}
+.listCalendar td:first-child
+{
+    border-left: 1px solid #ddd;
+}
+.listCalendar th, .listCalendar td
+{
+    text-align:left;
+    padding: 2px 25px;     
+}
+.listCalendar th
+{
+    white-space: nowrap;
+    background-color: #eee;
+}
+.listCalendar a
+{
+    color: #0000FF;
+}
+.listCalendar a:hover
+{
+    cursor: pointer;
+}

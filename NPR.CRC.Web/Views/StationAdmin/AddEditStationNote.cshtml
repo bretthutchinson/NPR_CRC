@@ -1,0 +1,27 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.AddEditStationNoteViewModel
+
+<div class="dialog" title="@(Model.StationNoteId.HasValue ? "Edit Note" : "Add Note")">
+@using (Ajax.BeginForm(new AjaxOptions { OnComplete = "AddEditStationNoteComplete", HttpMethod = "POST" }))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+
+    @Html.HiddenFor(model => model.StationNoteId)
+    @Html.HiddenFor(model => model.StationId)
+  
+    <table>
+        <tr>
+            <td style="font-weight:bold;">@Html.LabelFor(model => model.CallLetters):</td>
+            <td>@Html.DisplayFor(model => model.CallLetters)</td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top;">@Html.LabelFor(model => model.NoteText):</td>
+            <td>@Html.TextAreaFor(model => model.NoteText, new { @class = "textAreaSize" })</td>
+        </tr>
+    </table>   
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}
+</div>

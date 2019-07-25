@@ -1,0 +1,65 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.ManageProgramProducersViewModel
+
+<p>
+    Producers/Contacts | @Html.ActionLink("Select Producer/Contact", "SelectProgramProducer", new { ProgramId = Model.ProgramId }, new { @class = "inf-dialog" })
+</p>
+
+@Html.HiddenFor(model => model.ProgramId)
+
+@(Html.Grid("ManageProgramProducersGrid")
+    .SetUrl(Url.Action("ManageProgramProducersGridData", new { userId = Model.ProgramId }))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ProgramId" })
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("ProducerDisplayName")
+
+    .AddColumn(new Column("ProducerId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("ProgramProducerId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("ProducerDisplayName")
+        .SetLabel("Name")
+        .SetSortable(true))
+
+    .AddColumn(new Column("Role")
+        .SetLabel("Role")
+        .SetSortable(true))
+
+    .AddColumn(new Column("Remove")
+        .SetLabel("Remove")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("removeColumnFormatter"))
+)
+
+<script>
+
+    function removeColumnFormatter(cellValue, options, rowObject) {
+        //return "<a href='@Url.Action("RemoveProgramProducer")?programId=" + rowObject.ProgramId + "&producerId=" + rowObject.ProducerId + "'>Remove</a>";
+        return "<a href='#' onclick='RemoveProgramProducer(" + rowObject.ProgramProducerId + ")'  >Remove</a>";
+    }
+
+    function applyFilters() {
+        var $grid = $("#ManageProgramProducersGrid");
+        $grid.addPostData("#ProgramId");
+    }
+
+    function RemoveProgramProducer(programProducerId) {
+        inf.messageBox("Are you sure you want to remove this producer?", "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("RemoveProgramProducer")?programProducerId=" + programProducerId,
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });
+    }
+
+    function ReloadGrid() {
+
+        var $grid = $("#ManageProgramProducersGrid");
+        $grid.jqGrid().trigger("reloadGrid");
+    }
+</script>

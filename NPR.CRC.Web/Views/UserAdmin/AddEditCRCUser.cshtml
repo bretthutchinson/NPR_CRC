@@ -1,0 +1,260 @@
+﻿@model NPR.CRC.Web.ViewModels.UserAdmin.AddEditCRCUserViewModel
+
+<p class="page-header">
+    @(Model.UserId.HasValue ? "Edit User" : "Add User")
+</p>
+
+@using (Html.BeginForm())
+{
+    @Inf.ValidationSummary(this)
+    
+    <table>
+        <tr>
+            <td>
+                @Html.LabelFor(model => model.SalutationId):<br />
+                @Html.EditorFor(model => model.SalutationId)
+            </td>
+
+            <td>
+                @Html.LabelFor(model => model.FirstName):<br />
+                @Html.EditorFor(model => model.FirstName)
+            </td>
+
+            <td>
+                @Html.LabelFor(model => model.MiddleName):<br />
+                @Html.EditorFor(model => model.MiddleName)
+            </td>
+
+            <td>
+                @Html.LabelFor(model => model.LastName):<br />
+                @Html.EditorFor(model => model.LastName)
+            </td>
+
+            <td>
+                @Html.LabelFor(model => model.Suffix):<br />
+                @Html.EditorFor(model => model.Suffix)
+            </td>
+
+            <td>
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4" style="text-align: left;">
+                @Html.LabelFor(model => model.Email):
+                @Html.EditorFor(model => model.Email)
+
+                @if (Model.UserId.HasValue)
+                {
+                    <button type="button" id="resetPasswordButton">Reset Password</button>
+                }
+            </td>
+
+            <td colspan="2" style="text-align: right;">
+                @Html.LabelFor(model => model.UserRole):
+                @Html.DropDownListFor(model => model.UserRole, Model.UserRolesList)
+                <div id="CrcManagerIndContainer">
+                    @Html.EditorFor(model => model.CrcManagerInd)
+                    @Html.LabelFor(model => model.CrcManagerInd)
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <p class="section-header">Business Address</p>
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.AddressLine1): </td>
+            <td>@Html.EditorFor(model => model.AddressLine1)</td>
+            <td>@Html.LabelFor(model => model.JobTitle): </td>
+            <td>@Html.EditorFor(model => model.JobTitle)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.AddressLine2): </td>
+            <td>@Html.EditorFor(model => model.AddressLine2)</td>
+            <td>@Html.LabelFor(model => model.Phone): </td>
+            <td>@Html.EditorFor(model => model.Phone)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.City): </td>
+            <td>@Html.EditorFor(model => model.City)</td>
+            <td>@Html.LabelFor(model => model.Fax): </td>
+            <td>@Html.EditorFor(model => model.Fax)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.StateId): </td>
+            <td>@Html.EditorFor(model => model.StateId)</td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.County): </td>
+            <td>@Html.EditorFor(model => model.County)</td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Country): </td>
+            <td>@Html.EditorFor(model => model.Country)</td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.ZipCode): </td>
+            <td>@Html.EditorFor(model => model.ZipCode)</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    
+     <p>
+
+         
+       Station Links | @if(Model.UserId.HasValue){ <a href="@Url.Action("AddEditStationLink")?userId=@Model.UserId" class='inf-dialog' >Add Station Link</a>}
+   </p>
+    
+	
+    @Html.HiddenFor(model => model.UserId)   
+	
+	@(Html.Grid("AddEditStationLinkGrid")
+    .SetUrl(Url.Action("AddEditStationLinkGridData","UserAdmin", new { userId=Model.UserId }))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "StationId" })
+    
+
+    .AddColumn(new Column("StationId")
+        .SetHidden(true))
+       
+    .AddColumn(new Column("PrimaryUserStatus")
+         .SetHidden(true))
+    
+        
+    .AddColumn(new Column("DisplayName")
+        .SetLabel("Station")
+        .SetWidth(250)
+        .SetSortable(true)
+        .SetCustomFormatter("AddEditStationLinkFormatter")
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("PrimaryUser")
+        .SetLabel("Primary")
+        .SetWidth(75)
+        .SetSortable(true)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+
+    .AddColumn(new Column("GridWritePermissionsInd")
+        .SetLabel("Grid Write")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("Remove")
+        .SetLabel("Delete")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("removeColumnFormatter"))
+
+)
+	
+	
+	
+    <p class="inf-pagebuttons">
+        <input type="submit" value="Save" />
+        @Html.ActionLink("Cancel", "Index", null, new { @class = "inf-button" })
+    </p>
+
+	
+
+
+  
+}
+
+<script>
+
+    function removeColumnFormatter(cellValue, options, rowObject) {
+        // return "<a href='@Url.Action("RemoveStationUserLink")?UserId=@Model.UserId" + "&StationId=" + rowObject.StationId + "&PrimaryUserId=" + rowObject.PrimaryUserStatus + "'>Remove</a>";
+        return "<a href='#' onclick='RemoveStationLink(@Model.UserId,"+rowObject.StationId+","+rowObject.PrimaryUserStatus+")'  >Remove</a>";
+     }
+
+    function AddEditStationLinkFormatter(cellValue, options, rowObject) {
+        return "<a class='inf-dialog' href='@Url.Action("AddEditStationLink")?UserId=@Model.UserId"+"&StationId="+rowObject.StationId +"'> " + rowObject.DisplayName + "</a>";
+        
+    }
+
+    function RemoveStationLink(userId, stationId, primaryUserStatus) {
+        inf.messageBox("Are you sure you want to remove this station link.?", "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("RemoveStationUserLink")?UserId=" + userId + "&StationId=" + stationId + "&PrimaryUserId=" + primaryUserStatus + "",
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });
+    }
+
+    function ReloadGrid() {
+
+        var $grid = $("#AddEditStationLinkGrid");
+        $grid.jqGrid().trigger("reloadGrid");
+    }
+    $(document).ready(function () {
+        $("#UserRole").change(function () {
+            var isAdmin = $(this).val().contains("admin");
+            $("#CrcManagerIndContainer").toggle(isAdmin);
+        });
+
+        $("#UserRole").trigger("change");
+
+        @if (Model.UserId.HasValue)
+        {
+        <text>
+        $("#resetPasswordButton").click(function () {
+            inf.messageBox("This will generate a Reset Password email to @(Model.Email). Do you want to continue?", "Reset Password", ["Yes", "No"], function (value) {
+                if (value === "Yes") {
+                    $.post(
+                        "@Url.Action("SendPasswordResetEmail")",
+                        {
+                            userEmail: "@Model.Email"
+                        },
+                        function (data) {
+                            if (data) {
+                                inf.messageBox("A Reset Password email has been sent to @(Model.Email).");
+                            }
+                            else {
+                                inf.messageBox("There was a problem sending a Reset Password email to @(Model.Email). Please try again.");
+                            }
+                        });
+                    };
+            });
+        });
+        </text>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.CrcManagerDisplayName) && !Model.IsCrcManager)
+        {
+        <text>
+        $("#CrcManagerInd").change(function () {
+            if ($(this).is(":checked")) {
+                var message = "Only one user may be designated as the CRC Manager. Please remove the CRC Manager designation from @Model.CrcManagerDisplayName before assigning it to this user.";
+                inf.messageBox(message, "CRC Manager", null, function () {
+                    $("#CrcManagerInd").prop("checked", false);
+                });
+            }
+        });
+        </text>
+        }
+    });
+
+</script>

@@ -1,0 +1,74 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.ProgramLineUpViewModel
+
+@{
+    ViewBag.Title = "Program Line Up Report";
+}
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initProgramSearchControls("@Url.Content("~/Schedules/ProgramCalendarSearch")");
+        var d = new Date();
+        var curretYear = d.getUTCFullYear();
+        var curretMonth = d.getUTCMonth() + 1;
+        $('#Year').val(curretYear);
+        if (curretMonth < 4) {
+            curretMonth = '1, 2, 3';
+        } else if (curretMonth < 7) {
+            curretMonth = '4, 5, 6';
+        } else if (curretMonth < 8) {
+            curretMonth = '7, 8, 9';
+        } else {
+            curretMonth = '10, 11, 12';
+        }
+        $('#Season').val(curretMonth);
+    });
+</script>
+<p>
+    <span class="page-header">Program Line Up Report</span>
+</p>
+@using (Html.BeginForm("ProgramLineUp", "Reports"))
+{
+<div>
+    @Inf.ValidationSummary(this)
+    <div class="leftColumn" style="width: 45%;">
+        <div style="text-align: center; color: red">
+            <p>* Indicates a required field</p>
+        </div>
+        <div>
+            <table>
+                <tr>
+                    <td class="reportFieldLabel">Programs:</td>
+                    <td>
+                        @*@Inf.ProgramSearch(this, Model.ProgramSearch)*@
+                         @Html.DropDownListFor(model => model.ProgramID, Model.ProgramList)
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Season)</span>
+            @Html.DropDownListFor(model => model.Season, Model.SeasonList)@Html.DropDownListFor(model => model.Year, Model.YearList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.BandsString)</span>
+            @Html.DropDownListFor(model => model.BandsString, Model.BandList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.StationEnabled)</span>
+            @Html.DropDownListFor(model => model.StationEnabled, Model.StationEnabledList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.MemberStatusId)</span>
+            @Html.DropDownListFor(model => model.MemberStatusId, Model.MemberStatusList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Format)</span>
+            @Html.DropDownListFor(model => model.Format, Model.FormatList)
+        </div>
+        <div>
+            <span class="reportFieldLabel"></span>
+            <input type="submit" id="generateReport" value="Generate Report" />
+        </div>
+    </div>
+</div>
+}

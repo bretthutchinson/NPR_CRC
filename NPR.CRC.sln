@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AE571602-777A-48E6-9855-1EA642394A6A}"
+	ProjectSection(SolutionItems) = preProject
+		Microsoft Minimum Basic and Recommended Rules.ruleset = Microsoft Minimum Basic and Recommended Rules.ruleset
+	EndProjectSection
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "NPR.CRC.Database", "NPR.CRC.Database\NPR.CRC.Database.sqlproj", "{0E23AA86-4E39-4F0D-B92A-C21B3096E166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPR.CRC.Web", "NPR.CRC.Web\NPR.CRC.Web.csproj", "{F053DE6E-D6F1-47D4-A1EE-9C16BD29E3DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfoConcepts.Library", "InfoConcepts.Library\InfoConcepts.Library.csproj", "{18D31C19-4F2B-4A18-B014-44C34214FCCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPR.CRC.Library", "NPR.CRC.Library\NPR.CRC.Library.csproj", "{49AA26C5-B945-463A-A3B4-076FE61B7795}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMigration", "DataMigration\DataMigration.csproj", "{266F22CD-475A-4E34-B3E0-AC8BD3CE89BE}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://tfs2010/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = InfoConcepts.Library\\InfoConcepts.Library.csproj
+		SccProjectName1 = InfoConcepts.Library
+		SccLocalPath1 = InfoConcepts.Library
+		SccProjectUniqueName2 = NPR.CRC.Database\\NPR.CRC.Database.sqlproj
+		SccProjectName2 = NPR.CRC.Database
+		SccLocalPath2 = NPR.CRC.Database
+		SccProjectUniqueName3 = NPR.CRC.Library\\NPR.CRC.Library.csproj
+		SccProjectName3 = NPR.CRC.Library
+		SccLocalPath3 = NPR.CRC.Library
+		SccProjectUniqueName4 = NPR.CRC.Web\\NPR.CRC.Web.csproj
+		SccProjectName4 = NPR.CRC.Web
+		SccLocalPath4 = NPR.CRC.Web
+		SccProjectUniqueName5 = DataMigration\\DataMigration.csproj
+		SccProjectName5 = DataMigration
+		SccLocalPath5 = DataMigration
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E23AA86-4E39-4F0D-B92A-C21B3096E166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E23AA86-4E39-4F0D-B92A-C21B3096E166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F053DE6E-D6F1-47D4-A1EE-9C16BD29E3DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F053DE6E-D6F1-47D4-A1EE-9C16BD29E3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F053DE6E-D6F1-47D4-A1EE-9C16BD29E3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F053DE6E-D6F1-47D4-A1EE-9C16BD29E3DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18D31C19-4F2B-4A18-B014-44C34214FCCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18D31C19-4F2B-4A18-B014-44C34214FCCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18D31C19-4F2B-4A18-B014-44C34214FCCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18D31C19-4F2B-4A18-B014-44C34214FCCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49AA26C5-B945-463A-A3B4-076FE61B7795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49AA26C5-B945-463A-A3B4-076FE61B7795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49AA26C5-B945-463A-A3B4-076FE61B7795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49AA26C5-B945-463A-A3B4-076FE61B7795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{266F22CD-475A-4E34-B3E0-AC8BD3CE89BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{266F22CD-475A-4E34-B3E0-AC8BD3CE89BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{266F22CD-475A-4E34-B3E0-AC8BD3CE89BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{266F22CD-475A-4E34-B3E0-AC8BD3CE89BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [WORKGROUP\TechnicalTeam]
+    FROM WINDOWS WITH DEFAULT_LANGUAGE = [us_english];
+

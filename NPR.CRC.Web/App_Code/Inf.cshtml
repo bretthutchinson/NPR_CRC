@@ -1,0 +1,98 @@
+﻿@using System.Web.Mvc
+@using System.Web.Mvc.Html
+@using NPR.CRC.Library;
+
+@helper ValidationSummary(WebViewPage viewPage, bool softValidation = false)
+{
+    if (softValidation)
+    {
+    <input type="hidden" class="inf-softvalidation" value="true" />
+    }
+    
+    <div class="validation-summary-container">
+        <div style="clear: both;"></div>
+        <div style="float: left; padding-right: 10px;">
+            @if (softValidation)
+            {
+                <img src="@viewPage.Url.Content("~/Content/Images/info.png")" alt="Validation Info" title="Validation Info" style="height: 48px; width: 48px;" />
+            }
+            else
+            {
+                <img src="@viewPage.Url.Content("~/Content/Images/warning.png")" alt="Validation Warning" title="Validation Warning" style="height: 48px; width: 48px;" />
+            }
+        </div>
+        <div style="float: left;">
+            @viewPage.Html.ValidationSummary(false)
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+}
+
+@helper ExportGridButton(WebViewPage viewPage, string gridId, string outputFileName)
+{
+    <form class="inf-exportgrid" data-gridid="@gridId" method="post" action="@viewPage.Url.Action("ExportGrid", "InfBase")">
+        <input type="hidden" name="gridHeaders" />
+        <input type="hidden" name="gridData" />
+        <input type="hidden" name="outputFileName" value="@outputFileName" />
+        <input type="submit" value="" title="Export Grid to CSV" />
+    </form>
+}
+
+@helper NavDropDownMenu(WebViewPage viewPage, string text, IEnumerable<string> linksText, IEnumerable<string> links, bool href = true)
+{
+    <div class="navDropDownMenu" style="display: inline-block" onmouseover="DropDownMenu_Over(this)" onmouseout="DropDownMenu_Out(this)">
+        <div class="navDropDownMenuLabel">
+            @if(text == "StationAdmin")
+            {
+               <a href="@viewPage.Url.Action("Index", "StationAdmin")" onmouseover="NavDropDownMenu_Over(this)">
+               Station<br />Administration
+               </a>
+            } 
+            @if(text == "Reports")
+            {
+               <a href="@viewPage.Url.Action("Index", "Reports")" onmouseover="NavDropDownMenu_Over(this)">
+               Reports
+               </a>
+            } 
+            @if(text == "ProgramAdmin")
+            {
+               <a href="@viewPage.Url.Action("Index", "ProgramAdmin")" onmouseover="NavDropDownMenu_Over(this)">
+               Program<br />Administration
+               </a>
+            } 
+         </div>
+        <div class="navDropDownMenuList" style="display: none;">
+            @for (int i = 0; i < linksText.Count(); i++)
+            {
+                <div onmouseover="HighlightMenu(this)" onmouseout="UnhighlightMenu(this)">
+                    @if (href)
+                    {
+                        <a href="@links.ElementAt(i)" class="dropDownMenuLink">@linksText.ElementAt(i)</a>
+                    }
+                    else
+                    {
+                        <a onclick="@links.ElementAt(i)" class="dropDownMenuLink">@linksText.ElementAt(i)</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@helper ProgramSearch(WebViewPage viewPage, NPR.CRC.Library.ProgramSearch model)
+{
+    <div id="programTabs">
+        @viewPage.Html.HiddenFor(m => model.ProgramId)
+        <ul>
+            <li><a href="#startsWith" onclick="toggleSearch('select');">Select</a></li>
+            <li><a href="#wildcard" onclick="toggleSearch('search');">Search</a></li>
+        </ul>
+        <div id="startsWith">
+            @viewPage.Html.DropDownListFor(m => model.ProgramFirstLetter, model.ProgramFirstLetterList)
+            @viewPage.Html.DropDownListFor(m => model.ProgramId, model.ProgramList, new { @id="ProgramList" })
+        </div>
+        <div id="wildcard">
+           @viewPage.Html.TextBoxFor(m => model.ProgramName, new { @size = "35" })
+        </div>
+    </div>
+}

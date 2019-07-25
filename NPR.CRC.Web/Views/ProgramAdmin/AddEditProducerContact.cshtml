@@ -1,0 +1,55 @@
+﻿@model NPR.CRC.Web.ViewModels.ProgramAdmin.AddEditProducerContactViewModel
+
+<p class="page-header">
+    @(Model.ProducerId.HasValue ? "Edit Producer" : "Add Producer")
+</p>
+
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Inf.ValidationSummary(this)
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.SalutationId): </td>
+            <td>@Html.DropDownListFor(model => model.SalutationId, Model.SalutationList)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.FirstName): </td>
+            <td>@Html.EditorFor(model => model.FirstName)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.MiddleName): </td>
+            <td>@Html.EditorFor(model => model.MiddleName)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.LastName): </td>
+            <td>@Html.EditorFor(model => model.LastName)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Suffix): </td>
+            <td>@Html.EditorFor(model => model.Suffix)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Role): </td>
+            <td>@Html.EditorFor(model => model.Role)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Email): </td>
+            <td>@Html.EditorFor(model => model.Email)</td>
+        </tr>        
+        <tr>
+            <td>@Html.LabelFor(model => model.Phone): </td>
+            <td>@Html.EditorFor(model => model.Phone)</td>
+        </tr> 
+        <tr>
+            <td>@Html.LabelFor(model => model.EnabledInd): </td>
+            <td>@Html.EditorFor(model => model.EnabledInd)</td>
+        </tr>
+    </table>        
+   
+     <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

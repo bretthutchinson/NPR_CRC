@@ -1,0 +1,23 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.AddEditMemberStatusViewModel
+@using (Ajax.BeginForm(new AjaxOptions()))
+{
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.MemberStatusName) </td>
+            <td>@Html.EditorFor(model => model.MemberStatusName)</td>
+        </tr>        
+        <tr>
+            <td></td>
+            <td>
+                @Html.EditorFor(model => model.NPRMemberShipInd)
+                @Html.LabelFor(model => model.NPRMemberShipInd)
+            </td>
+        </tr>
+    </table>
+    <div class="inf-dialogbuttons">
+        <input type="submit" value="Save" />
+        <input type="button" value="Cancel" class="inf-dialogcancel" />
+    </div>
+}

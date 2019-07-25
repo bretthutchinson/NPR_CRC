@@ -1,0 +1,22 @@
+﻿@using NPR.CRC.Library
+
+@{
+    Layout = "~/Views/Shared/_SiteLayout.cshtml";
+}
+
+@section TopMenu {
+    @if (User.IsInRole(CRCUserRoles.CRCManager))
+    {
+        @Html.Partial("~/Views/Shared/_CRCManagerMenu.cshtml")
+    }
+    else if (User.IsInRole(CRCUserRoles.Administrator))
+    {
+        @Html.Partial("~/Views/Shared/_AdminMenu.cshtml")
+    }
+    else
+    {
+        @Html.Partial("~/Views/Shared/_StationUserMenu.cshtml")
+    }
+}
+
+@RenderBody()

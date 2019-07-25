@@ -1,0 +1,9 @@
+﻿@model System.Int64?
+@using InfoConcepts.Library.Utilities
+@using InfoConcepts.Library.Extensions
+@{
+    var salutationList = InfLookupHelper.GetLookupList("Salutation", "SalutationId", "SalutationName").ToSelectListItems()
+        .AddBlankFirstItem()
+        .SetSelected(Model);
+}
+@Html.DropDownListFor(model => model, salutationList, new { @class = "inf-salutation" })

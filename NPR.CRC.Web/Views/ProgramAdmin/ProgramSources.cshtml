@@ -1,0 +1,49 @@
+﻿<p>
+    <span class="page-header">Program Sources</span> | @Html.ActionLink("Add Program Source", "AddEditProgramSource", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("ProgramSourcesGrid")
+    .SetUrl(Url.Action("ProgramSourcesGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "MajorFormatId" })
+    .SetSortName("ProgramSourceName")
+    .SetVirtualScroll(true)
+    .SetHeight(400)
+
+    .AddColumn(new Column("ProgramSourceId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("ProgramSourceName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("programSourceNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("ProgramSourceCode")
+        .SetLabel("Code")
+        .SetWidth(75)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function programSourceNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditProgramSource")?programSourceId=" + rowObject.ProgramSourceId + "' class='inf-dialog'>" + rowObject.ProgramSourceName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";
+    }
+</script>

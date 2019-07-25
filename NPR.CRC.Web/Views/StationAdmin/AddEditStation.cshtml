@@ -1,0 +1,196 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.AddEditStationViewModel
+
+<p class="page-header">
+    @(Model.StationId.HasValue ? Model.CopyInd == "Y" ? "Copy Station" : "Edit Station": "Add Station")
+</p>
+
+@using (Html.BeginForm())
+{
+    @Inf.ValidationSummary(this)
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.CallLetters): </td>
+            <td>@Html.EditorFor(model => model.CallLetters)</td>
+
+            <td>@Html.LabelFor(model => model.BandId): </td>
+            <td>@Html.DropDownListFor(model => model.BandId, Model.BandList)</td>
+
+            <td>@Html.LabelFor(model => model.Frequency): </td>
+            <td>@Html.EditorFor(model => model.Frequency)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.RepeaterStatusId): </td>
+            <td>@Html.DropDownListFor(model => model.RepeaterStatusId, Model.RepeaterStatusList)</td>
+
+            <td>@Html.LabelFor(model => model.FlagshipStationId): </td>
+            <td>@Html.DropDownListFor(model => model.FlagshipStationId, Model.FlagshipStationList)</td>
+
+            <td colspan="2">
+                @Html.EditorFor(model => model.EnabledInd)
+                @Html.LabelFor(model => model.EnabledInd)
+            </td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.MemberStatusId): </td>
+            <td>@Html.DropDownListFor(model => model.MemberStatusId, Model.MemberStatusList)</td>
+
+            <td>@Html.LabelFor(model => model.MinorityStatusId): </td>
+            <td>@Html.DropDownListFor(model => model.MinorityStatusId, Model.MinorityStatusList)</td>
+
+            <td>@Html.LabelFor(model => model.StatusDate): </td>
+            <td>@Html.EditorFor(model => model.StatusDate)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.LicenseeTypeId): </td>
+            <td>@Html.DropDownListFor(model => model.LicenseeTypeId, Model.LicenseeTypeList)</td>
+
+            <td>@Html.LabelFor(model => model.LicenseeName): </td>
+            <td>@Html.EditorFor(model => model.LicenseeName)</td>
+
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    
+    <table style="margin-top: 20px;">
+        <tr>
+            <td>@Html.LabelFor(model => model.AddressLine1): </td>
+            <td>@Html.EditorFor(model => model.AddressLine1)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.TsaCume): </td>
+            <td>@Html.EditorFor(model => model.TsaCume)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.AddressLine2): </td>
+            <td>@Html.EditorFor(model => model.AddressLine2)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.Tsaaqh): </td>
+            <td>@Html.EditorFor(model => model.Tsaaqh)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.City): </td>
+            <td>@Html.EditorFor(model => model.City)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.MetroMarketRank): </td>
+            <td>@Html.EditorFor(model => model.MetroMarketRank)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.StateId): </td>
+            <td>@Html.EditorFor(model => model.StateId)</td>
+
+            <td>@Html.LabelFor(model => model.ZipCode)</td>
+            <td>@Html.EditorFor(model => model.ZipCode)</td>
+
+            <td>@Html.LabelFor(model => model.MetroMarketId): </td>
+            <td>@Html.DropDownListFor(model => model.MetroMarketId, Model.MetroMarketList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.County): </td>
+            <td>@Html.EditorFor(model => model.County)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.DmaMarketRank): </td>
+            <td>@Html.EditorFor(model => model.DmaMarketRank)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Country): </td>
+            <td>@Html.EditorFor(model => model.Country)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.DmaMarketId): </td>
+            <td>@Html.DropDownListFor(model => model.DmaMarketId, Model.DMAMarketList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Phone): </td>
+            <td>@Html.EditorFor(model => model.Phone)</td>
+
+            <td>@Html.LabelFor(model => model.Fax): </td>
+            <td>@Html.EditorFor(model => model.Fax)</td>
+
+            <td>@Html.LabelFor(model => model.TimeZoneId): </td>
+            <td>@Html.DropDownListFor(model => model.TimeZoneId, Model.TimeZoneList)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Email): </td>
+            <td>@Html.EditorFor(model => model.Email)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.HoursFromFlagship): </td>
+            <td>@Html.EditorFor(model => model.HoursFromFlagship)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.WebPage): </td>
+            <td>@Html.EditorFor(model => model.WebPage)</td>
+
+            <td></td>
+            <td></td>
+
+            <td>@Html.LabelFor(model => model.MaxNumberOfUsers): </td>
+            <td>@Html.EditorFor(model => model.MaxNumberOfUsers)</td>
+        </tr>
+    </table>
+    
+    <p class="section-header">
+        @Html.LabelFor(model => model.AffiliateIds):
+    </p>
+    
+    @Html.ListBoxFor(model => model.AffiliateIds, Model.AffiliateList, new { @class = "inf-checklistbox" })
+
+    <p class="inf-pagebuttons">
+        <input type="submit" value="Save" />
+        @Html.ActionLink("Cancel", "Index", null, new { @class = "inf-button" })
+    </p>
+    
+    <script>
+
+        $(document).ready(function () {
+            //alert($("#RepeaterStatusId").val());
+            flagshipToggle();
+
+            $("#RepeaterStatusId").change(function () {
+                flagshipToggle();
+            });
+           
+        });
+
+        function flagshipToggle() {
+            
+            if ($("#RepeaterStatusId").val() == 2) {
+                $("#FlagshipStationId").val("");
+                $("#FlagshipStationId").prop("disabled", true);
+            } else {
+
+                $("#FlagshipStationId").prop("disabled", false);
+            }
+        }
+
+
+    </script>
+}

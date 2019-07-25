@@ -1,0 +1,74 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.ImportDocumentAQHCumeViewModel
+
+@if(Model.Results == null){
+    <p>
+        <span class="page-header">Import Station AQH/Cume Data</span>
+    </p>
+    using (Html.BeginForm("AQHCumeImport", "StationAdmin", FormMethod.Post, new { @id = "formImportAQHCume" } ))
+    {
+        @Html.AntiForgeryToken()
+        @Inf.ValidationSummary(this)
+    <table>
+        <tr>
+            <td>@Html.LabelFor(model => model.Document): </td>
+            <td>@Html.EditorFor(model => model.Document, new { infSuccessContentContainerId = "uploadResults" })</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input id="submitButton" type="submit" value="Process Files"/>
+                <div id="divProcessing" style="display: inline-block;">Processing, please wait...<img src="@Url.Content("~/Content/Images/ui-anim_basic_16x16.gif")" /></div>
+            </td>         
+        </tr>
+    </table>
+    }
+}
+<div id="uploadResults">
+    @if (Model.Results != null)
+    {
+        <p>        
+            Total Records: @Model.Results.Count        
+            Total Passed: @Model.Results.Where(p => p.Result != 0).Count()      
+            Total Failed: @Model.Results.Where(p => p.Result == 0).Count()      
+        </p>
+    <table>
+        <tr>
+            <td>Station</td>
+            <td>Result</td>
+        </tr>
+        @foreach (var rec in Model.Results.Where(p => p.Result == 1))
+        {
+            <tr>
+                <td>@rec.Station</td>
+                <td>Passed</td>
+            </tr>    
+        }    
+        @foreach (var rec in Model.Results.Where(p => p.Result == 0))
+        {
+            <tr>
+                <td>@rec.Station</td>
+                <td>Failed (No Station Match)</td>
+            </tr>    
+        }
+    </table>        
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        $("#divProcessing").hide();
+
+        $("#submitButton").click(function () {
+            if ($("#_Document").val().length != 0) {
+                $("#formImportAQHCume").submit();
+            }
+        });
+
+        $("#formImportAQHCume").on("submit", function (event) {
+            event.preventDefault();
+            $("#uploadResults").html("");
+            if ($("#_Document").val().length != 0) {
+                $("#divProcessing").show();
+                $("#uploadResults").show();
+            }
+        });
+    });
+</script>

@@ -1,0 +1,41 @@
+﻿<p>
+    <span class="page-header">License Type</span> | @Html.ActionLink("Add New License Type", "AddEditLicenseeType", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("LicenseeTypeGrid")
+    .SetUrl(Url.Action("LicenseeTypeGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "LicenseeTypeId" })
+    .SetSortName("LicenseeTypeName")
+
+    .AddColumn(new Column("LicenseeTypeId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("LicenseeTypeName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("licenseeTypeNameColumnFormatter")
+        .SetSortable(true))        
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetCustomFormatter("enabledIndColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function licenseeTypeNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditLicenseeType")?licenseeTypeId=" + rowObject.LicenseeTypeId + "' class='inf-dialog'>" + rowObject.LicenseeTypeName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";      
+    }
+</script>

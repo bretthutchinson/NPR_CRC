@@ -1,0 +1,41 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.StationUsersViewModel
+
+@{
+    ViewBag.Title = "Station Users Report";
+}
+<style type="text/css">
+</style>
+<p>
+    <span class="page-header">Station Users Report</span>
+</p>
+@using (Html.BeginForm("StationUsers", "Reports"))
+{
+<div>
+    @Inf.ValidationSummary(this)
+    <div class="leftColumn" style="width: 45%;">
+        <div style="text-align: center; color: red">
+            <p>* Indicates a required field</p>
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.UserPermission)</span>
+            @Html.DropDownListFor(model => model.UserPermission, Model.UserPermissionList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Band)</span>
+            @Html.DropDownListFor(model => model.Band, Model.BandList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.RepeaterStatus)</span>
+            @Html.DropDownListFor(model => model.RepeaterStatus, Model.RepeaterStatusList)
+        </div>
+        <div>
+            <span class="reportFieldLabel">@Html.LabelFor(model => model.Format)</span>
+            @Html.DropDownListFor(model => model.Format, Model.FormatList)
+        </div>
+        <div>
+            <span class="reportFieldLabel"></span>
+            <input type="submit" id="generateReport" value="Generate Report" />
+        </div>
+    </div>
+</div>
+}

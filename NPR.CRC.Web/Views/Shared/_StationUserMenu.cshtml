@@ -1,0 +1,196 @@
+﻿<table class="top-menu">
+    <tr>
+        <td></td>
+        <td colspan="6"  style="width:100%" class="top-menu-header">CARRIAGE REPORT CENTER</td>
+
+    </tr>
+    <tr>
+        <td style="width: 3%;"></td>
+        <td style="width: 5%;"></td>
+        <td style="width: 22%;"><a href="@Url.Action("", "")">Access Programming<br />Schedules</a></td>
+        <td style="width: 3%;"></td>
+        <td style="width: 19%;"><a  href="#" onclick="ReqNewUserFunc();">Request<br />New User</a></td>
+        <td style="width: 19%;"><a  href="@Url.Action("ContactCRCManager", "Home")">Contact<br />CRC Manager</a></td>
+
+        <td style="width: 22%;"><a href="~/content/CRC_Help.pdf">Help</a></td>
+        <td style="width: 22%;"><a href="@Url.Action("SignOut", "Home")">Sign Out</a></td>
+        <td style="width: 3%;"></td>
+        <td style="width: 3%;"></td>
+
+    </tr>
+</table>
+<body>
+<div id="ReqNewUserDiv" style="display :none; border: 1px solid #AAAAAA;border-radius: 4px;height:248px;background-color:#DDDDDD; opacity:.95; width:455px; z-index: 1000; position: absolute; margin: auto; color:black" >
+    <table style="margin-left:8px; margin-top:4px">
+        <tr>
+            <td colspan="2">
+                <span style="font-weight:bold;font-size:16px;text-decoration:underline">Request New Station User</span>
+                
+            </td>
+        </tr>
+         <tr>
+          
+            <td style="height:7px">
+                 
+            </td>
+        </tr>
+        <tr>
+          
+            <td>
+                First Name:
+            </td>
+            <td>
+                <input id="First_Name_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <Tr>
+            <td>
+                Last Name:
+            </td>
+            <td>
+                <input id="Last_Name_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                 Email:
+            </td>
+            <td>
+                <input id="Email_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Phone:
+            </td>
+            <td>
+                <input id="Phone_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                 Station Call Letters:
+            </td>
+        <td>
+                <input id="Call_Letters_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input id="Title_NU" type="text" size="35" />
+            </td>
+        </tr>
+        <tr style="height:10px">
+            <td>
+                 
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button style="font-size:12px" type="button" id="submit_NU_Req" onclick="SubmitNewUserRequest()">Submit Request</button>
+            
+                
+                <button style="font-size:12px" type="button" id="cancel_NU"  onclick="CancelNewUserRequest()">Cancel</button>
+            </td>
+        </tr>
+
+    </table>
+    <br />
+      
+</div>
+</body>
+<script>
+    function ReqNewUserFunc() {
+
+        $("#ReqNewUserDiv").css("display", "block");
+        //alert(998);
+    }
+
+    function SubmitNewUserRequest() {
+        //var getLocation = function (href) {
+        //    var l = document.createElement("a");
+        //    l.href = href;
+        //    return l;
+        //};
+        //var l = getLocation(window.location);
+        //alert(l.hostname);
+        //alert(l.pathname);
+
+        //https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+        var parser = document.createElement('a');
+        parser.href = window.location;
+        //alert(parser.pathname);
+
+
+
+
+
+        inf.messageBox("Your request to add new user <b>" + $('#First_Name_NU').val() + " " + $('#Last_Name_NU').val() + "</b> to station <b> " + $('#Call_Letters_NU').val() + " </b>has been sent to the CRC Manager. <br/><br/> The user should get an email shortly to set up their password and account");
+        $('#ReqNewUserDiv').hide();
+
+        var url = parser.protocol + "//" + parser.host + parser.pathname + "/NewUserRequest/"
+        //alert(url);
+        var emailBody = '';
+
+        //emailBody +=    '"' + $('#First_Name_NU').val()
+        //emailBody +=    '<br>'+ $('#Last_Name_NU').val()
+        //emailBody +=    '<br>' + $('#Email_NU').val()
+        //emailBody +=    '<br>' + $('#Phone_NU').val()
+        //emailBody +=    '<br>' + $('#Call_Letters_NU').val()
+        //emailBody +=    '<br>' + $('#Title_NU').val() +'"'
+
+
+
+        var requestData = {
+            //emailBody: emailBody
+
+            First_Name_NU: $('#First_Name_NU').val(),
+            Last_Name_NU: $('#Last_Name_NU').val(),
+            Email_NU: $('#Email_NU').val(),
+            Phone_NU: $('#Phone_NU').val(),
+            Call_Letters_NU: $('#Call_Letters_NU').val(),
+            Title_NU: $('#Title_NU').val()
+        };
+
+
+        var responseData = '';
+
+        $.getJSON(url, requestData, function (responseData) {
+            //var List = JSON.parse(responseData);
+            //alert(responseData);
+            //MGrid_PopulateDropDown('MGrid_PK_Create_Field', List, null);
+            //MGrid_AddPrimaryKeyChange();\
+
+            //$('#First_Name_NU').val(''),
+            //$('#Last_Name_NU').val(''),
+            //$('#Email_NU').val(''),
+            //$('#Phone_NU').val(''),
+            //$('#Call_Letters_NU').val(''),
+            //$('#Title_NU').val('')
+            var t = 1;
+        });
+
+        //$.ajax({
+        //    type: "POST", //rest Type
+        //    dataType: 'jsonp', //mispelled
+        //    url: "http://json-cricket.appspot.com/score.json",
+        //    async: false,
+        //    contentType: "application/json; charset=utf-8",
+        //    success: function (msg) {
+        //        console.log(msg);
+        //    },
+        //    error: function () {
+        //        alert(99);
+        //        //any error to be handled
+        //}
+        //});
+
+    }
+
+    function CancelNewUserRequest() {
+        $('#ReqNewUserDiv').hide();
+    }
+</script>

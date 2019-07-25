@@ -1,0 +1,99 @@
+﻿@model NPR.CRC.Web.ViewModels.UserAdmin.ManageStationLinksViewModel
+
+<p>
+    <span class="page-header">Station Links</span> | @Html.ActionLink("Add Station Link", "AddEditStationLink", new { UserId = Model.UserId }, new { @class = "inf-dialog" })
+</p>
+
+@Html.HiddenFor(model => model.UserId)
+
+@(Html.Grid("ManageStationLinksGrid")
+    .SetUrl(Url.Action("ManageStationLinksGridData", new { userId = Model.UserId }))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "UserId" })
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("StationDisplayName")
+
+    .AddColumn(new Column("StationId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("StationDisplayName")
+        .SetLabel("Station")
+        .SetSortable(true)
+        .SetCustomFormatter("stationDisplayNameColumnFormatter"))
+
+    .AddColumn(new Column("PrimaryUserInd")
+        .SetLabel("Primary")
+        .SetSortable(true)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("GridWritePermissionsInd")
+        .SetLabel("Grid Write")
+        .SetSortable(true)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("Delete")
+        .SetLabel("Delete")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("deleteColumnFormatter"))
+)
+
+<script>
+
+    function stationDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditStationLink")?userId=" + rowObject.UserId + "&stationId=" + rowObject.StationId + "' class='inf-dialog' title='Edit Station Link'>" + rowObject.StationDisplayName + "</a>";
+    }
+
+    function deleteColumnFormatter(cellValue, options, rowObject) {
+        //return "<a href='@Url.Action("RemoStationUserLink")?userId=" + rowObject.UserId + "&stationId=" + rowObject.StationId + "'>Delete</a>";
+
+        return "<a href='#' onclick='RemoveStationLink(@Model.UserId," + rowObject.StationId + "," + rowObject.PrimaryUserStatus + ")'  >Remove</a>";
+
+
+        //var url = "@Url.Action("RemoStationUserLink")?userId=" + rowObject.UserId + "&stationId=" + rowObject.StationId;
+
+
+        //url = "@Url.Action("UpdateScheduleStatus", "ScheduleAdmin")"
+        //data = JSON.stringify({ schedulesList: selectedScheduleIds });
+
+           //$.ajax({
+           //    url: url,
+           //    type: "POST",
+           //    datatype: "json",
+           //    contentType: "application/json, charset=utf-8",
+               
+           //    success: function (data) {
+           //        $("#ManageStationLinksGrid").trigger("reloadGrid");
+           //    }
+           //});
+
+    }
+
+    function RemoveStationLink(userId, stationId, primaryUserStatus) {
+        inf.messageBox("Are you sure you want to remove this station link.?", "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    
+                    url: "@Url.Action("RemoveStationUserLink")?UserId=" + userId + "&StationId=" + stationId + "&PrimaryUserId=" + primaryUserStatus + "",
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });
+    }
+
+
+    function ReloadGrid() {
+
+        var $grid = $("#ManageStationLinksGrid");
+        setTimeout(function () {
+            $grid.jqGrid().trigger("reloadGrid");
+        }, 100)
+       
+    }
+
+    function applyFilters() {
+        var $grid = $("#ManageStationLinksGrid");
+        $grid.addPostData("#UserId");
+    }
+
+</script>

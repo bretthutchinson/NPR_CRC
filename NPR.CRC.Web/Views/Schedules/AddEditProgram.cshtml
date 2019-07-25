@@ -1,0 +1,124 @@
+﻿@model NPR.CRC.Web.ViewModels.Schedules.AddEditProgramViewModel
+<style type="text/css">
+</style>
+<div title="@(Model.ScheduleProgramId.HasValue ? "Edit Program" : "Add Program")">
+@using (Ajax.BeginForm("AddEditProgram", "Schedules", new AjaxOptions { HttpMethod = "POST" }, new { @id = "addProgramCalendarDialog"   }))
+{
+    @Html.HiddenFor(model => model.ScheduleProgramId)
+    @Html.HiddenFor(model => model.ProgramSearch.ProgramId, new { @id = "ProgramId" })
+    @Html.HiddenFor(model => model.ScheduleId, Model.ScheduleId)
+    
+    <!--Html.ValidationSummary()-->
+    @Html.AntiForgeryToken()
+    @Inf.ValidationSummary(this)
+    <div>
+        <table>
+            <tr>
+                <th>Program:</th>
+                <td>
+                    @Inf.ProgramSearch(this, Model.ProgramSearch)
+                    <!--
+                    <div id="programTabs">
+                        <ul>
+                            <li><a href="#startsWith">Select</a></li>
+                            <li><a href="#wildcard">Search</a></li>
+                        </ul>
+                        <div id="startsWith">
+                            @@Html.DropDownListFor(model => model.ProgramFirstLetter, Model.ProgramFirstLetterList)
+                            @@Html.DropDownListFor(model => model.ProgramId, Model.ProgramList, new { @@id = "ProgramList" } ) 
+                        </div>
+                        <div id="wildcard">
+                            @@Html.TextBoxFor(model => model.ProgramName)
+                        </div>
+                    </div>-->
+                </td>
+            </tr>
+            
+            <tr>
+                
+                <td colspan="2">
+                    <b>Start time:</b> @Html.DropDownListFor(model => model.StartTime, Model.StartTimeList)
+
+                   <b>End time:</b> @Html.DropDownListFor(model => model.EndTime, Model.EndTimeList)
+                </td>
+            </tr>
+            <tr>
+                
+
+                <th></th>
+                <td><a class="defaultLink" onclick="checkDays('W');" id="weekdaysInd">Weekdays</a> <a class="defaultLink" onclick="checkDays('A');" id="weekInd">7 Days</a></td>
+            </tr>
+
+            <tr>
+                <th>Day(s):</th>
+                <td>
+                    <table id="daysOfWeekInd">
+                        <tr>
+                            <td>@Html.CheckBoxFor(model => model.MondayInd, Model.TuesdayInd)<label>Mon</label></td>
+                            <td>@Html.CheckBoxFor(model => model.TuesdayInd, Model.TuesdayInd )<label>Tue</label></td>
+                            <td>@Html.CheckBoxFor(model => model.WednesdayInd, Model.WednesdayInd )<label>Wed</label></td>
+                            <td>@Html.CheckBoxFor(model => model.ThursdayInd, Model.ThursdayInd )<label>Thu</label></td>
+                            <td>@Html.CheckBoxFor(model => model.FridayInd, Model.FridayInd)<label>Fri</label></td>
+                            <td>@Html.CheckBoxFor(model => model.SaturdayInd, Model.SaturdayInd)<label>Sat</label></td>
+                            <td>@Html.CheckBoxFor(model => model.SundayInd, Model.SundayInd)<label>Sun</label></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!--<div class="inf-dialogbuttons"></div>-->
+    </div>  
+}
+</div>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        appendTimes();
+        $(".validation-summary-container").hide();
+@*        initProgramSearchControls("@Url.Content("~/Schedules/ProgramActiveCalendarSearch")");*@
+        $(".ui-dialog").css('width','600px');
+
+
+    });
+
+    function appendTimes() {
+        var $StartTime = $("#StartTime");
+        var $EndTime = $("#EndTime");
+
+        var $option = $("<option></option")
+                        .prop("value", "12:00 am")
+                        .text("Midnight");
+
+        $StartTime.append($option);
+        $EndTime.append($option);
+    }
+
+    function checkDays(type) {
+        switch (type) {
+            case "A":
+                $('#MondayInd').prop('checked', true);
+                $('#TuesdayInd').prop('checked', true);
+                $('#WednesdayInd').prop('checked', true);
+                $('#ThursdayInd').prop('checked', true);
+                $('#FridayInd').prop('checked', true);
+                $('#SaturdayInd').prop('checked', true);
+                $('#SundayInd').prop('checked', true);
+                break;
+            case "W":
+                $('#MondayInd').prop('checked', true);
+                $('#TuesdayInd').prop('checked', true);
+                $('#WednesdayInd').prop('checked', true);
+                $('#ThursdayInd').prop('checked', true);
+                $('#FridayInd').prop('checked', true);
+                $('#SaturdayInd').prop('checked', false);
+                $('#SundayInd').prop('checked', false);
+                break;
+        }
+    }
+</script>  
+

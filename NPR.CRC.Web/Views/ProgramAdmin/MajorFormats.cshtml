@@ -1,0 +1,42 @@
+﻿<p>
+    <span class="page-header">Major Formats</span> | @Html.ActionLink("Add Major Format", "AddEditMajorFormat", null, new { @class = "inf-dialog" })
+</p>
+
+@(Html.Grid("MajorFormatsGrid")
+    .SetUrl(Url.Action("MajorFormatsGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "MajorFormatId" })
+    .SetSortName("MajorFormatName")
+
+    .AddColumn(new Column("MajorFormatId")
+        .SetHidden(true))
+        
+    .AddColumn(new Column("MajorFormatName")
+        .SetLabel("Name")
+        .SetWidth(250)
+        .SetCustomFormatter("majorFormatNameColumnFormatter")
+        .SetSortable(true))
+        
+    .AddColumn(new Column("MajorFormatCode")
+        .SetLabel("Code")
+        .SetWidth(75)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("EnabledInd")
+        .SetLabel("Enabled")
+        .SetWidth(75)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+        
+    .AddColumn(new Column("DisabledDate")
+        .SetLabel("Disabled Date")
+        .SetWidth(100)
+        .SetAlign(MvcJqGrid.Enums.Align.Right)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetSortable(true))
+)
+
+<script>
+    function majorFormatNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditMajorFormat")?majorFormatId=" + rowObject.MajorFormatId + "' class='inf-dialog'>" + rowObject.MajorFormatName + "</a>";
+    }
+</script>

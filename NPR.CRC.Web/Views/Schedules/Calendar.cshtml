@@ -1,0 +1,2194 @@
+﻿@model NPR.CRC.Web.ViewModels.Schedules.CalendarViewModel
+@using NPR.CRC.Library;
+
+<link rel="Stylesheet" type="text/css" href="@Url.Content("~/Content/npr-program-calendar.css")" />
+<link media='print' rel="Stylesheet" type="text/css" href="@Url.Content("~/Content/Fullcalendar/fullcalendar.print.css")" />
+
+
+
+<p class="page-header">Program Calendar</p>
+@Html.HiddenFor(model => model.ScheduleId.Value)
+@Html.HiddenFor(model => model.StationId.Value)
+@Html.HiddenFor(model => model.Month)
+@Html.HiddenFor(model => model.Year)
+@Html.HiddenFor(model => model.ReadOnly)
+@Html.HiddenFor(model => model.IsRepeaterInd)
+<input type="button" value="Return to Schedules List" onclick="location.href='@Url.Action("Index", "Schedules", new {CallLetters = @Model.StationDisplayName} )    '" />
+<input type="hidden" id="quarterHours" />
+<div id="bodyContents" style="background-color:white">
+    <!-- Header -->
+    <div id="headerSection">
+        <div id="title" style="text-align: center; font-size: 1.25em">  
+            @Html.DisplayFor(model => model.StationDisplayName) Program Schedule
+            
+           <a href= "@Url.Action("StationDetail", "StationAdmin", new {stationId = @Model.StationId} )" target="_blank"><span id= "StationDetail" style="font-size:13px; cursor: pointer; display:none "> (Station Detail) </span></a> 
+           <br /> @Html.DisplayFor(model => model.MonthName) @Html.DisplayFor(model => model.Year)
+            @Inf.ValidationSummary(this)
+        </div>
+        <div id="calendarControls" class="no-print">
+            <table style="width: 100%">
+                <tr>
+                    <!-- Calendar radio buttons -->
+                    <td> 
+                        <div id="leftTop">
+                        <label style="display: inline-block; width: 70px;">Type:</label>
+                            <input type="radio" name="calendarType" id="calTypeReg" value="Regular" checked="checked"/><label for="calTypeReg">Regular</label> 
+                            <input type="radio" name="calendarType" id="calTypeNPR" value="NPRNewscast" /><label for="calTypeNPR">NPR Newscast</label> 
+                            <span id="DNADisplay"><input type="checkbox" name="DNA" id="DNA" /><label for="DNA">Do Not Air NPR Newscast</label></span>
+                        </div>
+                        <div id="leftMiddle">
+                        <label style="display: inline-block; width: 70px;">View:</label>
+                            <input type="radio" name="calendarView" id="calViewCal" value="Calendar" checked="checked"/><label for="calViewCal">Calendar</label> 
+                            <input type="radio" name="calendarView" id="calViewList" value="List" /><label for="calViewList">List</label>
+                        </div>
+                        <div id="leftBottom">
+                        <label style="display: inline-block; width: 70px;"></label>
+                            <input type="radio" name="calIncrement" id="calIncrement15" value="15" /><label for="calIncrement15">15 minute</label> 
+                            <input type="radio" name="calIncrement" id="calIncrement60" value="60" checked="checked"/><label for="calIncrement60">60 minute</label>
+                            <div id="readOnlySection" style="color: red; height: 24px; vertical-align: bottom;"></div>
+                        </div>
+                    </td>
+                    <!-- Calendar submit buttons -->
+                    <td style="text-align: right;">
+                        <div class="buttons">
+                            <a id="testLinkButton" class="test-calendar-monthbar-pdf" style="display: none"></a>
+                            <a id="exportLinkButton" class="npr-list-calendar-monthbar-export"></a>
+                            <a id="addProgramLinkButton" class="npr-program-calendar-addProgram"></a>
+                            <a id="addNewscastLinkButton" class="npr-program-calendar-addNewscast"></a>
+                            <a id="printLinkButton" class="npr-program-calendar-monthbar-print"></a>
+                            <a id="submitLinkButton" class="npr-program-calendar-monthbar-submit"></a>
+                            <!-- Links used to differentiate actions based on DNA checkbox -->
+                            <div style="display: none"> 
+                                <a id="lnkalertSubmit" href="javascript:submitSchedule();" data-inf-confirm="You are about to submit the programming schedule for both Regular and NPR Newscast programs. Are you sure you want to continue?<br><br><span style='margin-left:200px'>Don't ask me this again<input id='disableValidation' type='checkbox' name='disableValidation' onchange='dval(this)'></span>  ">a</a>
+                                <a id="lnkalertSubmitNCheck" href="javascript:submitSchedule();" data-inf-confirm="You selected Do Not Air Newscasts but have entered Newscasts records in the Calendar. Are you sure you want to continue?">a</a>
+                                <a id="lnkSubmit" onClick="submitSchedule();">b</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    
+    <!-- jquery Calendar -->
+   
+    <div  class="npr-program-calendar calendarView"></div>
+    <div  class="npr-newscast-calendar calendarView"></div>
+    <div class="npr-program-calendar-print calendarView"></div>
+    <div class="npr-newscast-calendar-print calendarView"></div>
+    
+    
+    <!-- Program List Grid -->
+
+    <div id="programListSection">
+        @(Html.Grid("programListGrid")
+            .SetUrl(Url.Action("ProgramListGridData", new { scheduleId = Model.ScheduleId }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ScheduleId" })
+            .SetSortName("LastUpdatedDate")
+            .SetRowNum(999999999)
+            .SetHoverRows(false)
+            
+
+            .AddColumn(new Column("ScheduleProgramId")
+                .SetHidden(true)) 
+        
+            .AddColumn(new Column("ProgramId")
+                .SetHidden(true))
+            
+            .AddColumn(new Column("ProgramName")
+                .SetLabel("Program Name")
+                .SetWidth(200)
+                .SetCustomFormatter("programNameFormatter")
+                .SetSortable(true))
+            
+            .AddColumn(new Column("ProgramSourceCode")
+                .SetLabel("Source")
+                .SetWidth(200)
+                .SetSortable(true))
+            
+                
+            .AddColumn(new Column("DaysOfWeek")
+                .SetLabel("Day")
+                .SetWidth(125)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetCustomFormatter("daysOfWeekFormatter")
+                .SetSortable(true))
+           
+            .AddColumn(new Column("QuarterHours")
+                .SetHidden(true)
+                .SetCustomFormatter("calcQuarterHours"))
+             
+            .AddColumn(new Column("StartTime")
+                .SetLabel("Start Time")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetCustomFormatter("startTimeFormatter")
+                .SetSortable(true))
+            
+            .AddColumn(new Column("EndTime")
+                .SetLabel("End Time")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetCustomFormatter("endTimeFormatter")
+                .SetSortable(true))                                
+            )
+    </div>
+    <!-- Newscast List Grid -->
+    <div id="newscastListSection">
+        @(Html.Grid("newscastListGrid")
+            .SetUrl(Url.Action("NewscastListGridData", new { scheduleId = Model.ScheduleId }))
+            .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "ScheduleId" })
+            .SetSortName("LastUpdatedDate")
+            .SetRowNum(999999999)
+            .SetHoverRows(false)
+
+            .AddColumn(new Column("ScheduleNewscastId")
+                .SetHidden(true)) 
+            
+            .AddColumn(new Column("DaysOfWeek")
+                .SetLabel("Day")
+                .SetWidth(150)
+                .SetCustomFormatter("newscastNameFormatter")
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetSortable(true))
+             
+            .AddColumn(new Column("StartTime")
+                .SetLabel("Start Time")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetCustomFormatter("startTimeFormatter")
+                .SetSortable(true))
+            
+            .AddColumn(new Column("EndTime")
+                .SetLabel("End Time")
+                .SetWidth(100)
+                .SetAlign(MvcJqGrid.Enums.Align.Center)
+                .SetCustomFormatter("endTimeFormatter")
+                .SetSortable(true))                                
+            )
+    </div>
+    <div style="display: none;">
+    @Inf.ExportGridButton(this, "programListGrid", "ProgramCalendarList.csv")
+    </div>
+    <br /><br />
+</div>
+<div id="dialogPrint" title="Calendar Print Options" style="display:none;">
+  <p>Please select print layout:</p>
+    <input type="radio" name="layout" value="portrait" checked="checked" /> Portrait (1 page only)
+    <br />
+    <input type="radio" name="layout" value="landscape" /> Landscape (2 pages)
+</div>
+<div id="divDialog" title="Print Info" style="display:none;" >Please wait file is being generated...</div>
+<script type="text/javascript" src="@Url.Content("~/Scripts/npr-program-calendar/npr-program-calendar.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/html2canvas.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/html2canvas.svg.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/basic.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.debug.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/jspdf.plugin.addimage.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/canvas2image.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jspdf/FileSaver.js")"></script>
+
+<script type="text/javascript">
+    var increment, readOnly, isRepeaterInd, isSubmitted, crcManager;
+    var viewCalendar = "Calendar";
+    
+    readOnly = "@Model.ReadOnly"
+    isRepeaterInd = "@Model.IsRepeaterInd";
+    isSubmitted = "@Model.SubmittedDate";
+
+    //if (isSubmitted != "") {
+    //    readOnly = "True";
+    //}
+
+    increment = parseInt("@(User.IsInRole(CRCUserRoles.Administrator) ? 15 : 15)");
+    crcManager = parseInt("@(User.IsInRole(CRCUserRoles.CRCManager) ? 1 : 0)");
+    CRCAdmin = parseInt("@(User.IsInRole(CRCUserRoles.Administrator) ? 1 : 0)");
+
+    crcManagerORadministrator = CRCAdmin + crcManager;
+    
+    var programCalendarResourceUrls = {
+        dialog: "@Url.Content("~/Schedules/AddEditProgram")",
+        dialogType: "P",
+        programSearch: "@Url.Content("~/Schedules/ProgramActiveCalendarSearch")",
+        programSchedule: "@Url.Content("~/Schedules/ProgramSchedule")",
+        programScheduleSave: "@Url.Content("~/Schedules/AddEditProgram")",
+        programScheduleDelete: "@Url.Content("~/Schedules/ProgramCalendarSearch")",
+        increment: increment,
+        readOnly: readOnly,
+        dialogTitle: "Add Program",
+        validationMethod: "validateAddEditProgram",
+        responseData: null,
+        contentHeight: 0,
+        height: 0
+    };
+    
+    var newscastCalendarResourceUrls = {
+        dialog: "@Url.Content("~/Schedules/AddEditNewscast")",
+        dialogType: "N",
+        programSchedule: "@Url.Content("~/Schedules/NewscastSchedule")",
+        programScheduleSave: "@Url.Content("~/Schedules/AddEditNewscast")",
+        programScheduleDelete: "@Url.Content("~/Schedules/DeleteNewscast")",
+        increment: increment,
+        readOnly: readOnly,
+        dialogTitle: "Add NPR Newscast",
+        validationMethod: "validateAddEditNewscast",
+        responseData: null,
+        contentHeight: 0,
+        height: 0
+    };
+
+    var printProgramCalendarResourceUrls = {
+        dialog: "@Url.Content("~/Schedules/AddEditProgram")",
+        dialogType: "P",
+        programSearch: "@Url.Content("~/Schedules/ProgramActiveCalendarSearch")",
+        programSchedule: "@Url.Content("~/Schedules/ProgramSchedule")",
+        programScheduleSave: "@Url.Content("~/Schedules/AddEditProgram")",
+        programScheduleDelete: "@Url.Content("~/Schedules/ProgramCalendarSearch")",
+        increment: increment,
+        readOnly: readOnly,
+        dialogTitle: "Add Program",
+        validationMethod: "validateAddEditProgram",
+        responseData: null,
+        contentHeight: 2500,
+        height: 2500
+    };
+
+    var printNewscastCalendarResourceUrls = {
+        dialog: "@Url.Content("~/Schedules/AddEditNewscast")",
+        dialogType: "N",
+        programSchedule: "@Url.Content("~/Schedules/NewscastSchedule")",
+        programScheduleSave: "@Url.Content("~/Schedules/AddEditNewscast")",
+        programScheduleDelete: "@Url.Content("~/Schedules/DeleteNewscast")",
+        increment: increment,
+        readOnly: readOnly,
+        dialogTitle: "Add NPR Newscast",
+        validationMethod: "validateAddEditNewscast",
+        responseData: null,
+        contentHeight: 3000,
+        height: 3000
+    };
+
+    //****This fucntion adjusts all events in the grid. This was added to handle cases where the text will not
+    //fit in the regular size box. We do two things, we shrink text in certan cases, and in other cases we have 
+    //to go through the calendar and adjust all boxes down accordingly. This is on a wait timer since we need to 
+    //wait for the grid to load
+    function adjustGridTimer(){
+
+        if ($(".fc-event").length == 0) {
+            //if nothing is loaded, call wait timer again 
+            window.setTimeout(function () {
+                adjustGridTimer();
+            }, 500);
+        }
+
+        else {
+            //if loaded, call grid adjustment function.
+            adjustGrid(); 
+            //toggleTimeIncr();
+        }
+    }
+
+    function adjustGrid(){
+
+        var nextTop = 10000;
+        var prevElm = null;
+        var maxHeight= 1920;
+        var colCount =0;
+        
+        $('[class^="fc-slot"]').css("height", 'auto');
+
+        //Check for items where we want to shrink text size
+        //This is only done for 15 minute programs, and in cases of very long program names also for 30 minute programs
+        $( ".fc-event" ).each(function()  {
+
+            if($(this).text().length>30)
+            {
+
+                var title =$(this).attr("title");
+                var slotStart = GetStartSlot(title);
+                var slotEnd = GetEndSlot(title);
+                var dtdiff = (new Date("1/1/2007 " + slotEnd) - new Date("1/1/2007 " + slotStart));
+                //var diff = ( new Date(slotEnd) - new Date(slotStart) );
+
+                if((dtdiff/60000 <= 15) || ($(this).text().length>35 &&  (dtdiff/60000 <= 30)))
+                {
+                    $(this).children().first().children().first().css("fontSize", "12px");
+                }
+            }
+        });
+        
+        var cnt =0;
+        //After shrinking, some event boxes will still be larger than default size so we need to adjust all 
+        //other events (adjustAllTopsAndBoxSizes)
+        //We also need to fix the left side time slots (expandLeftRow);
+        $( ".fc-event" ).each(function()  {
+          
+            nextTop = $(this).position().top;
+            
+            //check if we need to adjust all boxes down.
+            //if(prevElm != null) {
+            //    alert(prevElm.position().top + " : " + prevElm.height() + " : " + nextTop);
+            //}
+            if(prevElm != null && (prevElm.position().top + prevElm.height())>nextTop)
+            {     
+                cnt++;
+             
+                var hAdjust = prevElm.position().top + prevElm.height() - nextTop;  
+                var start = prevElm.position().top;
+                var end = prevElm.position().top + prevElm.height();
+                expandLeftRow(prevElm,hAdjust);
+                adjustAllTopsAndBoxSizes(start,end, hAdjust,prevElm.text());
+
+                maxHeight= maxHeight + hAdjust;
+                
+            }
+            prevElm = $(this);
+
+            //If it's the end of a day reset varaibles;
+            if($(this).attr("title").indexOf('11:59 pm') >= 0)
+            {
+
+                nextTop = 10000;
+                prevElm = null;
+                var bottomedge = $(this).position().top + $(this).height();
+               
+            }
+        }
+        );
+
+        //setFinalTops();
+
+        //We need to fill any gaps that remain between end of a program and the next program
+        fillGaps(maxHeight);
+
+        //Finally we need to toggle left side time slots depending if it's 15 vs 60 minute 
+        toggleTimeIncr();
+        //adjustSixtyMintueTimeHeaders();
+       
+    }
+
+    function adjustSixtyMintueTimeHeaders()
+    {
+        var slt = $('.npr-program-calendar .fc-slot'+0); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>12:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+2); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>1:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+4); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>2:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+6); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>3:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+8); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>4:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+10); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>5:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+12); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>6:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+14); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>7:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+16); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>8:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+18); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>9:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+20); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>10:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+22); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>11:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+24); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>12:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+26); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>1:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+28); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>2:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+30); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>3:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+32); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>4:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+34); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>5:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+36); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>6:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+38); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>7:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+40); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>8:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+42); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>9:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+44); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>10:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+        var slt = $('.npr-program-calendar .fc-slot'+46); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>11:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+
+    }
+  
+    function GetStartSlot(title)
+    {
+        //find location of start time
+        var iFirst = title.indexOf(" ");
+
+        //add three chars for space + am or pm
+        var hstart = title.substring(0,iFirst+3);
+
+        //lookup which left Ro to modify using cMap loolup
+        return hstart;
+        //return window.cMap[hstart];
+    }
+
+    function GetEndSlot(title)
+    {
+        //find location of start time and add 33
+        var iFirst = title.indexOf(" ")+6;
+        
+        //find location of ":" for endtime
+        var iEnd = title.indexOf(" ",iFirst);
+
+        //add three chars for space + am or pm
+        var hend = title.substring(iFirst,iEnd+3);
+
+        //lookup which left Ro to modify using cMap loolup
+        
+        return hend;
+        //return window.cMap[hend];
+    }
+  
+    function getStartTime (elm)
+    {
+        //get title of element
+        var title = elm.attr("title");
+        
+        //find location of time
+        var iFirst = title.indexOf(" ");
+
+        //add three chars for space + am or pm
+        var hstart = title.substring(0,iFirst+3);
+
+        return hstart;
+    }
+
+    function expandLeftRow(elm, size)
+    {
+            
+        //get title of element
+        var title = elm.attr("title");
+        
+        //find location of time
+        var iFirst = title.indexOf(" ");
+
+        //add three chars for space + am or pm
+        var hstart = title.substring(0,iFirst+3);
+
+        //lookup which left Ro to modify using cMap loolup
+        var slot = '.fc-slot'+window.cMap[hstart];
+        var xslot = xMap[hstart];
+       
+
+        //add time
+        $(slot).height(  $(slot).height()+ size);
+
+        //keep running tally of heights
+        smapRecUpdate(xslot,size);
+    }
+
+    function setFinalTops()
+    {
+        $( ".fc-event" ).each(function()  {
+
+            var tstart = $(this).position().top;
+            var tend = $(this).position().top + $(this).height();
+            // inf-change "set program on schedule board".
+            var height=sMap[xMap[getStartTime($(this))]]-5;
+
+            $(this).css('top',height+'px' );
+        });
+    }
+
+
+    function adjustAllTopsAndBoxSizes(start,end, hAdjust,pName){
+
+        $( ".fc-event" ).each(function()  {
+            var tstart = $(this).position().top;
+            var tend = $(this).position().top + $(this).height()+1;
+            
+            //$(this).css('top',(sMap[xMap[getStartTime($(this))]-1])+'px' );
+            if(tstart>start  ){
+                $(this).css('top',($(this).position().top + hAdjust  )+'px' );
+
+            }
+
+            //if(tstart<=end && tend>=start)
+            //{
+            //    $(this).height($(this).height()+hAdjust);
+            //}
+        });
+
+    }
+
+    function fillGaps(maxHeight)
+    {
+        var nextTop = 10000;
+        var prevElm = null;
+
+        $( ".fc-event" ).each(function()  {
+
+            nextTop = $(this).position().top;
+
+            if(prevElm != null && (prevElm.position().top + prevElm.height()+1) != nextTop)
+            {
+                var diff =  nextTop - (prevElm.position().top + prevElm.height());
+                prevElm.height(prevElm.height() + diff);
+
+            }
+            prevElm = $(this);
+            if($(this).attr("title").indexOf('11:59 pm') >= 0)
+            {
+
+                var bDiff= (sMap[95]- $(this).position().top +18);
+                $(this).height(bDiff);
+                nextTop = 2000;
+                prevElm = null;
+
+            }
+        });
+    }
+
+    function wrap_text_adjust(startTime,adjust){
+
+        var slot = window.cMap[startTime];
+            
+        //$('.fc-slot'+slot).height( $('.fc-slot'+slot).height()+adjust);
+        if( $('.fc-slot'+slot).height()<adjust)
+        {
+            smapRecUpdate(slot, adjust - $('.fc-slot'+slot).height());
+            $('.fc-slot'+slot).height( adjust);
+        }
+    }
+    
+
+    function smapRecUpdate(slot,increment)
+    {
+
+        for(i=slot+1;i<96;i++)
+        {
+            sMap[i] =  sMap[i] +increment - ((slot)/24);
+        }
+        
+    }
+
+    function fixStartEndTimes()
+    {
+       
+        if($('#StartTime').val()==null)
+        {
+            window.setTimeout(function(){
+                fixStartEndTimes();
+            },300);  
+        }
+        else
+        {
+            
+            if($('#ScheduleProgramId').val()==""){
+            //if(true){
+                var stime = $('#StartTime').val();
+                
+                var y = window.y;
+                //var y = bMap[xMap[stime]];
+                var i =1;
+                       
+                for(i=1;i<96;i++)
+                {
+                    if(y<sMap[i])
+                        break;
+                }
+                i=i-1;
+                var k = '12:00 am';
+                for (k in xMap){
+                    if (xMap[k]==i)
+                        break;
+                }
+                var day = '1 1 1970 ';
+                    
+                
+                $('#StartTime').val(k);
+               
+                var backbins = ((Date.parse(day + stime))-(Date.parse(day + k)))/1000/60 / 15;
+                var endbin = xMap[$('#EndTime').val()];
+                var endtime = $('#EndTime').val();
+
+
+                var end = '12:00 am';
+                var forwardbins = 0;
+                var incMins = $("input[name='calIncrement']:checked").val();
+                if(incMins==15)
+                {
+                    forwardbins=1;
+                }
+                else{
+                    forwardbins=4;
+                }
+                for (end in xMap){
+                    if (xMap[end]==i+forwardbins)
+                        break;
+                }
+                if(k=="11:00 pm" || k=="11:15 pm" || k=="11:30 pm" || k=="11:45 pm")
+                {
+                    if((incMins==15 && k=="11:45 pm") || incMins==60)
+                    {
+                        end = '12:00 am';
+                    }
+                        
+                            
+                }
+                $('#EndTime').val(end);
+                setSelectedDay();
+            }
+        }
+    }
+
+
+
+
+    function fixStartEndTimesNewscast()
+    {
+       
+        if($('#StartTime').val()==null)
+        {
+           
+            window.setTimeout(function(){
+                
+                if(window.dialogue==0){
+                    $(".npr-newscast-calendar").fullCalendar('select', undefined, undefined, false);
+                    window.setTimeout(function(){setSelectedDayNewscast();},500);
+
+                }
+                fixStartEndTimesNewscast();
+            },500);  
+        }
+        else
+        {
+            if(!$('#ScheduleNewscastId').val()){
+            //if(true){
+                var stime = $('#StartTime').val();
+                
+                var y = window.y;
+                //var y = bMap[xMap[stime]];
+                var i =1;
+                       
+                for(i=1;i<96;i++)
+                {
+                    if(y<sMap[i])
+                        break;
+                }
+                i=i-1;
+                var k = '12:00 am';
+                for (k in xMap){
+                    if (xMap[k]==i)
+                        break;
+                }
+                var day = '1 1 1970 ';
+                var d = new Date("1/1/2007 " + k);
+                //string a endtime
+                var ohour = d.getHours();
+                var hour = ohour == 0? 12: ohour;
+                
+                if(hour> 12)
+                    hour=hour -12;
+                var minutes = d.getMinutes();
+                var eminutes = minutes+5;
+
+                if (minutes < 10)
+                    minutes = '0' + minutes;
+                
+                if (eminutes < 10)
+                    eminutes = '0' + eminutes;
+
+                var oendtime;
+                if(ohour>12)
+                    oendtime = hour + ":" + (eminutes) + " PM";
+                else
+                    oendtime = hour + ":" + (eminutes) + " PM";
+              
+                $('#StartHour').val(hour);
+                $('#StartMinute').val(minutes);
+                
+                $('#StartTime').val(k);
+                
+                var backbins = ((Date.parse(day + stime))-(Date.parse(day + k)))/1000/60 / 15;
+                var endbin = xMap[$('#EndTime').val()];
+                var endtime = $('#EndTime').val();
+              
+                d.setMinutes(minutes+5);
+                
+
+                $('#EndHour').val(hour);
+                $('#EndMinute').val(eminutes);
+
+                $('#EndTime').val(oendtime);
+
+                
+            }
+        }
+    }
+
+    function setSelectedDay()
+    {
+        x = window.x;
+        $('#MondayInd').attr("checked",false);
+        $('#TuesdayInd').attr("checked",false);
+        $('#WednesdayInd').attr("checked",false);
+        $('#ThursdayInd').attr("checked",false);
+        $('#FridayInd').attr("checked",false);
+        $('#SaturdayInd').attr("checked",false);
+        $('#SundayInd').attr("checked",false);
+
+        //if(x<257){
+        //    $('#MondayInd').attr("checked",true);
+        //}
+        //else if(x>=257 && x < 447){
+        //    $('#TuesdayInd').attr("checked",true);
+        //}
+        //else if(x>=447 && x <636 ){
+        //    $('#WednesdayInd').attr("checked",true);
+        //}
+        //else if(x>=636 && x < 826){
+        //    $('#ThursdayInd').attr("checked",true);
+        //}
+        //else if(x>=826 && x < 1016){
+        //    $('#FridayInd').attr("checked",true);
+        //}
+        //else if(x>=1016 && x < 1206){
+        //    $('#SaturdayInd').attr("checked",true);
+        //}
+        //else {
+        //    $('#SundayInd').attr("checked",true);
+        //}
+
+      
+        if(x<=$('.fc-mon').offset().left + $('.fc-mon').width() ){
+            $('#MondayInd').attr("checked",true);
+            
+        }
+        else if(x>$('.fc-tue').offset().left  && x <= $('.fc-tue').offset().left + $('.fc-tue').width() ){
+            $('#TuesdayInd').attr("checked",true);
+            
+        }
+        else if(x>$('.fc-wed').offset().left && x <= $('.fc-wed').offset().left + $('.fc-wed').width()  ){
+            $('#WednesdayInd').attr("checked",true);
+        }
+        else if(x>$('.fc-thu').offset().left && x <= $('.fc-thu').offset().left + $('.fc-thu').width()  ){
+            $('#ThursdayInd').attr("checked",true);
+        }
+        else if(x>$('.fc-fri').offset().left && x <= $('.fc-fri').offset().left + $('.fc-fri').width()  ){
+            $('#FridayInd').attr("checked",true);
+        }
+        else if(x>$('.fc-sat').offset().left && x <= $('.fc-sat').offset().left + $('.fc-sat').width()  ){
+            $('#SaturdayInd').attr("checked",true);
+        }
+        else {
+            $('#SundayInd').attr("checked",true);
+        }
+
+    }
+
+
+
+    function setSelectedDayNewscast()
+    {
+        x = window.x;
+        $('#MondayInd').attr("checked",false);
+        $('#TuesdayInd').attr("checked",false);
+        $('#WednesdayInd').attr("checked",false);
+        $('#ThursdayInd').attr("checked",false);
+        $('#FridayInd').attr("checked",false);
+        $('#SaturdayInd').attr("checked",false);
+        $('#SundayInd').attr("checked",false);
+
+        var dateObj= $('.npr-newscast-calendar > div:nth-child(1) > div:nth-child(1) > table:nth-child(1) > thead:nth-child(1) > tr:nth-child(1)');
+        
+        if(x<=dateObj.children().eq(1).offset().left + $('.fc-mon').width() ){
+            $('#MondayInd').attr("checked",true);
+            
+          
+        }
+        else if(x>dateObj.children().eq(2).offset().left  && x <= dateObj.children().eq(2).offset().left + $('.fc-tue').width() ){
+            $('#TuesdayInd').attr("checked",true);
+            
+        }
+        else if(x>dateObj.children().eq(3).offset().left && x <= dateObj.children().eq(3).offset().left + $('.fc-wed').width()  ){
+            $('#WednesdayInd').attr("checked",true);
+        }
+        else if(x>dateObj.children().eq(4).offset().left && x <= dateObj.children().eq(4).offset().left + $('.fc-thu').width()  ){
+            $('#ThursdayInd').attr("checked",true);
+        }
+        else if(x>dateObj.children().eq(5).offset().left && x <= dateObj.children().eq(5).offset().left + $('.fc-fri').width()  ){
+            $('#FridayInd').attr("checked",true);
+        }
+        else if(x>dateObj.children().eq(6).offset().left && x <= dateObj.children().eq(6).offset().left + $('.fc-sat').width()  ){
+            $('#SaturdayInd').attr("checked",true);
+        }
+        else {
+            $('#SundayInd').attr("checked",true);
+        }
+
+    }
+
+    $(document).ready(function () {
+        //alert(crcManagerORadministrator);
+        if(crcManagerORadministrator >0 ) {$('#StationDetail').show()}
+        window.newscastg=0;
+        $(".validation-summary-container").hide();
+        initRadioButtons();
+        initFunctionButtons();
+        initDefaultView();
+        //toggleTimeIncr();
+        initialCalendar();
+        window.cMap = {};
+        window.sMap = {};
+        window.xMap = {};
+        window.bMap = {};
+        window.y = 0;
+        window.x = 0;
+        window.dialogue = 0;
+        window.calIncr = 0;
+        window.cellModCount = 0;
+        window.disableVal = false;
+        $(".fc-sun").width($(".fc-sun").parent().children().eq(2).width());
+        cMap['12:00 am'] = 0; cMap['12:15 am'] = 0; cMap['12:30 am'] = 1; cMap['12:45 am'] = 1; cMap['1:00 am'] = 2; cMap['1:15 am'] = 2; cMap['1:30 am'] = 3; cMap['1:45 am'] = 3; cMap['2:00 am'] = 4; cMap['2:15 am'] = 4; cMap['2:30 am'] = 5; cMap['2:45 am'] = 5; cMap['3:00 am'] = 6; cMap['3:15 am'] = 6; cMap['3:30 am'] = 7; cMap['3:45 am'] = 7; cMap['4:00 am'] = 8; cMap['4:15 am'] = 8; cMap['4:30 am'] = 9; cMap['4:45 am'] = 9; cMap['5:00 am'] = 10; cMap['5:15 am'] = 10; cMap['5:30 am'] = 11; cMap['5:45 am'] = 11; cMap['6:00 am'] = 12; cMap['6:15 am'] = 12; cMap['6:30 am'] = 13; cMap['6:45 am'] = 13; cMap['7:00 am'] = 14; cMap['7:15 am'] = 14; cMap['7:30 am'] = 15; cMap['7:45 am'] = 15; cMap['8:00 am'] = 16; cMap['8:15 am'] = 16; cMap['8:30 am'] = 17; cMap['8:45 am'] = 17; cMap['9:00 am'] = 18; cMap['9:15 am'] = 18; cMap['9:30 am'] = 19; cMap['9:45 am'] = 19; cMap['10:00 am'] = 20; cMap['10:15 am'] = 20; cMap['10:30 am'] = 21; cMap['10:45 am'] = 21; cMap['11:00 am'] = 22; cMap['11:15 am'] = 22; cMap['11:30 am'] = 23; cMap['11:45 am'] = 23; cMap['12:00 pm'] = 24; cMap['12:15 pm'] = 24; cMap['12:30 pm'] = 25; cMap['12:45 pm'] = 25; cMap['1:00 pm'] = 26; cMap['1:15 pm'] = 26; cMap['1:30 pm'] = 27; cMap['1:45 pm'] = 27; cMap['2:00 pm'] = 28; cMap['2:15 pm'] = 28; cMap['2:30 pm'] = 29; cMap['2:45 pm'] = 29; cMap['3:00 pm'] = 30; cMap['3:15 pm'] = 30; cMap['3:30 pm'] = 31; cMap['3:45 pm'] = 31; cMap['4:00 pm'] = 32; cMap['4:15 pm'] = 32; cMap['4:30 pm'] = 33; cMap['4:45 pm'] = 33; cMap['5:00 pm'] = 34; cMap['5:15 pm'] = 34; cMap['5:30 pm'] = 35; cMap['5:45 pm'] = 35; cMap['6:00 pm'] = 36; cMap['6:15 pm'] = 36; cMap['6:30 pm'] = 37; cMap['6:45 pm'] = 37; cMap['7:00 pm'] = 38; cMap['7:15 pm'] = 38; cMap['7:30 pm'] = 39; cMap['7:45 pm'] = 39; cMap['8:00 pm'] = 40; cMap['8:15 pm'] = 40; cMap['8:30 pm'] = 41; cMap['8:45 pm'] = 41; cMap['9:00 pm'] = 42; cMap['9:15 pm'] = 42; cMap['9:30 pm'] = 43; cMap['9:45 pm'] = 43; cMap['10:00 pm'] = 44; cMap['10:15 pm'] = 44; cMap['10:30 pm'] = 45; cMap['10:45 pm'] = 45; cMap['11:00 pm'] = 46; cMap['11:15 pm'] = 46; cMap['11:30 pm'] = 47; cMap['11:45 pm'] = 47;
+        //sMap[0] =0; sMap[1] =22; sMap[2] =43; sMap[3] =65; sMap[4] =86; sMap[5] =108; sMap[6] =129; sMap[7] =151; sMap[8] =172; sMap[9] =194; sMap[10] =215; sMap[11] =237; sMap[12] =258; sMap[13] =280; sMap[14] =301; sMap[15] =323; sMap[16] =344; sMap[17] =366; sMap[18] =387; sMap[19] =409; sMap[20] =430; sMap[21] =452; sMap[22] =473; sMap[23] =495; sMap[24] =516; sMap[25] =538; sMap[26] =559; sMap[27] =581; sMap[28] =602; sMap[29] =624; sMap[30] =645; sMap[31] =667; sMap[32] =688; sMap[33] =710; sMap[34] =731; sMap[35] =753; sMap[36] =774; sMap[37] =796; sMap[38] =817; sMap[39] =839; sMap[40] =860; sMap[41] =882; sMap[42] =903; sMap[43] =925; sMap[44] =946; sMap[45] =968; sMap[46] =989; sMap[47] =1011; sMap[48] =1032; sMap[49] =1054; sMap[50] =1075; sMap[51] =1097; sMap[52] =1118; sMap[53] =1140; sMap[54] =1161; sMap[55] =1183; sMap[56] =1204; sMap[57] =1226; sMap[58] =1247; sMap[59] =1269; sMap[60] =1290; sMap[61] =1312; sMap[62] =1333; sMap[63] =1355; sMap[64] =1376; sMap[65] =1398; sMap[66] =1419; sMap[67] =1441; sMap[68] =1462; sMap[69] =1484; sMap[70] =1505; sMap[71] =1527; sMap[72] =1548; sMap[73] =1570; sMap[74] =1591; sMap[75] =1613; sMap[76] =1634; sMap[77] =1656; sMap[78] =1677; sMap[79] =1699; sMap[80] =1720; sMap[81] =1742; sMap[82] =1763; sMap[83] =1785; sMap[84] =1806; sMap[85] =1828; sMap[86] =1849; sMap[87] =1871; sMap[88] =1892; sMap[89] =1914; sMap[90] =1935; sMap[91] =1957; sMap[92] =1978; sMap[93] =2000; sMap[94] =2021; sMap[95] =2043;
+        sMap[0] = 0; sMap[1] = 20; sMap[2] = 41; sMap[3] = 61; sMap[4] = 82; sMap[5] = 102; sMap[6] = 123; sMap[7] = 143; sMap[8] = 164; sMap[9] = 184; sMap[10] = 205; sMap[11] = 225; sMap[12] = 246; sMap[13] = 266; sMap[14] = 287; sMap[15] = 307; sMap[16] = 328; sMap[17] = 348; sMap[18] = 369; sMap[19] = 389; sMap[20] = 410; sMap[21] = 430; sMap[22] = 451; sMap[23] = 471; sMap[24] = 492; sMap[25] = 512; sMap[26] = 533; sMap[27] = 553; sMap[28] = 574; sMap[29] = 594; sMap[30] = 615; sMap[31] = 635; sMap[32] = 656; sMap[33] = 676; sMap[34] = 697; sMap[35] = 717; sMap[36] = 738; sMap[37] = 758; sMap[38] = 779; sMap[39] = 799; sMap[40] = 820; sMap[41] = 840; sMap[42] = 861; sMap[43] = 881; sMap[44] = 902; sMap[45] = 922; sMap[46] = 943; sMap[47] = 963; sMap[48] = 984; sMap[49] = 1004; sMap[50] = 1025; sMap[51] = 1045; sMap[52] = 1066; sMap[53] = 1086; sMap[54] = 1107; sMap[55] = 1127; sMap[56] = 1148; sMap[57] = 1168; sMap[58] = 1189; sMap[59] = 1209; sMap[60] = 1230; sMap[61] = 1250; sMap[62] = 1271; sMap[63] = 1291; sMap[64] = 1312; sMap[65] = 1332; sMap[66] = 1353; sMap[67] = 1373; sMap[68] = 1394; sMap[69] = 1414; sMap[70] = 1435; sMap[71] = 1455; sMap[72] = 1476; sMap[73] = 1496; sMap[74] = 1517; sMap[75] = 1537; sMap[76] = 1558; sMap[77] = 1578; sMap[78] = 1599; sMap[79] = 1619; sMap[80] = 1640; sMap[81] = 1660; sMap[82] = 1681; sMap[83] = 1701; sMap[84] = 1722; sMap[85] = 1742; sMap[86] = 1763; sMap[87] = 1783; sMap[88] = 1804; sMap[89] = 1824; sMap[90] = 1845; sMap[91] = 1865; sMap[92] = 1886; sMap[93] = 1906; sMap[94] = 1927; sMap[95] = 1947;
+
+
+
+        //sMap[0] =0; sMap[1] =21; sMap[2] =42; sMap[3] =64; sMap[4] =85; sMap[5] =106; sMap[6] =127; sMap[7] =149; sMap[8] =170; sMap[9] =191; sMap[10] =212; sMap[11] =234; sMap[12] =255; sMap[13] =276; sMap[14] =297; sMap[15] =319; sMap[16] =340; sMap[17] =361; sMap[18] =382; sMap[19] =404; sMap[20] =425; sMap[21] =446; sMap[22] =467; sMap[23] =489; sMap[24] =510; sMap[25] =531; sMap[26] =552; sMap[27] =574; sMap[28] =595; sMap[29] =616; sMap[30] =637; sMap[31] =659; sMap[32] =680; sMap[33] =701; sMap[34] =722; sMap[35] =744; sMap[36] =765; sMap[37] =786; sMap[38] =807; sMap[39] =829; sMap[40] =850; sMap[41] =871; sMap[42] =892; sMap[43] =914; sMap[44] =935; sMap[45] =956; sMap[46] =977; sMap[47] =999; sMap[48] =1020; sMap[49] =1041; sMap[50] =1062; sMap[51] =1084; sMap[52] =1105; sMap[53] =1126; sMap[54] =1147; sMap[55] =1169; sMap[56] =1190; sMap[57] =1211; sMap[58] =1232; sMap[59] =1254; sMap[60] =1275; sMap[61] =1296; sMap[62] =1317; sMap[63] =1339; sMap[64] =1360; sMap[65] =1381; sMap[66] =1402; sMap[67] =1424; sMap[68] =1445; sMap[69] =1466; sMap[70] =1487; sMap[71] =1509; sMap[72] =1530; sMap[73] =1551; sMap[74] =1572; sMap[75] =1594; sMap[76] =1615; sMap[77] =1636; sMap[78] =1657; sMap[79] =1679; sMap[80] =1700; sMap[81] =1721; sMap[82] =1742; sMap[83] =1764; sMap[84] =1785; sMap[85] =1806; sMap[86] =1827; sMap[87] =1849; sMap[88] =1870; sMap[89] =1891; sMap[90] =1912; sMap[91] =1934; sMap[92] =1955; sMap[93] =1976; sMap[94] =1997; sMap[95] =2019;
+
+        xMap['12:00 am'] = 0; xMap['12:15 am'] = 1; xMap['12:30 am'] = 2; xMap['12:45 am'] = 3; xMap['1:00 am'] = 4; xMap['1:15 am'] = 5; xMap['1:30 am'] = 6; xMap['1:45 am'] = 7; xMap['2:00 am'] = 8; xMap['2:15 am'] = 9; xMap['2:30 am'] = 10; xMap['2:45 am'] = 11; xMap['3:00 am'] = 12; xMap['3:15 am'] = 13; xMap['3:30 am'] = 14; xMap['3:45 am'] = 15; xMap['4:00 am'] = 16; xMap['4:15 am'] = 17; xMap['4:30 am'] = 18; xMap['4:45 am'] = 19; xMap['5:00 am'] = 20; xMap['5:15 am'] = 21; xMap['5:30 am'] = 22; xMap['5:45 am'] = 23; xMap['6:00 am'] = 24; xMap['6:15 am'] = 25; xMap['6:30 am'] = 26; xMap['6:45 am'] = 27; xMap['7:00 am'] = 28; xMap['7:15 am'] = 29; xMap['7:30 am'] = 30; xMap['7:45 am'] = 31; xMap['8:00 am'] = 32; xMap['8:15 am'] = 33; xMap['8:30 am'] = 34; xMap['8:45 am'] = 35; xMap['9:00 am'] = 36; xMap['9:15 am'] = 37; xMap['9:30 am'] = 38; xMap['9:45 am'] = 39; xMap['10:00 am'] = 40; xMap['10:15 am'] = 41; xMap['10:30 am'] = 42; xMap['10:45 am'] = 43; xMap['11:00 am'] = 44; xMap['11:15 am'] = 45; xMap['11:30 am'] = 46; xMap['11:45 am'] = 47; xMap['12:00 pm'] = 48; xMap['12:15 pm'] = 49; xMap['12:30 pm'] = 50; xMap['12:45 pm'] = 51; xMap['1:00 pm'] = 52; xMap['1:15 pm'] = 53; xMap['1:30 pm'] = 54; xMap['1:45 pm'] = 55; xMap['2:00 pm'] = 56; xMap['2:15 pm'] = 57; xMap['2:30 pm'] = 58; xMap['2:45 pm'] = 59; xMap['3:00 pm'] = 60; xMap['3:15 pm'] = 61; xMap['3:30 pm'] = 62; xMap['3:45 pm'] = 63; xMap['4:00 pm'] = 64; xMap['4:15 pm'] = 65; xMap['4:30 pm'] = 66; xMap['4:45 pm'] = 67; xMap['5:00 pm'] = 68; xMap['5:15 pm'] = 69; xMap['5:30 pm'] = 70; xMap['5:45 pm'] = 71; xMap['6:00 pm'] = 72; xMap['6:15 pm'] = 73; xMap['6:30 pm'] = 74; xMap['6:45 pm'] = 75; xMap['7:00 pm'] = 76; xMap['7:15 pm'] = 77; xMap['7:30 pm'] = 78; xMap['7:45 pm'] = 79; xMap['8:00 pm'] = 80; xMap['8:15 pm'] = 81; xMap['8:30 pm'] = 82; xMap['8:45 pm'] = 83; xMap['9:00 pm'] = 84; xMap['9:15 pm'] = 85; xMap['9:30 pm'] = 86; xMap['9:45 pm'] = 87; xMap['10:00 pm'] = 88; xMap['10:15 pm'] = 89; xMap['10:30 pm'] = 90; xMap['10:45 pm'] = 91; xMap['11:00 pm'] = 92; xMap['11:15 pm'] = 93; xMap['11:30 pm'] = 94; xMap['11:45 pm'] = 95;
+        bMap[0] =0; bMap[1] =22; bMap[2] =43; bMap[3] =65; bMap[4] =86; bMap[5] =108; bMap[6] =129; bMap[7] =151; bMap[8] =172; bMap[9] =194; bMap[10] =215; bMap[11] =237; bMap[12] =258; bMap[13] =280; bMap[14] =301; bMap[15] =323; bMap[16] =344; bMap[17] =366; bMap[18] =387; bMap[19] =409; bMap[20] =430; bMap[21] =452; bMap[22] =473; bMap[23] =495; bMap[24] =516; bMap[25] =538; bMap[26] =559; bMap[27] =581; bMap[28] =602; bMap[29] =624; bMap[30] =645; bMap[31] =667; bMap[32] =688; bMap[33] =710; bMap[34] =731; bMap[35] =753; bMap[36] =774; bMap[37] =796; bMap[38] =817; bMap[39] =839; bMap[40] =860; bMap[41] =882; bMap[42] =903; bMap[43] =925; bMap[44] =946; bMap[45] =968; bMap[46] =989; bMap[47] =1011; bMap[48] =1032; bMap[49] =1054; bMap[50] =1075; bMap[51] =1097; bMap[52] =1118; bMap[53] =1140; bMap[54] =1161; bMap[55] =1183; bMap[56] =1204; bMap[57] =1226; bMap[58] =1247; bMap[59] =1269; bMap[60] =1290; bMap[61] =1312; bMap[62] =1333; bMap[63] =1355; bMap[64] =1376; bMap[65] =1398; bMap[66] =1419; bMap[67] =1441; bMap[68] =1462; bMap[69] =1484; bMap[70] =1505; bMap[71] =1527; bMap[72] =1548; bMap[73] =1570; bMap[74] =1591; bMap[75] =1613; bMap[76] =1634; bMap[77] =1656; bMap[78] =1677; bMap[79] =1699; bMap[80] =1720; bMap[81] =1742; bMap[82] =1763; bMap[83] =1785; bMap[84] =1806; bMap[85] =1828; bMap[86] =1849; bMap[87] =1871; bMap[88] =1892; bMap[89] =1914; bMap[90] =1935; bMap[91] =1957; bMap[92] =1978; bMap[93] =2000; bMap[94] =2021; bMap[95] =2043;
+        //bMap[0] =0; bMap[1] =21; bMap[2] =42; bMap[3] =64; bMap[4] =85; bMap[5] =106; bMap[6] =127; bMap[7] =149; bMap[8] =170; bMap[9] =191; bMap[10] =212; bMap[11] =234; bMap[12] =255; bMap[13] =276; bMap[14] =297; bMap[15] =319; bMap[16] =340; bMap[17] =361; bMap[18] =382; bMap[19] =404; bMap[20] =425; bMap[21] =446; bMap[22] =467; bMap[23] =489; bMap[24] =510; bMap[25] =531; bMap[26] =552; bMap[27] =574; bMap[28] =595; bMap[29] =616; bMap[30] =637; bMap[31] =659; bMap[32] =680; bMap[33] =701; bMap[34] =722; bMap[35] =744; bMap[36] =765; bMap[37] =786; bMap[38] =807; bMap[39] =829; bMap[40] =850; bMap[41] =871; bMap[42] =892; bMap[43] =914; bMap[44] =935; bMap[45] =956; bMap[46] =977; bMap[47] =999; bMap[48] =1020; bMap[49] =1041; bMap[50] =1062; bMap[51] =1084; bMap[52] =1105; bMap[53] =1126; bMap[54] =1147; bMap[55] =1169; bMap[56] =1190; bMap[57] =1211; bMap[58] =1232; bMap[59] =1254; bMap[60] =1275; bMap[61] =1296; bMap[62] =1317; bMap[63] =1339; bMap[64] =1360; bMap[65] =1381; bMap[66] =1402; bMap[67] =1424; bMap[68] =1445; bMap[69] =1466; bMap[70] =1487; bMap[71] =1509; bMap[72] =1530; bMap[73] =1551; bMap[74] =1572; bMap[75] =1594; bMap[76] =1615; bMap[77] =1636; bMap[78] =1657; bMap[79] =1679; bMap[80] =1700; bMap[81] =1721; bMap[82] =1742; bMap[83] =1764; bMap[84] =1785; bMap[85] =1806; bMap[86] =1827; bMap[87] =1849; bMap[88] =1870; bMap[89] =1891; bMap[90] =1912; bMap[91] =1934; bMap[92] =1955; bMap[93] =1976; bMap[94] =1997; bMap[95] =2019;
+
+
+        window.onresize = function() {
+
+            var ch = $("#divagendaslot").height();
+            $(".newscolbox").attr('style', "height: " + ch + "px;");
+            //location.reload();
+
+            //window.setTimeout(function () {
+            //    adjustGridTimer();
+            //}, 500);
+
+        };
+        //wrap_text_adjust('3:00 am',200); 
+        window.setTimeout(function () {
+            adjustGridTimer();
+        }, 500);
+
+        //$('.fc-event-container').append('<div clSS="fc-event" style="left: 62px; top: 20px; width: 169.37px; height: 1920px; position: absolute; border: solid 1px red; z-index: 3000"></div>');
+        //adjustGrid();
+
+    });
+
+    $("input:radio[name=calIncrement]").change(function(){
+    
+        //$('.fc-slot0').children(':first-child').html("<div>12:00</div><div>12:30AM</div>");
+        //$('.fc-slot0').children(':first-child').hml
+        toggleTimeIncr();
+    });
+       
+       
+    //Because of the complexty of gettting the left side time slots to appear correctly
+    //this was done verbosely as we had to make several revisions to get this to vertically align correctly
+    function toggleTimeIncr(){
+        var incrMinsUrl = getUrlParameter('incrMins');
+        if(incrMinsUrl == 15 && window.calIncr==0)
+        {
+            $('#calIncrement15').prop('checked', true);
+                
+        }
+        window.calIncr =1;
+        var incMins = $("input[name='calIncrement']:checked").val();
+        if(incMins==15)
+        {
+            var vheight=0;
+
+            //Depending if it's a regular or newscast view, alignment is done slightly differently. 
+            if($("input[name='calendarType']:checked").val() === "Regular")
+            { 
+                vheight= $('.fc-slot0').height()/2; $('.fc-slot0').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;margin-left:-5px;display:inline-block; vertical-align:middle">12:15am</span></div>');
+                vheight= $('.fc-slot1').height()/2; $('.fc-slot1').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:45am</span></div>');
+                vheight= $('.fc-slot2').height()/2; $('.fc-slot2').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:15am</span></div>');
+                vheight= $('.fc-slot3').height()/2; $('.fc-slot3').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:45am</span></div>');
+                vheight= $('.fc-slot4').height()/2; $('.fc-slot4').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:15am</span></div>');
+                vheight= $('.fc-slot5').height()/2; $('.fc-slot5').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:45am</span></div>');
+                vheight= $('.fc-slot6').height()/2; $('.fc-slot6').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:15am</span></div>');
+                vheight= $('.fc-slot7').height()/2; $('.fc-slot7').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:45am</span></div>');
+                vheight= $('.fc-slot8').height()/2; $('.fc-slot8').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:15am</span></div>');
+                vheight= $('.fc-slot9').height()/2; $('.fc-slot9').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:45am</span></div>');
+                vheight= $('.fc-slot10').height()/2; $('.fc-slot10').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:15am</span></div>');
+                vheight= $('.fc-slot11').height()/2; $('.fc-slot11').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:45am</span></div>');
+                vheight= $('.fc-slot12').height()/2; $('.fc-slot12').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:15am</span></div>');
+                vheight= $('.fc-slot13').height()/2; $('.fc-slot13').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:45am</span></div>');
+                vheight= $('.fc-slot14').height()/2; $('.fc-slot14').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:15am</span></div>');
+                vheight= $('.fc-slot15').height()/2; $('.fc-slot15').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:45am</span></div>');
+                vheight= $('.fc-slot16').height()/2; $('.fc-slot16').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:15am</span></div>');
+                vheight= $('.fc-slot17').height()/2; $('.fc-slot17').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:45am</span></div>');
+                vheight= $('.fc-slot18').height()/2; $('.fc-slot18').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:15am</span></div>');
+                vheight= $('.fc-slot19').height()/2; $('.fc-slot19').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:45am</span></div>');
+                vheight= $('.fc-slot20').height()/2; $('.fc-slot20').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:15am</span></div>');
+                vheight= $('.fc-slot21').height()/2; $('.fc-slot21').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:45am</span></div>');
+                vheight= $('.fc-slot22').height()/2; $('.fc-slot22').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:15am</span></div>');
+                vheight= $('.fc-slot23').height()/2; $('.fc-slot23').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:45am</span></div>');
+                vheight= $('.fc-slot24').height()/2; $('.fc-slot24').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:15pm</span></div>');
+                vheight= $('.fc-slot25').height()/2; $('.fc-slot25').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:45pm</span></div>');
+                vheight= $('.fc-slot26').height()/2; $('.fc-slot26').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:15pm</span></div>');
+                vheight= $('.fc-slot27').height()/2; $('.fc-slot27').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:45pm</span></div>');
+                vheight= $('.fc-slot28').height()/2; $('.fc-slot28').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:15pm</span></div>');
+                vheight= $('.fc-slot29').height()/2; $('.fc-slot29').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:45pm</span></div>');
+                vheight= $('.fc-slot30').height()/2; $('.fc-slot30').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:15pm</span></div>');
+                vheight= $('.fc-slot31').height()/2; $('.fc-slot31').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:45pm</span></div>');
+                vheight= $('.fc-slot32').height()/2; $('.fc-slot32').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:15pm</span></div>');
+                vheight= $('.fc-slot33').height()/2; $('.fc-slot33').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:45pm</span></div>');
+                vheight= $('.fc-slot34').height()/2; $('.fc-slot34').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:15pm</span></div>');
+                vheight= $('.fc-slot35').height()/2; $('.fc-slot35').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:45pm</span></div>');
+                vheight= $('.fc-slot36').height()/2; $('.fc-slot36').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:15pm</span></div>');
+                vheight= $('.fc-slot37').height()/2; $('.fc-slot37').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:45pm</span></div>');
+                vheight= $('.fc-slot38').height()/2; $('.fc-slot38').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:15pm</span></div>');
+                vheight= $('.fc-slot39').height()/2; $('.fc-slot39').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:45pm</span></div>');
+                vheight= $('.fc-slot40').height()/2; $('.fc-slot40').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:15pm</span></div>');
+                vheight= $('.fc-slot41').height()/2; $('.fc-slot41').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:45pm</span></div>');
+                vheight= $('.fc-slot42').height()/2; $('.fc-slot42').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:15pm</span></div>');
+                vheight= $('.fc-slot43').height()/2; $('.fc-slot43').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:45pm</span></div>');
+                vheight= $('.fc-slot44').height()/2; $('.fc-slot44').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:15pm</span></div>');
+                vheight= $('.fc-slot45').height()/2; $('.fc-slot45').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:45pm</span></div>');
+                vheight= $('.fc-slot46').height()/2; $('.fc-slot46').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:15pm</span></div>');
+                vheight= $('.fc-slot47').height()/2; $('.fc-slot47').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:45pm</span></div>');
+            }
+            else {
+                vheight= $('.fc-slot0').height()/2; vheight=20; $('.fc-slot0').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;margin-left:-5px;display:inline-block; vertical-align:middle">12:15am</span></div>');
+                vheight= $('.fc-slot1').height()/2; vheight=20; $('.fc-slot1').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:45am</span></div>');
+                vheight= $('.fc-slot2').height()/2; vheight=20; $('.fc-slot2').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:15am</span></div>');
+                vheight= $('.fc-slot3').height()/2; vheight=20; $('.fc-slot3').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:45am</span></div>');
+                vheight= $('.fc-slot4').height()/2; vheight=20; $('.fc-slot4').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:15am</span></div>');
+                vheight= $('.fc-slot5').height()/2; vheight=20; $('.fc-slot5').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:45am</span></div>');
+                vheight= $('.fc-slot6').height()/2; vheight=20; $('.fc-slot6').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:15am</span></div>');
+                vheight= $('.fc-slot7').height()/2; vheight=20; $('.fc-slot7').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:45am</span></div>');
+                vheight= $('.fc-slot8').height()/2; vheight=20; $('.fc-slot8').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:15am</span></div>');
+                vheight= $('.fc-slot9').height()/2; vheight=20; $('.fc-slot9').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:45am</span></div>');
+                vheight= $('.fc-slot10').height()/2; vheight=20; $('.fc-slot10').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:15am</span></div>');
+                vheight= $('.fc-slot11').height()/2; vheight=20; $('.fc-slot11').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:45am</span></div>');
+                vheight= $('.fc-slot12').height()/2; vheight=20; $('.fc-slot12').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:15am</span></div>');
+                vheight= $('.fc-slot13').height()/2; vheight=20; $('.fc-slot13').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:45am</span></div>');
+                vheight= $('.fc-slot14').height()/2; vheight=20; $('.fc-slot14').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:15am</span></div>');
+                vheight= $('.fc-slot15').height()/2; vheight=20; $('.fc-slot15').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:45am</span></div>');
+                vheight= $('.fc-slot16').height()/2; vheight=20; $('.fc-slot16').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:15am</span></div>');
+                vheight= $('.fc-slot17').height()/2; vheight=20; $('.fc-slot17').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:45am</span></div>');
+                vheight= $('.fc-slot18').height()/2; vheight=20; $('.fc-slot18').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:15am</span></div>');
+                vheight= $('.fc-slot19').height()/2; vheight=20; $('.fc-slot19').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:45am</span></div>');
+                vheight= $('.fc-slot20').height()/2; vheight=20; $('.fc-slot20').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:15am</span></div>');
+                vheight= $('.fc-slot21').height()/2; vheight=20; $('.fc-slot21').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:45am</span></div>');
+                vheight= $('.fc-slot22').height()/2; vheight=20; $('.fc-slot22').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:15am</span></div>');
+                vheight= $('.fc-slot23').height()/2; vheight=20; $('.fc-slot23').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:30am</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:45am</span></div>');
+                vheight= $('.fc-slot24').height()/2; vheight=20; $('.fc-slot24').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:15pm</span></div>');
+                vheight= $('.fc-slot25').height()/2; vheight=20; $('.fc-slot25').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:45pm</span></div>');
+                vheight= $('.fc-slot26').height()/2; vheight=20; $('.fc-slot26').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:15pm</span></div>');
+                vheight= $('.fc-slot27').height()/2; vheight=20; $('.fc-slot27').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:45pm</span></div>');
+                vheight= $('.fc-slot28').height()/2; vheight=20; $('.fc-slot28').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:15pm</span></div>');
+                vheight= $('.fc-slot29').height()/2; vheight=20; $('.fc-slot29').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:45pm</span></div>');
+                vheight= $('.fc-slot30').height()/2; vheight=20; $('.fc-slot30').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:15pm</span></div>');
+                vheight= $('.fc-slot31').height()/2; vheight=20; $('.fc-slot31').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:45pm</span></div>');
+                vheight= $('.fc-slot32').height()/2; vheight=20; $('.fc-slot32').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:15pm</span></div>');
+                vheight= $('.fc-slot33').height()/2; vheight=20; $('.fc-slot33').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:45pm</span></div>');
+                vheight= $('.fc-slot34').height()/2; vheight=20; $('.fc-slot34').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:15pm</span></div>');
+                vheight= $('.fc-slot35').height()/2; vheight=20; $('.fc-slot35').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:45pm</span></div>');
+                vheight= $('.fc-slot36').height()/2; vheight=20; $('.fc-slot36').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:15pm</span></div>');
+                vheight= $('.fc-slot37').height()/2; vheight=20; $('.fc-slot37').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:45pm</span></div>');
+                vheight= $('.fc-slot38').height()/2; vheight=20; $('.fc-slot38').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:15pm</span></div>');
+                vheight= $('.fc-slot39').height()/2; vheight=20; $('.fc-slot39').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:45pm</span></div>');
+                vheight= $('.fc-slot40').height()/2; vheight=20; $('.fc-slot40').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:15pm</span></div>');
+                vheight= $('.fc-slot41').height()/2; vheight=20; $('.fc-slot41').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:45pm</span></div>');
+                vheight= $('.fc-slot42').height()/2; vheight=20; $('.fc-slot42').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:15pm</span></div>');
+                vheight= $('.fc-slot43').height()/2; vheight=20; $('.fc-slot43').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:45pm</span></div>');
+                vheight= $('.fc-slot44').height()/2; vheight=20; $('.fc-slot44').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:15pm</span></div>');
+                vheight= $('.fc-slot45').height()/2; vheight=20; $('.fc-slot45').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:45pm</span></div>');
+                vheight= $('.fc-slot46').height()/2; vheight=20; $('.fc-slot46').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:15pm</span></div>');
+                vheight= $('.fc-slot47').height()/2; vheight=20; $('.fc-slot47').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:30pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:45pm</span></div>');
+                //$('.fc-slot0').height(41);
+                //$('.fc-slot1').height(41);
+                //$('.fc-slot2').height(41);
+                //$('.fc-slot3').height(42);
+                //$('.fc-slot4').height(41);
+                //$('.fc-slot5').height(42);
+                //$('.fc-slot6').height(41);
+                //$('.fc-slot7').height(42);
+                //$('.fc-slot8').height(41);
+                //$('.fc-slot9').height(41);
+                //$('.fc-slot10').height(42);
+                //$('.fc-slot11').height(42);
+                //$('.fc-slot12').height(41);
+                //$('.fc-slot13').height(41);
+                //$('.fc-slot14').height(41);
+                //$('.fc-slot15').height(42);
+                //$('.fc-slot16').height(41);
+                //$('.fc-slot17').height(41);
+                //$('.fc-slot18').height(41);
+                //$('.fc-slot19').height(42);
+                //$('.fc-slot20').height(41);
+                //$('.fc-slot21').height(42);
+                //$('.fc-slot22').height(41);
+                //$('.fc-slot23').height(42);
+                //$('.fc-slot24').height(42);
+                //$('.fc-slot25').height(42);
+                //$('.fc-slot26').height(41);
+                //$('.fc-slot27').height(42);
+                //$('.fc-slot28').height(41);
+                //$('.fc-slot29').height(41);
+                //$('.fc-slot30').height(41);
+                //$('.fc-slot31').height(42);
+                //$('.fc-slot32').height(41);
+                //$('.fc-slot33').height(41);
+                //$('.fc-slot34').height(41);
+                //$('.fc-slot35').height(42);
+                //$('.fc-slot36').height(41);
+                //$('.fc-slot37').height(42);
+                //$('.fc-slot38').height(42);
+                //$('.fc-slot39').height(42);
+                //$('.fc-slot40').height(41);
+                //$('.fc-slot41').height(41);
+                //$('.fc-slot42').height(42);
+                //$('.fc-slot43').height(42);
+                //$('.fc-slot44').height(41);
+                //$('.fc-slot45').height(42);
+                //$('.fc-slot46').height(41);
+                //$('.fc-slot47').height(42);
+
+                //adjustSixtyMintueTimeHeaders();
+             
+            }
+        }
+        else
+        {
+                    
+            vheight= $('.fc-slot0').height()/2; $('.fc-slot0').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot1').height()/2; $('.fc-slot1').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot2').height()/2; $('.fc-slot2').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot3').height()/2; $('.fc-slot3').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot4').height()/2; $('.fc-slot4').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot5').height()/2; $('.fc-slot5').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot6').height()/2; $('.fc-slot6').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot7').height()/2; $('.fc-slot7').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot8').height()/2; $('.fc-slot8').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot9').height()/2; $('.fc-slot9').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot10').height()/2; $('.fc-slot10').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot11').height()/2; $('.fc-slot11').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot12').height()/2; $('.fc-slot12').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot13').height()/2; $('.fc-slot13').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot14').height()/2; $('.fc-slot14').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot15').height()/2; $('.fc-slot15').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot16').height()/2; $('.fc-slot16').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot17').height()/2; $('.fc-slot17').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot18').height()/2; $('.fc-slot18').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot19').height()/2; $('.fc-slot19').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot20').height()/2; $('.fc-slot20').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot21').height()/2; $('.fc-slot21').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot22').height()/2; $('.fc-slot22').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00am</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot23').height()/2; $('.fc-slot23').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot24').height()/2; $('.fc-slot24').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">12:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot25').height()/2; $('.fc-slot25').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot26').height()/2; $('.fc-slot26').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">1:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot27').height()/2; $('.fc-slot27').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot28').height()/2; $('.fc-slot28').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">2:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot29').height()/2; $('.fc-slot29').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot30').height()/2; $('.fc-slot30').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">3:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot31').height()/2; $('.fc-slot31').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot32').height()/2; $('.fc-slot32').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">4:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot33').height()/2; $('.fc-slot33').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot34').height()/2; $('.fc-slot34').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">5:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot35').height()/2; $('.fc-slot35').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot36').height()/2; $('.fc-slot36').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">6:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot37').height()/2; $('.fc-slot37').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot38').height()/2; $('.fc-slot38').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">7:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot39').height()/2; $('.fc-slot39').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot40').height()/2; $('.fc-slot40').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">8:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot41').height()/2; $('.fc-slot41').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot42').height()/2; $('.fc-slot42').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">9:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot43').height()/2; $('.fc-slot43').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot44').height()/2; $('.fc-slot44').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">10:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot45').height()/2; $('.fc-slot45').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot46').height()/2; $('.fc-slot46').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle">11:00pm</span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+            vheight= $('.fc-slot47').height()/2; $('.fc-slot47').children(':first-child').html('<div style="letter-spacing: -1px; height:' + vheight +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"></span></div><div style="letter-spacing: -1px;height:'+ (vheight-1) +'px"><span style="margin-left:-5px;display:inline-block; vertical-align:middle"> </span></div>');
+
+
+            if($("input[name='calendarType']:checked").val() != "Regular")
+            {
+                    
+                //$(".npr-newscast-calendar").fullCalendar("refresh");
+                //$(".npr-program-calendar").fullCalendar("refetchEvents");
+                //$(".npr-newscast-calendar").fullCalendar("refetchEvents");
+                $('.fc-slot0').height(40);
+                $('.fc-slot1').height(40);
+                $('.fc-slot2').height(40);
+                $('.fc-slot3').height(40);
+                $('.fc-slot4').height(40);
+                $('.fc-slot5').height(40);
+                $('.fc-slot6').height(40);
+                $('.fc-slot7').height(40);
+                $('.fc-slot8').height(40);
+                $('.fc-slot9').height(40);
+                $('.fc-slot10').height(40);
+                $('.fc-slot11').height(40);
+                $('.fc-slot12').height(40);
+                $('.fc-slot13').height(40);
+                $('.fc-slot14').height(40);
+                $('.fc-slot15').height(40);
+                $('.fc-slot16').height(40);
+                $('.fc-slot17').height(40);
+                $('.fc-slot18').height(40);
+                $('.fc-slot19').height(40);
+                $('.fc-slot20').height(40);
+                $('.fc-slot21').height(40);
+                $('.fc-slot22').height(40);
+                $('.fc-slot23').height(40);
+                $('.fc-slot24').height(40);
+                $('.fc-slot25').height(40);
+                $('.fc-slot26').height(40);
+                $('.fc-slot27').height(40);
+                $('.fc-slot28').height(40);
+                $('.fc-slot29').height(40);
+                $('.fc-slot30').height(40);
+                $('.fc-slot31').height(40);
+                $('.fc-slot32').height(40);
+                $('.fc-slot33').height(40);
+                $('.fc-slot34').height(40);
+                $('.fc-slot35').height(40);
+                $('.fc-slot36').height(40);
+                $('.fc-slot37').height(40);
+                $('.fc-slot38').height(40);
+                $('.fc-slot39').height(40);
+                $('.fc-slot40').height(40);
+                $('.fc-slot41').height(40);
+                $('.fc-slot42').height(40);
+                $('.fc-slot43').height(40);
+                $('.fc-slot44').height(40);
+                $('.fc-slot45').height(40);
+                $('.fc-slot46').height(40);
+                $('.fc-slot47').height(40);
+
+            }
+
+            //adjustSixtyMintueTimeHeaders();
+
+               
+
+        }
+
+    }
+
+    function initRadioButtons() {
+        // Calendar view change event
+        $("input[name='calendarView']").change(function (e) {
+            viewCalendar = $(this).val();
+            if ($(this).val() === "Calendar") {
+                $("#exportLinkButton").hide();
+                toggleProgramNewscastButtons("");
+                toggleProgramNewscastGrids("");
+                if ($("input[name='calendarType']:checked").val() === "Regular") {
+                    //$("#quarterHours").val("");
+                    
+                    //$('.npr-program-calendar').fullCalendar('refetchEvents');
+                    //$('.npr-program-calendar-print').fullCalendar('refetchEvents');
+                    //toggleProgramNewscastCalendars("P");
+                    reloadRegularCalendar();
+                }
+                else {
+                    $(".npr-newscast-calendar-print").fullCalendar("refetchEvents");
+                    $(".npr-newscast-calendar").fullCalendar("refetchEvents");
+                    toggleProgramNewscastCalendars("N");
+                }
+            }
+            else {
+                $("#exportLinkButton").show();
+                toggleProgramNewscastCalendars("");
+                if ($("input[name='calendarType']:checked").val() === "Regular") {
+                    toggleProgramNewscastButtons("P");
+                    toggleProgramNewscastGrids("P");
+                }
+                else {
+
+                    toggleProgramNewscastButtons("N");
+                    toggleProgramNewscastGrids("N");
+                }
+            }
+            
+        });
+
+        // Calender type change event
+        $("input[name='calendarType']").change(function (e) {
+            
+            $( ".fc-event" ).each(function(i, obj)  {
+
+                if ($(this).attr("title").indexOf("NPR Newscast") >= 0)
+                {
+                    window.newscastg = window.newscastg +1;
+                }
+            });
+            if ($(this).val() === "Regular") {
+                
+                if ($("input[name='calendarView']:checked").val() === "Calendar") {
+                    //$("#exportLinkButton").hide();
+                    //$(".npr-program-calendar").fullCalendar("refetchEvents");
+                    //$(".npr-program-calendar-print").fullCalendar("refetchEvents");
+                    //toggleProgramNewscastCalendars("P");
+                    //toggleProgramNewscastButtons("");
+                    //toggleProgramNewscastGrids("");
+                    reloadRegularCalendar();
+                }
+                else {
+                    $("#exportLinkButton").show();
+                    toggleProgramNewscastCalendars("");
+                    toggleProgramNewscastButtons("P");
+                    toggleProgramNewscastGrids("P");
+                }
+                changeExportType("R");
+
+                //window.setTimeout(function () {
+                //    adjustGridTimer();
+                //}, 500);
+            }
+            else {
+                $("#exportLinkButton").show();
+                if ($("input[name='calendarView']:checked").val() === "Calendar") {
+                    $("#exportLinkButton").hide();
+                    $(".npr-newscast-calendar").fullCalendar("refetchEvents");
+                    toggleProgramNewscastCalendars("N");
+                    toggleProgramNewscastButtons("");
+                    toggleProgramNewscastGrids("");
+                }
+                else {
+                    $("#exportLinkButton").show();
+                    toggleProgramNewscastCalendars("");
+                    toggleProgramNewscastButtons("N");
+                    toggleProgramNewscastGrids("N");
+                }
+
+                changeExportType("N");
+            }
+           
+        });
+    }
+
+    function reloadRegularCalendar()
+    {
+        var incMins = $("input[name='calIncrement']:checked").val();
+        if($("input[name='calendarView']:checked").val() === "Calendar")
+        {
+            $(".npr-newscast-calendar").hide();
+            if(incMins==15)
+            {
+                if(window.location.href.indexOf('incrMins')>0)
+                    window.location.href = window.location.href.replace("incrMins=60","incrMins=15");
+                else
+                    window.location.href = window.location.href + "&incrMins=15";
+            }
+            else {
+                if(window.location.href.indexOf('incrMins')>0)
+                    window.location.href = window.location.href.replace("incrMins=15","incrMins=60");
+                else
+                    window.location.href = window.location.href + "&incrMins=60";
+                //location.reload();
+            }
+        }
+
+
+    }
+    function initFunctionButtons() {
+        $('.npr-program-calendar-addProgram')
+             .button({
+                 label: "Add Program",
+                 icons: {
+                     primary: "npr-program-calendar-submit"
+                 }
+             }).click(function () { $(".npr-program-calendar").fullCalendar('select', undefined, undefined, false); })
+            .css({ "font-weight": "bold" });
+
+       
+        $('.npr-newscast-calendar > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').click(function(e) {
+            
+                       window.y = e.pageY - this.offsetTop - 338 + $('.npr-newscast-calendar > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').scrollTop();
+            window.x = e.pageX - this.offsetLeft;
+           
+            window.setTimeout(function () {
+               
+                fixStartEndTimesNewscast();
+
+
+            }, 500);
+        });
+
+
+        $('#divagendaslot').click(function (e) {
+            //alert( $("#divagendaslot").height());
+            window.y = e.pageY - this.offsetTop - 338 + $('#divagendaslot').scrollTop();
+            window.x = e.pageX - this.offsetLeft;
+
+            if (window.y < 1) {
+
+                window.setTimeout(function () {
+                    fixStartEndTimes();
+
+
+                }, 500);
+            }
+            else {
+             
+                window.setTimeout(function () {
+
+                    if(window.dialogue==0){
+                        $(".npr-program-calendar").fullCalendar('select', undefined, undefined, false);
+                    }
+                    fixStartEndTimes();
+
+                        
+
+                }, 500);
+                //}
+            }
+        });
+
+        $('.npr-program-calendar-addNewscast')
+             .button({
+                 label: "Add Newscast",
+                 icons: {
+                     primary: "npr-program-calendar-submit"
+                 }
+             }).click(function () {$(".npr-newscast-calendar").fullCalendar('select', undefined, undefined, false); })
+            .css({ "font-weight": "bold" });
+
+        $('.npr-program-calendar-monthbar-print')
+            .button({
+                label: "Print",
+                icons: {
+                    primary: "npr-program-calendar-print"
+                }
+            }).click(function () { 
+                //window.print(); 
+                if (viewCalendar === "Calendar") {  
+                    CalendarPrintDialog();
+                    //testCanvass(); 
+                    //$("#calendarControls").delay(8000).show(0);
+                } else { window.print(); }
+            })
+            .css({ "font-weight": "bold" });
+
+        $('.test-calendar-monthbar-pdf')
+            .button({
+                label: "Test PDF",
+                icons: {
+                    primary: "test-calendar-pdf"
+                }
+            }).click(function () { 
+                if (viewCalendar === "Calendar") {  
+                   
+                    testCanvass(); 
+                    $("#calendarControls").delay(8000).show(0);
+                } else { window.print(); }
+            })
+            .css({ "font-weight": "bold" });
+
+        $(".npr-program-calendar-monthbar-submit")
+            .button({
+                label: "Submit",
+                icons: {
+                    primary: "npr-program-calendar-submit"
+                }
+            }).click(function () { confirmSubmit(); })
+            .css({ "font-weight": "bold" });
+
+        $(".npr-list-calendar-monthbar-export")
+            .button({
+                label: "Export",
+                icons: {
+                    primary: "npr-list-calendar-export"
+                }
+            }).click(function () { exportExcel(); })
+            .css({ "font-weight": "bold" });
+    }
+
+    function changeExportType(type) {
+        var $parent = $(document);
+        $parent.find("form.inf-exportgrid").each(function () {
+            var $form = $(this);
+            $form.removeData('gridid'); 
+        });
+        if (type === "R") {
+              
+            $('form.inf-exportgrid').attr('data-gridid', 'programListGrid');
+            $('input[name="outputFileName"]').val('ProgramScheduleList.csv');
+        }
+        else {
+            $('.inf-exportgrid').attr('data-gridid', 'newscastListGrid');
+            $('input[name="outputFileName"]').val('NewcastScheduleList.csv');
+        }
+    }
+
+    function exportExcel() {
+        var $submit = $('.inf-exportgrid').find(':submit');
+
+        $submit.click();
+        /*
+        var $grid;
+        var fileName;
+
+        if ($("input[name='calendarType']:checked").val() === "Regular") {
+            fileName = "ProgramCalendarList";
+            $grid = $("#programListGrid").closest(".ui-jqgrid");
+        }
+        else {
+            fileName = "NewscastCalenderList";
+            $grid = $("#newscastListGrid").closest(".ui-jqgrid");
+        }
+
+        var headers = [];
+        $grid.find(".ui-jqgrid-htable th:visible").each(function () {
+            headers.push($(this).text());
+        });
+
+        var dataRows = [];
+        $grid.find(".ui-jqgrid-btable tr:visible").each(function () {
+            var dataCells = [];
+            $(this).find("td:visible").each(function () {
+                dataCells.push($(this).text());
+            });
+            dataRows.push(dataCells);
+        });
+
+        var headerData = JSON.stringify(headers);
+        var cellData = JSON.stringify(dataRows);
+
+        $.ajax({
+            url: "@@Url.Action("ExportGrid", "InfBase")",
+            type: "POST",
+            Accept : "text/csv; charset=utf-8",
+            "Content-Type": "text/csv; charset=utf-8",
+            dataType: "json",
+            data: {
+                outputFileName: fileName,
+                gridHeaders: headerData,
+                gridData: cellData
+            }
+            /*url: "@@Url.Action("ExportGrid", "InfBase")?outputFileName=" + fileName + "&gridHeaders=" + headerData + "&gridData=" + cellData + "",
+            data
+        });
+    */
+    }
+
+    function initDefaultView() {
+        $("#exportLinkButton").hide();
+        $("#addProgramLinkButton").hide();
+        $("#addNewscastLinkButton").hide();
+        $("#programListSection").hide();
+        $("#newscastListSection").hide();
+        $(".npr-newscast-calendar").hide();
+
+        if (isSubmitted != "") {
+            $("#submitLinkButton").hide();
+        }
+
+        if (readOnly === "True") {
+            $("#submitLinkButton").hide();
+            $("#DNA").prop("disabled", "disabled");
+            $("input:radio[name=calIncrement]").prop("disabled", "disabled");
+            if (isSubmitted != "") {
+                //$("#readOnlySection").text("Note: This schedule has already been submitted");
+                $("#readOnlySection").text("Note: This schedule is Read-Only. Please contact the system administrator if you need to make changes.");
+            }
+            else {
+                $("#readOnlySection").text("Note: This schedule is Read-Only. Please contact the system administrator if you need to make changes.");
+            }
+        }
+        if (isRepeaterInd === "True"){
+            $("#readOnlySection").text("Note: This schedule is Read-Only.");
+        }
+    }
+
+    function toggleProgramNewscastCalendars(type) {
+        if (type === "P") {
+            $(".npr-program-calendar").show();
+            $(".npr-newscast-calendar").hide();
+            $(".npr-newscast-calendar-print").hide();
+            $(".npr-program-calendar-print").hide();
+            $(".newscolbox").removeClass('boxBorder');
+            $(".newscolboxone").removeClass('boxBorderOne');
+            $('.npr-program-calendar [class^="fc-slot"]').children(':first-child').css("vertical-align", 'top');
+        }
+        else if (type === "N") {
+            $(".npr-program-calendar").hide();
+            $(".npr-newscast-calendar-print").hide();
+            $(".npr-program-calendar-print").hide();
+            $(".npr-newscast-calendar").show();               
+            $('.npr-newscast-calendar').fullCalendar('option', 'contentHeight', 'auto');
+            $(".newscolbox").addClass('boxBorder');
+            $(".newscolboxone").addClass('boxBorderOne');
+                
+            var ch =  $("#divagendaslot").height();
+            $(".newscolbox").attr('style', "height: " + ch + "px;");
+            //$(".npr-newscast-calendar tr").attr('line-height', "40px;");
+            var ctr = 1;
+            $('.npr-newscast-calendar table tr').each(function(i,el) {
+                if(ctr == 1){
+                    //alert(i);
+                }
+                else{
+                    $('.npr-newscast-calendar table tr').eq(i).height('40px');
+                }
+                ctr = ctr + 1;
+            });
+        }
+        else if (type === "O") {
+            $(".npr-program-calendar").hide();
+            $(".npr-newscast-calendar").hide();
+            $(".npr-newscast-calendar-print").hide();
+            $(".npr-program-calendar-print").show();
+            $(".newscolbox").removeClass('boxBorder');
+            $(".newscolboxone").removeClass('boxBorderOne');
+            $('.npr-program-calendar-print [class^="fc-slot"]').children(':first-child').css("vertical-align", 'top');
+        }
+        else if (type === "M") {
+            $(".npr-program-calendar").hide();
+            $(".npr-newscast-calendar-print").show();
+            $(".npr-program-calendar-print").hide();
+            $(".npr-newscast-calendar").hide();
+            $(".newscolbox").addClass('boxBorder');
+            $(".newscolboxone").addClass('boxBorderOne');
+            var ch = 1950;
+            $(".newscolbox").attr('style', "height: " + ch + "px;");
+        }
+        else {
+            $(".npr-program-calendar").hide();
+            $(".npr-newscast-calendar").hide();
+            $(".npr-newscast-calendar-print").hide();
+            $(".npr-program-calendar-print").hide();
+            $(".newscolbox").removeClass('boxBorder');
+            $(".newscolboxone").removeClass('boxBorderOne');
+        }
+    }
+
+    function toggleProgramNewscastGrids(type) {
+        if (type === "P") {
+            $("#programListSection").show();
+            $("#newscastListSection").hide();
+        }
+        else if (type === "N") {
+            $("#programListSection").hide();
+            $("#newscastListSection").show();
+        }
+        else {
+            $("#programListSection").hide();
+            $("#newscastListSection").hide();
+        }
+    }
+
+    function toggleProgramNewscastButtons(type) {
+        if (type === "P") {
+            $("#addProgramLinkButton").show();
+            $("#addNewscastLinkButton").hide();
+        }
+        else if (type === "N") {
+            $("#addProgramLinkButton").hide();
+            $("#addNewscastLinkButton").show();
+        }
+        else {
+            $("#addProgramLinkButton").hide();
+            $("#addNewscastLinkButton").hide();
+        }
+    }
+
+    function programNameFormatter(cellValue, options, rowObject) {
+        var startTime = dateFormat(timeSpanToDate(rowObject.StartTime), "h:MM tt");
+        var endTime = dateFormat(timeSpanToDate(rowObject.EndTime), "h:MM tt");
+
+        return '<a class="defaultLink" onclick="editProgramEntry(\'' + rowObject.ScheduleProgramId + '\', \'' + startTime + '\', \'' + endTime + '\');">' + rowObject.ProgramName + '</a>';
+    }
+
+    function daysOfWeekFormatter(cellValue, options, rowObject) {
+        var daysOfWeek;
+        daysOfWeek = rowObject.DaysOfWeek.toString().trim();
+
+        switch (daysOfWeek) {
+            case "Sun Mon Tue Wed Thu Fri Sat":
+                return "Mon - Sun";
+                break;
+            case "Mon Tue Wed Thu Fri":
+                return "Mon - Fri";
+                break;
+            default:
+                return daysOfWeek;
+                break;
+        }
+    }
+
+    function newscastNameFormatter(cellValue, options, rowObject) {
+        var startTime = dateFormat(timeSpanToDate(rowObject.StartTime), "h:MM tt");
+        var endTime = dateFormat(timeSpanToDate(rowObject.EndTime), "h:MM tt");
+
+        var DaysOfWeek;
+        DaysOfWeek = rowObject.DaysOfWeek.toString().trim();
+
+        switch (DaysOfWeek) {
+            case "Sun Mon Tue Wed Thu Fri Sat":
+                DaysOfWeek = "Mon - Sun";
+                break;
+            case "Mon Tue Wed Thu Fri":
+                DaysOfWeek = "Mon - Fri";
+                break;
+        }
+
+        return '<a class="defaultLink" onclick="editNewscastEntryWrapper(\'' + DaysOfWeek+ '\', \'' + rowObject.ScheduleNewscastId + '\', \'' + startTime + '\', \'' + endTime + '\');">' + DaysOfWeek + '</a>';
+    }
+
+    function calcQuarterHours(cellValue, options, rowObject) {
+        // Quick way to calculate total hours when list view is selected
+        var hours;
+        if ($("input[name='calendarView']:checked").val() === "List") {
+            hours = $("#quarterHours").val() === "" ? 0 : parseInt($("#quarterHours").val());
+            hours = hours + parseInt(rowObject.TotalQuarterHours);
+
+            $("#quarterHours").val(hours);
+        }
+        return rowObject.TotalQuarterHours;
+    }
+
+    function confirmSubmit() {
+        //alert(@(Model.ShowSubmitVerification));
+        var $qrtHours = $("#quarterHours");
+        var newscast=0;
+        $( ".fc-event" ).each(function(i, obj)  {
+
+            if ($(this).attr("title").indexOf("NPR Newscast") >= 0)
+            {
+                newscast = newscast +1;
+            }
+        });
+
+        if (validateHours()) {
+            var ssv= ("@(Model.ShowSubmitVerification)");
+            //alert(ssv);
+            if(crcManager==0  && ssv !="N")
+            {
+                if (!$("#DNA").is(":checked")) {
+                    $("#lnkalertSubmit").click();
+                }
+                else {
+                    if(newscast>0 || window.newscastg>0)
+                    {
+                        $("#lnkalertSubmitNCheck").click();
+                    }else
+                    {
+                        $("#lnkSubmit").click();
+                    }
+                }
+            }
+            else {
+                $("#lnkSubmit").click();
+            }
+        }
+    }
+
+    function validateHours() {
+        var $qrtHours = $("#quarterHours");
+
+        if ($qrtHours.val() != 672) {
+            var $validationList = $(".validation-summary-valid").children('');
+            $validationList.append('<li>Grid must be filled out completely before the schedule can be submitted.</li>');
+            $(".validation-summary-container").show();
+            $(".validation-summary-valid").css('display', 'block');
+            $(".validation-summary-valid").addClass("validation-summary-errors");
+            return false;
+        }
+        else {
+            var $validationList = $(".validation-summary-valid").children('');
+            $(".validation-summary-container").hide();
+            return true;
+        }
+    }
+
+    function dval(checkboxElem) {
+        if (checkboxElem.checked) {
+            disableVal = true
+        } else {
+            disableVal = false
+        }
+    }
+
+    function submitSchedule() {
+        //alert(324988)
+        //alert(disableValidation);
+        //alert($('#disableValidation').is(":checked"));
+        //alert(disableVal);
+      
+        var scheduleId = parseInt("@(Model.ScheduleId.HasValue ? Model.ScheduleId.Value : 0)")
+            var DNA = $("#DNA").is(":checked");
+            var disableValidation  = disableVal;
+            var url = "@Url.Content("~/Schedules/SubmitSchedule/")"
+        var data = { scheduleId: scheduleId, DNAInd: DNA, disableValidation:disableValidation };
+
+            $.post(url, data).done(function (data) {
+                //history.back();
+                //window.location.href = data.url;
+                window.location.href="@Url.Action("Index", "Schedules", new { CallLetters = @Model.StationDisplayName })";
+            });
+            }
+
+            function editProgramEntry(id, startTime, endTime) {
+                $('.npr-program-calendar').fullCalendar('select', parseDate(startTime), parseDate(endTime), false, id);
+            }
+
+        
+            function editNewscastEntryWrapper(days, id, startTime, endTime) {
+                $('.npr-newscast-calendar').fullCalendar('select', parseDate(startTime), parseDate(endTime), false, id);
+            }
+
+            function editNewscastEntry(id, startTime, endTime) {
+                $('.npr-newscast-calendar').fullCalendar('select', parseDate(startTime), parseDate(endTime), false, id);
+            }
+
+            ///************************************** Need to include in a global file? *********************************************/
+
+            function timeSpanToDate(timeSpan) {
+                if (timeSpan) {
+                    if (timeSpan.Ticks >= 0) {
+                        return new Date(1900, 1, 1, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+                    }
+                    else {
+                        return new Date("1/1/1900 " + timeSpan);
+                    }
+                }
+                else {
+                    return null;
+                }
+            }
+
+            function startTimeFormatter(cellValue, options, rowObject) {
+                return dateFormat(timeSpanToDate(rowObject.StartTime), "h:MM tt");
+            }
+
+            function endTimeFormatter(cellValue, options, rowObject) {
+                return dateFormat(timeSpanToDate(rowObject.EndTime), "h:MM tt");
+            }
+
+            function parseDate(stringValue) {
+                var valueSplitSpace = stringValue.split(" ");
+                if (valueSplitSpace.length === 2) {
+                    var valueSplitColon = valueSplitSpace[0].split(":");
+                    if (valueSplitColon.length === 2) {
+                        var hours = parseInt(valueSplitColon[0]);
+                        if (valueSplitSpace[1].toUpperCase() === 'PM' && hours !== 12) {
+                            hours += 12;
+                        }
+                        else if (valueSplitSpace[1].toUpperCase() === 'AM' && hours === 12) {
+                            hours = 0;
+                        }
+                        var minutes = parseInt(valueSplitColon[1]);
+                        var date = new Date();
+                        date.setHours(hours, minutes);
+                        return date;
+                    }
+                }
+                return null;
+            }
+
+
+            /************************************** Need to include in a global file? *********************************************/
+
+            /************** implement canvass start ******************/
+    
+            function initialCalendar(){
+                $('.npr-program-calendar').fullCalendar('refetchEvents');
+                //$('.npr-program-calendar-print').fullCalendar('refetchEvents');
+                toggleProgramNewscastCalendars("P");
+            }
+
+            function testCanvass(layout){
+                var type = "Q";
+                var printType = "Q";
+                if ($("input[name='calendarType']:checked").val() === "Regular") {
+                    type = "P";
+                    printType = "O";
+                    //$('.npr-program-calendar').fullCalendar('refetchEvents');
+                    //$('.npr-program-calendar-print').fullCalendar('refetchEvents');
+                } else { 
+                    type = "N";
+                    printType = "M"; 
+                    $(".npr-newscast-calendar-print").fullCalendar("refetchEvents");
+                    //$(".npr-newscast-calendar").fullCalendar("refetchEvents");
+                }
+                toggleProgramNewscastCalendars(printType)
+                $('.npr-program-calendar-print').fullCalendar('option', 'contentHeight', 3000);
+                if(printType == "M"){
+                    $('.npr-newscast-calendar-print').fullCalendar('option', 'contentHeight', 3000);
+                }
+                if(printType == "O"){
+                    adjustGridPrint();
+                }
+                if(printType == "M"){
+                    var ch = $(".npr-newscast-calendar-print").height() - 30;
+                    $(".newscolbox").attr('style', "height: " + ch + "px;"); 
+                
+                    var ctr = 1;
+                    $('.npr-newscast-calendar-print table tr').each(function(i,el) {
+                        if(ctr == 1){
+                            //alert(i);
+                        }
+                        else{
+                            $('.npr-newscast-calendar-print table tr').eq(i).height('40px');
+                        }
+                        ctr = ctr + 1;
+                    });
+                }
+                $("#calendarControls").hide();
+                $('html, body').animate({scrollTop: $("#bodyContents").offset().top}, 2000);
+                /**if ($.browser.mozilla) {**/
+                    $(function() {
+                        $('#divDialog').dialog({modal : true});
+                    });
+                /**}**/
+                setTimeout(function(){
+                    var programCalendar = document.getElementById('bodyContents');
+                    //programCalendar.style.height = '100%';
+                    //var img = new Image();
+                    //var croppingYPosition = 150;
+                    html2canvas(programCalendar, {
+                        onrendered: function(canvas) {
+                            //document.body.appendChild(canvas);
+
+                            /****/
+                            var imageData = canvas.toDataURL("image/jpeg");
+                            var image = new Image();
+                            image = Canvas2Image.convertToJPEG(canvas);
+                    
+                            var doc = new jsPDF(layout);
+                            //doc.addImage(imageData, 'JPEG', 0, 0);
+                            image.onload = function () {
+                            //////////////
+                            //doc.addPage();
+                            var croppingYPosition = image.height; //1600;
+                            var sourceX = 0;
+                            var sourceWidth = image.width;
+                            var destX = 0;
+                            var destY = 0;
+                            var destWidth = 800;
+                            var destHeight = 1095;
+                            if(layout == "landscape"){
+                                croppingYPosition = image.height / 2;
+                                count = (image.height) / croppingYPosition;
+                                destWidth = 1095;
+                                destHeight = 800;
+                            }
+                            var sourceHeight = croppingYPosition;
+
+                            var canvas2 = document.createElement('canvas');
+                            canvas2.setAttribute('height', destHeight);
+                            canvas2.setAttribute('width',  destWidth);                         
+                            var ctx1 = canvas2.getContext("2d");
+                            ctx1.drawImage(image, sourceX, 
+                                                 0,
+                                                 sourceWidth,
+                                                 sourceHeight, 
+                                                 destX, 
+                                                 destY, 
+                                                 destWidth, 
+                                                 destHeight);
+                            var image3 = new Image();
+                            image3 = Canvas2Image.convertToJPEG(canvas2);
+                            var image3Data = image3.src;
+                            doc.addImage(image3Data, 'JPEG', 0, 0);
+                        
+
+                            if(layout == "landscape"){
+                                for (var i =1; i < count; i++) {
+                                    doc.addPage();
+                                    var sourceY = croppingYPosition;
+                                    var canvas1 = document.createElement('canvas');
+                                    canvas1.setAttribute('height', destHeight);
+                                    canvas1.setAttribute('width', destWidth);                         
+                                    var ctx = canvas1.getContext("2d");
+                                    ctx.drawImage(image, sourceX, 
+                                                         sourceY,
+                                                         sourceWidth,
+                                                         sourceHeight, 
+                                                         destX, 
+                                                         destY, 
+                                                         destWidth, 
+                                                         destHeight);
+                                    var image2 = new Image();
+                                    image2 = Canvas2Image.convertToJPEG(canvas1);
+                                    image2Data = image2.src;
+                                    doc.addImage(image2Data, 'JPEG', 0, 0);
+                                    croppingYPosition += croppingYPosition;              
+                                }
+                            }
+
+                            var d = new Date().toISOString().slice(0, 19).replace(/-/g, "");
+                            filename = 'calendar_' + d + '.pdf';
+                            //doc.save(filename);
+
+                            var data = doc.output();
+                            if(data.length < 30000)
+                            {
+                                setTimeout(function(){
+                                    buttons = $("#dialogPrint").dialog('option', 'buttons');
+                                    buttons["PDFPrint"].click.apply($("#dialogPrint"));
+                                }, 9500);
+                            }else {
+                                $('#divDialog').dialog("close");
+                                doc.save(filename);                                
+                                //$("#calendarControls").delay(8000).show(0);
+                                $("#calendarControls").show();
+                            }
+                }
+                        }
+                    });
+                }, 6000);
+
+                setTimeout(function(){
+                    //$("input[name='calendarType']:checked").trigger("change");
+                    toggleProgramNewscastCalendars(type);
+                }, 9000);
+        
+            }
+
+    
+            function adjustGridPrint(){
+        
+                // var nextTop = 10000;
+                // var prevElm = null;
+                // var maxHeight= 1920;
+
+                // $('[class^="fc-slot"]').css("height", 'auto');
+                // $( ".npr-program-calendar-print .fc-event" ).each(function()  {
+
+                //     if($(this).text().length>16)
+                //     {
+                //         var title =$(this).attr("title");
+                //         var slotStart = GetStartSlot(title);
+                //         var slotEnd = GetEndSlot(title);
+                //         var dtdiff = (new Date("1/1/2007 " + slotEnd) - new Date("1/1/2007 " + slotStart));
+                //         if((dtdiff/60000 <= 15) || ($(this).text().length>16 &&  (dtdiff/60000 <= 30)))
+                //         {
+                //             $(this).children().first().children().first().css("fontSize", "11px");
+                //         } 
+                //     }else {
+                //         $(this).children().first().children().first().css("fontSize", "11px");
+                //     }
+                //     $(this).children().first().children().first().css("font-weight", "bold");
+                // });
+
+                // $( ".npr-program-calendar-print .fc-event" ).each(function()  {
+                
+                //     nextTop = $(this).position().top;
+                
+                //     if(prevElm != null && (prevElm.position().top + prevElm.height())>nextTop)
+                //     {
+                    
+                //         var hAdjust = prevElm.position().top + prevElm.height() - nextTop;
+                //         var start = prevElm.position().top;
+                //         var end = prevElm.position().top + prevElm.height();
+                //         expandLeftRow(prevElm,hAdjust);
+
+                //         adjustAllTopsAndBoxSizes(start,end, hAdjust,prevElm.text());
+
+                //         maxHeight= maxHeight + hAdjust;
+                //     }
+                //     prevElm = $(this);
+                //     if($(this).attr("title").indexOf('11:59 pm') >= 0)
+                //     {
+                //         nextTop = 10000;
+                //         prevElm = null;
+                //         //var bottomedge = $(this).position().top + $(this).height();
+                //         //if(bottomedge>window.maxHeight)
+                //         //{
+                //         //    window.maxHeight = bottomedge;
+
+                //         //}
+
+                //     }
+                // });
+       
+                //setFinalTopsPrint();
+                //fillGapsPrint(maxHeight);
+                //adjustSixtyMintueTimeHeadersPrint();
+
+
+
+                /////*********Begin updated
+                var nextTop = 10000;
+                var prevElm = null;
+                var maxHeight= 1920;
+                var colCount =0;
+        
+                $('.npr-program-calendar-print [class^="fc-slot"]').css("height", 'auto');
+
+                //Check for items where we want to shrink text size
+                //This is only done for 15 minute programs, and in cases of very long program names also for 30 minute programs
+                $( ".fc-event" ).each(function()  {
+
+                    if($(this).text().length>30)
+                    {
+
+                        var title =$(this).attr("title");
+                        var slotStart = GetStartSlot(title);
+                        var slotEnd = GetEndSlot(title);
+                        var dtdiff = (new Date("1/1/2007 " + slotEnd) - new Date("1/1/2007 " + slotStart));
+                        //var diff = ( new Date(slotEnd) - new Date(slotStart) );
+
+                        if((dtdiff/60000 <= 15) || ($(this).text().length>35 &&  (dtdiff/60000 <= 30)))
+                        {
+                            $(this).children().first().children().first().css("fontSize", "12px");
+                        }
+                    }
+                });
+        
+                var cnt =0;
+                //After shrinking, some event boxes will still be larger than default size so we need to adjust all 
+                //other events (adjustAllTopsAndBoxSizes)
+                //We also need to fix the left side time slots (expandLeftRow);
+                $( ".npr-program-calendar-print .fc-event" ).each(function()  {
+          
+                    nextTop = $(this).position().top;
+            
+                    //check if we need to adjust all boxes down.
+                    //if(prevElm != null) {
+                    //    alert(prevElm.position().top + " : " + prevElm.height() + " : " + nextTop);
+                    //}
+                    if(prevElm != null && (prevElm.position().top + prevElm.height())>nextTop)
+                    {     
+                        cnt++;
+             
+                        var hAdjust = prevElm.position().top + prevElm.height() - nextTop;  
+                        var start = prevElm.position().top;
+                        var end = prevElm.position().top + prevElm.height();
+                        expandLeftRow(prevElm,hAdjust);
+                        adjustAllTopsAndBoxSizes(start,end, hAdjust,prevElm.text());
+
+                        maxHeight= maxHeight + hAdjust;
+                
+                    }
+                    prevElm = $(this);
+
+                    //If it's the end of a day reset varaibles;
+                    if($(this).attr("title").indexOf('11:59 pm') >= 0)
+                    {
+
+                        nextTop = 10000;
+                        prevElm = null;
+                        var bottomedge = $(this).position().top + $(this).height();
+               
+                    }
+                }
+                );
+
+                //setFinalTops();
+
+                //We need to fill any gaps that remain between end of a program and the next program
+                fillGapsPrint(maxHeight);
+
+                //Finally we need to toggle left side time slots depending if it's 15 vs 60 minute 
+                toggleTimeIncr();
+                //adjustSixtyMintueTimeHeaders();
+       
+            }
+
+            function setFinalTopsPrint()
+            {
+                $( ".npr-program-calendar-print .fc-event" ).each(function()  {
+                    var tstart = $(this).position().top;
+                    var tend = $(this).position().top + $(this).height();
+            
+                    $(this).css('top',(sMap[xMap[getStartTime($(this))]])+'px' );
+                
+                });
+            }
+
+            function fillGapsPrint(maxHeight)
+            {
+
+                var nextTop = 10000;
+                var prevElm = null;
+        
+                $( ".npr-program-calendar-print .fc-event" ).each(function()  {
+
+                    nextTop = $(this).position().top;
+
+                    if(prevElm != null && (prevElm.position().top + prevElm.height()+1) != nextTop)
+                    {
+                        var diff =  nextTop - (prevElm.position().top + prevElm.height()+1);
+                        prevElm.height(prevElm.height() + diff);
+
+                    }
+                    prevElm = $(this);
+                    if($(this).attr("title").indexOf('11:59 pm') >= 0)
+                    {
+
+                        var bDiff= (sMap[95]- $(this).position().top +18);
+                        $(this).height(bDiff);
+                        nextTop = 2000;
+                        prevElm = null;
+
+                    }
+                });
+            }
+
+            function adjustSixtyMintueTimeHeadersPrint()
+            {
+                var slt = $('.npr-program-calendar-print .fc-slot'+0); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>12:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+2); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>1:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+4); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>2:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+6); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>3:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+8); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>4:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+10); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>5:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+12); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>6:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+14); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>7:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+16); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>8:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+18); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>9:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+20); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>10:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+22); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>11:00am</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+24); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>12:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+26); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>1:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+28); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>2:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+30); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>3:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+32); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>4:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+34); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>5:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+36); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>6:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+38); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>7:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+40); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>8:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+42); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>9:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+44); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>10:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+                var slt = $('.npr-program-calendar-print .fc-slot'+46); slt.children(':first-child').html('<div style="letter-spacing: -2px; "><p>11:00pm</p></div>');	slt.height() > 46 ? slt.children(':first-child').children(':first-child').children(':first-child').css('margin-top','-' +(slt.height() /2) +'px'): slt.children(':first-child').children(':first-child').children(':first-child').css('transform','translateY(-75%)');
+
+
+            }
+
+            function CalendarPrintDialog()
+            {
+
+                $("#dialogPrint").dialog(
+                    {
+                        buttons: {
+                        
+                        
+                            'PDFPrint' :{
+                                text: "PDF Print",
+                                click: function() {
+
+                                    testCanvass($("input[name='layout']:checked").val());
+                                    $( this ).dialog( "close" );
+                                }
+                            },
+                        
+                            'Cancel' : {
+                                text: "Close",
+                                click: function() {
+                                    $( this ).dialog( "close" );
+                                }
+                            }
+                        }
+                    });
+            }
+  
+            /************** implement canvass end ******************/
+
+
+            function getUrlParameter(sParam)
+            {
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+                for (var i = 0; i < sURLVariables.length; i++) 
+                {
+                    var sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] == sParam) 
+                    {
+                        return sParameterName[1];
+                    }
+                }
+            }  
+
+
+
+</script>
+
+

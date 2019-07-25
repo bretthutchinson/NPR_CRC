@@ -1,0 +1,239 @@
+﻿@model NPR.CRC.Web.ViewModels.Schedules.AddEditNewscastViewModel
+<style type="text/css">
+</style>
+<div title="@(Model.ScheduleNewscastId.HasValue ? "Edit NPR Newscast" : "Add NPR Newscast")">
+    @using (Ajax.BeginForm("AddEditNewscast", "Schedules", new AjaxOptions { HttpMethod = "POST" }, new { @id = "addNewscastCalendarDialog" }))
+    {
+        @Html.HiddenFor(model => model.ScheduleNewscastId)
+        @Html.HiddenFor(model => model.ScheduleId, Model.ScheduleId) 
+        @Html.HiddenFor(model => model.HourlyInd)
+    
+        <!--Html.ValidationSummary() -->
+        @Html.AntiForgeryToken()
+        @Inf.ValidationSummary(this)
+        <div>
+            <table>
+                <tr>
+                    <th style="text-align: right">Type:</th>
+                    <td>
+                        <div>@Html.RadioButtonFor(model => model.HourlyInd, false, new { id = "Daily" })
+                            <span>Daily</span>
+                        </div>
+                        <div>@Html.RadioButtonFor(model => model.HourlyInd, true, new { id = "Hourly" })
+                            <span>Hourly</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Start time:</th>
+                    <td>
+                        @Html.HiddenFor(model => model.StartTime)
+                        @Html.DropDownListFor(model => model.StartHour, Model.StartHourList)<span id="startMinuteDiv">:@Html.DropDownListFor(model => model.StartMinute, Model.StartMinuteList)</span> @Html.DropDownListFor(model => model.StartPeriod, Model.StartPeriodList)
+                    </td>
+                </tr>
+                <tr>
+                    <th>End time:</th>
+                    <td>
+                        @Html.HiddenFor(model => model.EndTime)
+                        @Html.DropDownListFor(model => model.EndHour, Model.EndHourList)<span id="endMinuteDiv">:@Html.DropDownListFor(model => model.EndMinute, Model.EndMinuteList)</span> @Html.DropDownListFor(model => model.EndPeriod, Model.EndPeriodList)
+                    </td>
+                </tr>
+                <tr class="durationRow">
+                    <th>Duration:</th>
+                    <td>
+                        @Html.DropDownListFor(model => model.DurationMinutes, Model.NewscastDurationList) <span>Minutes</span>
+                    </td>
+                </tr>
+                <tr class="durationRow">
+                    <th>Minutes Past Hour:</th>
+                    <td>
+                        @Html.DropDownListFor(model => model.OffsetMinutes, Model.NewscastOffsetList) <span>Minutes</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td><a class="defaultLink" onclick="checkDays('W');" id="weekdaysInd">Weekdays</a> <a class="defaultLink" onclick="checkDays('A');" id="weekInd">7 Days</a></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right">Day(s):</th>
+                    <td>
+                        <table id="daysOfWeekInd">
+                            <tr>
+                                <td>@Html.CheckBoxFor(model => model.MondayInd, Model.TuesdayInd)<label>Mon</label></td>
+                                <td>@Html.CheckBoxFor(model => model.TuesdayInd, Model.TuesdayInd)<label>Tue</label></td>
+                                <td>@Html.CheckBoxFor(model => model.WednesdayInd, Model.WednesdayInd)<label>Wed</label></td>
+                                <td>@Html.CheckBoxFor(model => model.ThursdayInd, Model.ThursdayInd)<label>Thu</label></td>
+                            </tr>
+                            <tr>
+                                <td>@Html.CheckBoxFor(model => model.FridayInd, Model.FridayInd)<label>Fri</label></td>
+                                <td>@Html.CheckBoxFor(model => model.SaturdayInd, Model.SaturdayInd)<label>Sat</label></td>
+                                <td>@Html.CheckBoxFor(model => model.SundayInd, Model.SundayInd)<label>Sun</label></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        window.duration = 0
+        window.offset = 0
+        $(".validation-summary-container").hide();
+        window.setTimeout(function () {
+
+            if ($('[name="HourlyInd"]').val().toString() == "true") {
+
+                //$("#EndMinute").attr("disabled", true);
+                $("#startMinuteDiv").hide();
+                $("#endMinuteDiv").hide();
+               
+
+            }
+            var offset = $("#StartMinute").val() > 9 ? $("#StartMinute").val() : parseInt($("#StartMinute").val());
+           
+            $("#OffsetMinutes").val(offset);
+
+            //crcuat
+
+            //set duration wen dialog open 
+
+            if ($(".ui-dialog-title").text() == "Add NPR Newscast") {
+                $("#DurationMinutes").val("5");
+            }
+            else {
+                durationCaluculation();
+            }
+
+            //$("#EndMinute").val($("#StartMinute").val());
+            //GetDuration();
+            
+            window.duration = $("#DurationMinutes").val();
+            window.offset = $("#OffsetMinutes").val();
+
+        }, 1000);
+
+        $('[name="HourlyInd"]').change(function () {
+
+            if ($(this).val() === "True") {
+                
+                $(".durationRow").show();
+                $("#HourlyInd").val(true);
+                //$("#EndMinute").attr("disabled", true);
+                //$("#EndMinute").val($("#StartMinute").val());
+                $("#StartMinute").val("00");
+                $("#startMinuteDiv").hide();
+                $("#endMinuteDiv").hide();
+                GetDuration();
+                //GetOffset();
+            }
+            else {
+                $(".durationRow").hide();
+                $("#HourlyInd").val(false);
+                //$("#EndMinute").attr("disabled", false);
+                $("#startMinuteDiv").show();
+                $("#endMinuteDiv").show();
+            }
+        });
+
+        $("#StartMinute").change(function () {
+            if ($('[name="HourlyInd"]').val() === "true") {
+                GetDuration();
+            }
+            if ($('[name="HourlyInd"]').val() === "false") {
+                durationCaluculation();
+            }
+        });
+
+        $("#EndMinute").change(function () {
+            if ($('[name="HourlyInd"]').val() === "false") {
+                durationCaluculation();
+            }
+        });
+
+        $("#DurationMinutes").change(function () {
+            if ($('[name="HourlyInd"]').val() === "true") {
+                GetDuration();
+            }
+        });
+
+
+        $("#OffsetMinutes").change(function () {
+            if ($('[name="HourlyInd"]').val() === "true") {
+                GetOffset();
+            }
+
+        });
+
+    });
+
+    function durationCaluculation() {
+        var startTime = parseInt($("#StartMinute").val());
+        var endTime = parseInt($("#EndMinute").val());
+        var duration = startTime <= endTime ? endTime - startTime : 0;
+
+        duration = duration <= 10 && duration > 0 ? duration : 1;
+        $("#DurationMinutes").val(duration.toString());
+    }
+
+    function checkDays(type) {
+        switch (type) {
+            case "A":
+                $('#MondayInd').prop('checked', true);
+                $('#TuesdayInd').prop('checked', true);
+                $('#WednesdayInd').prop('checked', true);
+                $('#ThursdayInd').prop('checked', true);
+                $('#FridayInd').prop('checked', true);
+                $('#SaturdayInd').prop('checked', true);
+                $('#SundayInd').prop('checked', true);
+                break;
+            case "W":
+                $('#MondayInd').prop('checked', true);
+                $('#TuesdayInd').prop('checked', true);
+                $('#WednesdayInd').prop('checked', true);
+                $('#ThursdayInd').prop('checked', true);
+                $('#FridayInd').prop('checked', true);
+                $('#SaturdayInd').prop('checked', false);
+                $('#SundayInd').prop('checked', false);
+                break;
+        }
+    }
+
+    function GetDuration() {
+        //var window.duration = "10";
+        //if ($("#DurationMinutes").val() != 10) {
+        //    window.duration = "0" + $("#DurationMinutes").val();
+        //}
+        //$("#EndMinute").val(duration);
+        window.duration = $("#DurationMinutes").val();
+       
+        updateStartEndTimes();
+
+    }
+
+    function GetOffset() {
+        window.offset = $("#OffsetMinutes").val();
+        updateStartEndTimes();
+        //if (offset < 9) {
+
+        //} else {
+        //    $("#StartMinute").val("0" + $("#OffsetMinutes").val());
+        //    $("#EndMinute").val("0" + ($("#OffsetMinutes").val()+1));
+
+        //}
+
+    }
+
+    function updateStartEndTimes() {
+        var total = parseInt(window.duration) + parseInt(window.offset);
+        
+        offset = offset > 9 ? offset : "0" + offset;
+        total = total > 9 ? total : "0" + total;
+        $("#StartMinute").val(offset);
+        $("#EndMinute").val(total);
+    }
+
+</script>

@@ -1,0 +1,90 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.StationDataModelViewModel
+
+@{
+    ViewBag.Title = "StationDumpReport";
+}
+
+<p >  
+    <h3 class="page-header">
+    Station Dump Report
+    </h3>
+</p>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    @Inf.ValidationSummary(this)
+
+    <div id="top" style="width: 100%">
+
+        <div class="label">
+            
+            @Html.LabelFor(model => model.StationEnabled)
+        </div>
+        <div class="content">
+
+                @Html.DropDownListFor(model => model.StationEnabled, Model.StationEnabledList)
+        </div>
+
+        <div class="label">
+            @Html.LabelFor(model => model.Band)
+        </div>
+        <div class="content">
+            @Html.DropDownListFor(model => model.Band, Model.BandList)
+        </div>
+
+        <div class="label">
+            @Html.LabelFor(model => model.RepeaterStatus)
+        </div>
+
+        <div class="content">
+            @Html.DropDownListFor(model => model.RepeaterStatus, Model.RepeaterStatusList)
+        </div>
+
+        <div class="label">
+            @Html.LabelFor(model => model.ReportFormat)
+        </div>
+
+        <div class="content">
+            @Html.DropDownListFor(model => model.ReportFormat, Model.ReportFormatList)
+        </div>
+
+        <div>
+            <input type="submit" value="Generate Report" class="bmargin" />
+        </div>
+    </div>
+
+}
+
+<style type="text/css">
+
+    .bmargin
+    {
+        margin-left: 100px;
+    }
+    #top
+    {
+        margin-top: 40px;
+    }
+.label
+{
+        width: 12%;
+        float: left;
+        
+        
+}
+   
+.content
+{
+        width: 80%;
+        float: left;
+        padding: 0 0 20px 0;
+}
+
+   
+
+</style>
+
+

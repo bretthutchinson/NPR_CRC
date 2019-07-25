@@ -1,0 +1,50 @@
+﻿@model NPR.CRC.Web.ViewModels.Reports.CarriageWorkbookFileViewModel
+@{
+    ViewBag.Title = "Carriage Workbook Files";
+}
+<style type="text/css">
+    .padding {
+        padding-left: 20px;
+    }
+    .underline {
+        text-decoration: underline;
+    }
+</style>
+<div id="workbookFilters">
+    <p>
+        <span class="page-header">Carriage Workbook Files</span>
+    </p>
+    @using (Html.BeginForm("CarriageWorkbookFile", "Reports"))
+    {
+        @Html.HiddenFor(model => model.CarriageTypeId)
+        @Html.HiddenFor(model => model.Season)
+        @Html.HiddenFor(model => model.Years)
+        @Html.HiddenFor(model => model.Band)
+        @Html.HiddenFor(model => model.StationEnabled)
+        @Html.HiddenFor(model => model.MemberStatusId)
+        @Html.HiddenFor(model => model.Format)
+    <div>
+        @Inf.ValidationSummary(this)
+    </div>
+     <div id="DisplayInfo" class="padding">
+         <b>@Html.LabelFor(model => model.CarriageType)</b> @Html.DisplayFor(model => model.CarriageType)<br /><br />
+         <b>@Html.LabelFor(model => model.SeasonName)</b> @Html.DisplayFor(model => model.SeasonName) @Html.DisplayFor(model => model.Years)<br /><br />
+              @for (var i = 0; i < Model.ProgramList.Count; i++)
+              {
+                  var programItem = Model.ProgramList[i];
+                  
+                  var programId = programItem.ProgramId;
+                  var programName = programItem.Program;
+        <div class="padding" style="padding-bottom: 10px;">
+            @Html.ActionLink(programName, "ExportCarriageWorkbookFile", new { programId = programId, programName = programName, carriageTypeId = Model.CarriageTypeId, season = Model.Season, years = Model.Years, band = Model.Band, stationEnabled = Model.StationEnabled, memberStatusId = Model.MemberStatusId, format = Model.Format}, new { @class = "underline" })
+        </div>
+              }
+     </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+    });
+</script>

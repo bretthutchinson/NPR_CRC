@@ -1,0 +1,181 @@
+﻿@model NPR.CRC.Web.ViewModels.UserAdmin.SearchCRCUsersViewModel
+
+<p>
+    <span class="page-header">Search CRC Users</span> | @Html.ActionLink("Add New User", "AddEditCRCUser")
+</p>
+
+<table>
+    <tr>
+        <td>@Html.Label("UserEnabled", "User Enabled"): </td>
+        <td>@Html.DropDownList("UserEnabled", Model.EnabledList.ResetSelection())</td>
+
+        <td>@Html.Label("StationEnabled", "Station Enabled"): </td>
+        <td>@Html.DropDownList("StationEnabled", Model.EnabledList.ResetSelection())</td>
+    </tr>
+    <tr>
+        <td>@Html.Label("UserName", "Name"):</td>
+        <td>@Html.TextBox("UserName")</td>
+
+        <td>@Html.Label("RepeaterStatusId", "Station Status"):</td>
+        <td>@Html.DropDownList("RepeaterStatusId", Model.StationStatusList)</td>
+    </tr>
+    <tr>
+        <td>@Html.Label("UserRole", "Role"):</td>
+        <td>@Html.DropDownList("UserRole", Model.UserRoleList)</td>
+
+        <td>@Html.Label("Band", "Band"):</td>
+        <td>@Html.DropDownList("Band", Model.BandList)</td>
+    </tr>
+    <tr>
+        <td>@Html.Label("UserPermission", "Permission"):</td>
+        <td>@Html.DropDownList("UserPermission", Model.UserPermissionList)
+        </td>
+
+        <td>@Html.Label("StationId", "Select a Station"):</td>
+        <td>@Html.DropDownList("StationId", Model.StationList)</td>
+    </tr>
+</table>
+<p>
+    <button id="searchButton">Search</button>
+    <button id="displayAllButton">Display All Users</button>
+</p>
+
+<div style="text-align: center;">
+    @Inf.ExportGridButton(this, "CRCUsersGrid", "Users.csv")
+    <a href="mailto:" id="sendEmail" title="Send Email"><img src="@Url.Content("~/Content/Images/email.png")" /></a>
+</div>
+
+@(Html.Grid("CRCUsersGrid")
+    .SetUrl(Url.Action("CRCUsersGridData"))
+    .SetJsonReader(new MvcJqGrid.DataReaders.JsonReader { Id = "UserId" })
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("UserDisplayName")
+    .SetVirtualScroll(true)
+    .SetRowNum(100)
+    .SetHeight(500)    
+
+    .AddColumn(new Column("Select")
+        .SetWidth(65)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Checkbox, "disabled: false"))
+
+    .AddColumn(new Column("UserId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("UserDisplayName")
+        .SetLabel("Name")
+        .SetWidth(150)
+        .SetCustomFormatter("userDisplayNameColumnFormatter")
+        .SetSortable(true))
+
+    .AddColumn(new Column("UserPermission")
+        .SetLabel("Permission")
+        .SetWidth(150)
+        .SetSortable(true))
+
+    .AddColumn(new Column("UserEnabled")
+        .SetLabel("User Enabled")
+        .SetWidth(90)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("StationDisplayName")
+        .SetLabel("Station")
+        .SetWidth(100)
+        .SetSortable(true))
+
+    .AddColumn(new Column("RepeaterStatus")
+        .SetLabel("Repeater Status")
+        .SetWidth(125)
+        .SetSortable(true))
+
+    .AddColumn(new Column("FlagshipStationDisplayName")
+        .SetLabel("Flagship")
+        .SetWidth(100)
+        .SetSortable(true))
+
+    .AddColumn(new Column("Email")
+        .SetLabel("Email")
+        .SetWidth(200)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Email)
+        .SetSortable(true))
+
+    .AddColumn(new Column("Phone")
+        .SetLabel("Phone")
+        .SetWidth(125)
+        .SetSortable(true))
+
+    .AddColumn(new Column("StationLinks")
+        .SetLabel("Station Links")
+        .SetWidth(90)
+        //.SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetCustomFormatter("stationLinksColumnFormatter"))
+)
+
+<script>
+    var initLoad = true;
+    $(document).ready(function () {
+        var $grid = $("#CRCUsersGrid");
+       
+
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+
+        $("#displayAllButton").click(function () {
+            resetFilters();
+            $("#searchButton").trigger("click");
+        });
+
+        $("#sendEmail").click(function () {
+            var $grid = $("#CRCUsersGrid");
+            var selectedEmails = $grid.getSelectedRowProperties("Email");
+            var str = String(selectedEmails).replace(/,/g, ";");
+            $(this).attr("href", "mailto:" + str);
+
+            //$(this).attr("href", "mailto:" + selectedEmails);
+        });
+
+
+        $("#RepeaterStatusId option[value='1']").remove();
+    });
+
+    function userDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditCRCUser")?userId=" + rowObject.UserId + "'>" + rowObject.UserDisplayName + "</a>";
+    }
+
+    function stationLinksColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("ManageStationLinks")?userId=" + rowObject.UserId + "'>Manage</a>";
+    }
+
+    function applyFilters() {
+        var $grid = $("#CRCUsersGrid");
+
+        $grid.addPostData("#UserEnabled");
+        $grid.addPostData("#StationEnabled");
+        $grid.addPostData("#UserName");
+        $grid.addPostData("#RepeaterStatusId");
+        $grid.addPostData("#UserRole");
+        $grid.addPostData("#Band");
+        
+        $grid.addPostData("#StationId");
+        if (initLoad) {
+            $('#UserPermission').val('Primary Users Only');
+            initLoad = false;
+        }
+        $grid.addPostData("#UserPermission");
+    }
+
+    function resetFilters() {
+        $("#UserEnabled").val("Both");
+        $("#StationEnabled").val("Both");
+        $("#UserName").val("");
+        $("#RepeaterStatusId").val("");
+        $("#UserRole").val("All");
+        $("#Band").val("");
+        $("#UserPermission").val("All");
+        $("#StationId").val("");
+    }
+
+</script>

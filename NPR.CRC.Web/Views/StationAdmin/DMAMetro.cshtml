@@ -1,0 +1,102 @@
+﻿@model NPR.CRC.Web.ViewModels.StationAdmin.ImportDocumentViewModel
+
+@if(Model.Results == null){
+    <p>
+        <span class="page-header">DMA / Metro</span>
+    </p>
+    using (Html.BeginForm("DMAMetro", "StationAdmin", FormMethod.Post, new { @id = "formDMAMetro" }))
+    {
+        @Html.AntiForgeryToken()
+        @Inf.ValidationSummary(this)
+
+        <div>
+            @Html.LabelFor(model => model.ImportType):
+            @Html.RadioButtonFor(model => model.ImportType, "DMA")@Html.Label("DMA")
+            @Html.RadioButtonFor(model => model.ImportType, "Metro")@Html.Label("Metro")
+        </div>
+        <table>
+            <tr>
+                <td>@Html.LabelFor(model => model.Document): </td>
+                <td>@Html.EditorFor(model => model.Document, new { infSuccessContentContainerId = "uploadResults" })</td>
+            </tr>
+
+          <tr>
+              <td colspan="2">
+                <input id="submitButton" type="submit" value="Process Files"/>
+                <div id="divProcessing" style="display: inline-block;">Processing, please wait...<img src="@Url.Content("~/Content/Images/ui-anim_basic_16x16.gif")" /></div>
+              </td>         
+          </tr>
+        </table>
+    
+    
+    }
+}
+<div id="uploadResults">
+    @if (Model.Results != null)
+    {
+        <p>        
+            Total Records: @Model.Results.Count        
+            Total Passed: @Model.Results.Where(p => p.Result != 0).Count()      
+            Total Failed: @Model.Results.Where(p => p.Result == 0).Count()      
+        </p>
+    <table>
+        <tr>
+            <td>Station</td>
+            <td>Result</td>
+        </tr>
+        @foreach (var rec in Model.Results.Where(p => p.Result == 1))
+        {
+            <tr>
+                <td>@rec.Station</td>
+                <td>Passed</td>
+            </tr>    
+        }    
+
+        @foreach (var rec in Model.Results.Where(p => p.Result == 0))
+        {
+            <tr>
+                <td>@rec.Station</td>
+                <td>Failed</td>
+            </tr>    
+        }
+    </table>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        //Initially, Hide Both grids
+        $("#metro").hide();
+        $("#dma").hide();
+
+        $("#divProcessing").hide();
+        $("#submitButton").click(function () {
+            
+            if ($("#_Document").val().length != 0 && $("input:radio[name='ImportType']").is(":checked")) {
+                $("#formDMAMetro").submit();
+            }
+            else {
+                $("#uploadResults").hide("");
+            }
+        });
+
+        $("#formDMAMetro").on("submit", function (event) {
+            event.preventDefault();
+            
+            if ($("#_Document").val().length != 0 && $("input:radio[name='ImportType']").is(":checked")) {
+                $("#divProcessing").show();
+                $("#uploadResults").show();
+            }
+            else {
+                $("#uploadResults").hide("");
+            }
+        });
+
+    });
+    function bandNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("AddEditBand")?bandId=" + rowObject.BandId + "' class='inf-dialog'>" + rowObject.BandName + "</a>";
+    }
+
+    function enabledIndColumnFormatter(cellValue, options, rowObject) {
+        return rowObject.DisabledDate == null ? "Yes" : "No";      
+    }
+</script>

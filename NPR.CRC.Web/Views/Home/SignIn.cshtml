@@ -1,0 +1,46 @@
+﻿@model NPR.CRC.Web.ViewModels.Home.SignInViewModel
+
+<p style="text-align: center; font-weight: bold;">
+    Welcome to National Public Radio's Carriage Report Center!
+</p>
+
+<p style="text-align: center;">
+    Please enter your email address and password to access the CRC.
+</p>
+
+@using (Html.BeginForm())
+{
+    <table style="margin-left: auto; margin-right: auto;">
+        <tr>
+            <td>@Html.LabelFor(model => model.Email):</td>
+            <td>@Html.EditorFor(model => model.Email)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(model => model.Password):</td>
+            <td>@Html.PasswordFor(model => model.Password)</td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td style="padding-top: 10px;">
+                <input type="submit" value="Sign In" />
+            </td>
+        </tr>
+    </table>
+}
+
+<p style="text-align: center;">
+    @Html.ActionLink("Forgot your password?", "ForgotPassword")
+</p>
+
+<p style="text-align: center; margin-top: 25px;">
+    Having difficulty signing in? Call the CRC Manager at @Model.CRCManagerPhone or send an <a href="mailto:@(Model.CRCManagerEmail)?subject=Problem accessing CRC site">email</a>.<br /><br />
+    This application works best in the latest versions of Chrome, Firefox, and Internet Explorer v.11 or later.
+</p>
+
+<script>
+    $(document).ready(function () {
+        $("#Email, #Password").addClass("inf-entersubmit");
+    });
+</script>

@@ -1,0 +1,305 @@
+﻿@model NPR.CRC.Web.ViewModels.Schedules.ProgrammingSchedulesViewModel
+@using NPR.CRC.Library;
+
+<p class="page-header">Programming Schedules</p>
+
+<div>
+    @Html.LabelFor(model => model.StationId): 
+    @Html.DropDownListFor(model => model.StationId, Model.StationList)
+    @Html.EditorFor(model => model.StationName)
+
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <button id="searchButton">View Schedules</button>
+</div>
+
+<div id="selectedStationInfo">
+    <p>
+        <span id="stationDisplayName" style="font-weight: bold;"></span>
+        |
+        Primary Contact: <span id="primaryUserDisplayName"></span>
+        |
+        Phone: <span id="primaryUserPhone"></span>
+        |
+        Email: <a id="primaryUserEmail" href="#"></a>
+    </p>
+
+    <div id="newScheduleContainer">
+        <div id="createElm">
+            <p>
+                @using (Ajax.BeginForm("Create", "Schedules", new AjaxOptions { OnSuccess = "CreateScheduleValidation" }))
+                {
+                    <span style="font-weight: bold;">Create New Schedule:</span>
+                    <input type="hidden" id="selectedStationId" name="stationId" />
+            
+                    <span>Select a month and year:</span>
+                    @Html.DropDownList("Month", Model.MonthsList)
+                    @Html.DropDownList("Year", Model.YearsList)
+                    <div style="display: none;">
+                        @Html.DropDownList("ResetYear", Model.YearsList)
+                        @Html.DropDownList("ResetMonth", Model.MonthsList)
+                    </div>
+                    @:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            
+                    <input id="CreateSchedule" type="submit" value="Create Schedule" />
+ 
+                }
+            </p>
+        </div>
+    </div>
+</div>
+<div id="schedulesContainer">
+    @(Html.Grid("ProgrammingSchedulesGrid")
+    .SetDataType(MvcJqGrid.Enums.DataType.Local)
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("ScheduleStartDate")
+    .SetSortOrder(MvcJqGrid.Enums.SortOrder.Desc)
+    .SetVirtualScroll(true)
+    .SetHeight(500)
+    .SetRowNum(30)
+
+    .AddColumn(new Column("ScheduleId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("Year")
+        .SetHidden(true))
+
+    .AddColumn(new Column("MonthName")
+        .SetHidden(true))
+
+    .AddColumn(new Column("Month")
+        .SetHidden(true))
+
+    .AddColumn(new Column("ScheduleDisplayName")
+        .SetLabel("Schedule")
+        .SetCustomFormatter("scheduleDisplayNameColumnFormatter")
+        .SetSortable(true))
+
+    .AddColumn(new Column("SubmittedDate")
+        .SetLabel("Submitted")
+        .SetSortable(true)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("SubmittedUserDisplayName")
+        .SetLabel("Submitted By")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("AcceptedDate")
+        .SetLabel("Processed")
+        .SetSortable(true)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Date)
+        .SetAlign(MvcJqGrid.Enums.Align.Center))
+
+    .AddColumn(new Column("AcceptedUserDisplayName")
+        .SetLabel("Processed By")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(true))
+
+    .AddColumn(new Column("Delete")
+        .SetLabel("Delete")
+        .SetCustomFormatter("deleteColumnFormatter")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetSortable(false))
+)
+</div>
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script>
+
+    $(document).ready(function () {
+        var $grid = $("#ProgrammingSchedulesGrid");
+
+        $("#searchButton").click(function () {
+            if ($("#StationId").val() !== '') {
+                $grid.jqGrid("setGridParam", {
+                    datatype: "json",
+                    jsonReader: {
+                        repeatitems: false,
+                        id: "ScheduleId"
+                    },
+                    url: "@Url.Action("ProgrammingSchedulesGridData")",
+                    gridComplete: function (data) {
+                        // setDropDowns();
+                    }
+                });
+                $grid.jqGrid().trigger("reloadGrid");
+                $("#newScheduleContainer").show();
+                $("#schedulesContainer").show();
+                $("#Year").val((new Date).getFullYear());
+                $("#Month").val((new Date).getMonth()+1);
+            }
+        });
+
+        $("#ProgrammingSchedulesGrid").jqGrid({
+            // different parameters
+            gridComplete: function (data) {
+                // setDropDowns();
+            }
+        });
+
+        $("#StationId").change(function () {
+            var $selectedStationInfo = $("#selectedStationInfo").hide();
+            var $selectedStationId = $("#selectedStationId").val("");
+
+            $("#newScheduleContainer").hide();
+            $("#schedulesContainer").hide();
+
+            var stationId = $(this).val();
+            if (stationId) {
+                $.get(
+                    "@Url.Action("GetSelectedStationInfo")",
+                    {
+                        stationId: stationId
+                    },
+                    function (responseData) {
+                        if (responseData) {
+                            $selectedStationId.val(stationId);
+                            if (responseData.RepeaterStatusId == 1) {
+
+                                $("#stationDisplayName").text(responseData.StationDisplayName + " (100% Repeater): Parent Station: " + responseData.Flagship);
+                            }
+                            else {
+                                $("#stationDisplayName").text(responseData.StationDisplayName);
+                            }
+                            $("#primaryUserDisplayName").text(responseData.PrimaryUserDisplayName || "n/a");
+                            $("#primaryUserPhone").text(responseData.PrimaryUserPhone || "n/a");
+
+                            if (responseData.PrimaryUserEmail) {
+                                $("#primaryUserEmail")
+                                    .text(responseData.PrimaryUserEmail)
+                                    .attr("href", "mailto:" + responseData.PrimaryUserEmail);
+                            }
+                            else {
+                                $("#primaryUserEmail")
+                                    .text("n/a")
+                                    .attr("href", "#");
+                            }
+                            if (responseData.RepeaterStatusId == 1) {
+                                $("#createElm").hide();
+                            }
+                            else {
+                                $("#createElm").show();
+                            }
+                            $selectedStationInfo.show();
+                        }
+                    });
+            }
+        }).trigger("change");
+
+        @if (!User.IsInRole(CRCUserRoles.Administrator))
+        {
+            <text>
+        $grid.hideCol("Delete");
+            </text>
+        }
+
+        $("#StationName").watermark("Type a Station Name");
+
+        /*
+        $("#StationName").keypress(function () {
+            var $stationName = $("#StationName").val();
+            if ($stationName.length > 1) {
+                $("#stationOne").prop("checked", true);
+            }
+            else {
+                $("#stationAll").prop("checked", true);
+                $("#StationId").val('');
+            }
+        });
+        */
+
+        $("#StationName").autocomplete({
+            source: "@Url.Action("StationActiveSearch", "Reports")",
+            minLength: 3,
+            select: function (event, ui) {
+                $(this).val(ui.item.label);
+                $("#StationId").val(ui.item.value);
+                $("#StationId").trigger("change");
+                $("#StationName").val('');
+                return false;
+            }
+        });
+
+        if ($(location).attr("href").indexOf("?CallLetters=") != -1) {
+            var callLetters = $(location).attr("href").substring($(location).attr("href").indexOf("=") + 1, $(location).attr("href").length);
+
+            $("#StationId option[value='" + callLetters + "']").attr('selected', 'selected');
+            //$("#StationId option[text='" + callLetters + "']").attr('selected', 'selected');
+            $("#StationId option").each(function () {
+                if ($(this).text() == callLetters) {
+                    $(this).attr('selected', 'selected');
+                }
+            });
+            $("#StationId").trigger("change");
+        }
+
+
+        //Automatically reload grid when user hits back button from another page
+        if ($("#StationId").val() != '') {
+            $("#searchButton").click();
+        }
+    });
+
+    function setDropDowns() {
+        //Remove months from the drop down list if they already have a program for that month                        
+        var lista = jQuery("#ProgrammingSchedulesGrid").getDataIDs();
+        var selectedYear = $("#Year").find(":selected").text();
+        for (i = 0; i < lista.length; i++) {
+            rowData = jQuery("#ProgrammingSchedulesGrid").getRowData(lista[i]);
+            if (rowData.Year == selectedYear) {
+                $("#Month option[value=" + rowData.Month + "]").remove();
+            }
+        }
+    }
+
+    function ResetMonthDropDown() {
+        $('#Month').html($('#ResetMonth').html());
+    }
+
+    function ResetYearDropDown() {
+        $('#Year').html($('#ResetYear').html());
+    }
+
+    function scheduleDisplayNameColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='@Url.Action("Calendar", "Schedules")?scheduleId=" + rowObject.ScheduleId + "'>" + rowObject.ScheduleDisplayName + "</a>";
+    }
+
+    function deleteColumnFormatter(cellValue, options, rowObject) {
+        return "<a href='#' onclick='DeleteSchedule(" + rowObject.ScheduleId + "); return false;'>Delete</a>";
+    }
+
+    function applyFilters() {
+        var $grid = $("#ProgrammingSchedulesGrid");
+
+        $grid.addPostData("#StationId");
+    }
+
+    function DeleteSchedule(scheduleId) {
+        inf.messageBox("Are you sure you want to delete this schedule?", "Warning", ["Yes", "No"], function (value) {
+            if (value == "Yes") {
+                $.ajax({
+                    url: "@Url.Action("Delete", "Schedules")?scheduleId=" + scheduleId,
+                    context: document.body
+                }).done(function () {
+                    ReloadGrid();
+                });
+            }
+        });
+    }
+
+    function ReloadGrid() {
+        var $grid = $("#ProgrammingSchedulesGrid");
+        $grid.jqGrid().trigger("reloadGrid");
+    }
+
+    function CreateScheduleValidation(data) {
+        if (data.Validation) {
+           window.location.href = data.RedirectUrl;
+        }
+        else {
+            inf.messageBox("Schedule already exists for the selected month and year.", "Warning");
+        }
+    }
+</script>

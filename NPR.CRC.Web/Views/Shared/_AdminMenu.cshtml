@@ -1,0 +1,115 @@
+﻿<table class="top-menu">
+    <tr>
+        <td colspan="7" class="top-menu-header">CARRIAGE REPORT CENTER</td>
+    </tr>
+    <tr>
+        
+        @*<td><a href="~/content/CRC_Help.pdf">Help Document</a></td>*@
+        <td><a href="@Url.Action("Index", "Schedules")">Access Programming<br />Schedules</a></td>
+        
+        <td>
+            <div>
+                @Inf.NavDropDownMenu(
+                                    this,
+                                    "Reports",
+                                    new string[] { 
+                                        "Carriage List by Program",
+                                        "Carriage List by Station",
+                                        "Station Notes",
+                                        "Grid Data",
+                                        "Format Calculation",
+                                        "Add/Drop Program",
+                                        "Program Line Up",
+                                        "Participating Stations",
+                                        "Program Stations",
+                                        "Carriage Workbook",
+                                        "Stations Data",
+                                        "Repeater Stations",
+                                        "Station Users",
+                                        "Lead-In/Lead-Out",
+                                        "Raw Data"
+                                        },
+                                    new string[] { 
+                                        Url.Content("~/Reports/Index"),
+                                        Url.Content("~/Reports/CarriageListByStation"),
+                                        Url.Content("~/Reports/StationNotes"),
+                                        Url.Content("~/Reports/GridData"),
+                                        Url.Content("~/Reports/FormatCalculation"),
+                                        Url.Content("~/Reports/AddDropProgram"),
+                                        Url.Content("~/Reports/ProgramLineUp"),
+                                        Url.Content("~/Reports/ParticipatingStation"),
+                                        Url.Content("~/Reports/ProgramStation"),
+                                        Url.Content("~/Reports/CarriageWorkbook"),
+                                        Url.Content("~/Reports/StationData"),
+                                        Url.Content("~/Reports/RepeaterStation"),
+                                        Url.Content("~/Reports/StationUsers"),
+                                        Url.Content("~/Reports/LeadInLeadOut"),
+                                        Url.Content("~/Reports/RawData")
+
+                                        }
+                                    )
+            </div>
+
+        </td>
+        <td>
+            <div>
+                @Inf.NavDropDownMenu(
+                                    this,
+                                    "StationAdmin",
+                                    new string[] { 
+                                        "Search Stations",
+                                        "Search Station Notes", 
+                                        "Affiliates",
+                                        "Licensee Type",
+                                        "Member Status",
+                                        "Minority Status",
+                                        "Bands",
+                                        "DMA/Metro",
+                                        "AQH/Cume Import"
+                                        },
+                                    new string[] { 
+                                        Url.Content("~/StationAdmin/Index"),
+                                        Url.Content("~/Reports/StationNotes"),
+                                        Url.Content("~/StationAdmin/Affiliates"),
+                                        Url.Content("~/StationAdmin/LicenseeType"),
+                                        Url.Content("~/StationAdmin/MemberStatus"),
+                                        Url.Content("~/StationAdmin/MinorityStatus"),
+                                        Url.Content("~/StationAdmin/Bands"),
+                                        Url.Content("~/StationAdmin/DMAMetro"),
+                                        Url.Content("~/StationAdmin/AQHCumeImport")
+                                        }
+                                    )
+            </div>
+        </td>
+       @* <td><a href="@Url.Action("AddEditCRCUser", "UserAdmin")">Add<br />New User</a></td>*@
+        <td><a href="@Url.Action("Index", "UserAdmin")">User<br />Administration</a></td>
+        <td>
+            <div>
+                @Inf.NavDropDownMenu(
+                                    this,
+                                    "ProgramAdmin",
+                                    new string[] { 
+                                        "Search Programs by Program",
+                                        "Search Programs by Producer/Contact", 
+                                        "Program Format Types",
+                                        "Major Formats",
+                                        "Program Sources",
+                                        "Producers/Contacts",
+                                        "Carriage Types"
+                                        },
+                                    new string[] { 
+                                        Url.Content("~/ProgramAdmin/SearchByProgram"),
+                                        Url.Content("~/ProgramAdmin/SearchByProgramProducer"),
+                                        Url.Content("~/ProgramAdmin/ProgramFormat"),
+                                        Url.Content("~/ProgramAdmin/MajorFormats"),
+                                        Url.Content("~/ProgramAdmin/ProgramSources"),
+                                        Url.Content("~/ProgramAdmin/ProducerContact"),
+                                        Url.Content("~/ProgramAdmin/CarriageType")
+                                        }
+                                    )
+            </div>
+
+        </td>
+        <td><a href="@Url.Action("SignOut", "Home")">Sign Out</a></td>
+    </tr>
+</table>

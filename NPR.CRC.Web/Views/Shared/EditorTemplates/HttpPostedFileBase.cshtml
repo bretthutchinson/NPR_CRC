@@ -1,0 +1,17 @@
+﻿@model System.Web.HttpPostedFileBase
+@{
+    var propertyName = ViewData.TemplateInfo.HtmlFieldPrefix;
+
+    var validationAttributes = new System.Text.StringBuilder();
+    foreach (var attribute in Html.GetUnobtrusiveValidationAttributes(""))
+    {
+        validationAttributes.AppendFormat(CultureInfo.InvariantCulture, "{0}=\"{1}\" ", attribute.Key, attribute.Value);
+    }
+
+    var dataAttributes = new System.Text.StringBuilder();
+    foreach (var attribute in ViewData)
+    {
+        dataAttributes.AppendFormat(CultureInfo.InvariantCulture, "data-{0}=\"{1}\" ", attribute.Key, attribute.Value);
+    }
+}
+<input type="file" id="@propertyName" name="@propertyName" accept=".csv" @Html.Raw(validationAttributes.ToString()) @Html.Raw(dataAttributes.ToString()) />

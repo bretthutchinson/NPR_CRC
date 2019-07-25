@@ -1,0 +1,146 @@
+﻿@using NPR.CRC.Web.ViewModels.ProgramAdmin
+@model SearchByProgramProducerViewModel
+@{
+    ViewBag.Title = "Search Programs By Producer/Contact";
+}
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.watermark-3.1.4/jquery.watermark.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        initProgramSearchControls("@Url.Content("~/Schedules/ProgramCalendarSearch")");
+
+        var $grid = $("#ProgramProducerGrid");
+
+        $("#searchButton").click(function () {
+            $grid.jqGrid("setGridParam", {
+                datatype: "json",
+                jsonReader: {
+                    repeatitems: false,
+                    id: "ProducerId"
+                },
+                url: "@Url.Action("SearchByProgramProducerGridData")"
+            });
+            $grid.jqGrid().trigger("reloadGrid");
+        });
+    });
+
+    $("#sendEmail").click(function () {
+        var $grid = $("#ProgramProducerGrid");
+        var selectedEmails = $grid.getSelectedRowProperties("Email");
+        $(this).attr("href", "mailto:" + selectedEmails);
+    });
+
+    function applyFilters() {
+        var $grid = $("#ProgramProducerGrid");
+
+        $grid.addPostData("#ProgramId");
+        $grid.addPostData("#ProducerId");
+    }
+
+    function programNameOneFormatter(cellValue, options, rowObject) {
+        if (rowObject.ProgramOneId != null) {
+            return "<a href='@Url.Action("AddEditProgram")?programId=" + rowObject.ProgramOneId + "'>" + rowObject.ProgramNameOne + "</a>";
+        }
+        else {
+            return "";
+        }
+    }
+
+    function programNameTwoFormatter(cellValue, options, rowObject) {
+        if (rowObject.ProgramTwoId != null) {
+            return "<a href='@Url.Action("AddEditProgram")?programId=" + rowObject.ProgramTwoId + "'>" + rowObject.ProgramNameTwo + "</a>";
+        }
+        else {
+            return "";
+        }
+    }
+
+    function programNameThreeFormatter(cellValue, options, rowObject) {
+        if (rowObject.ProgramThreeId != null) {
+            return "<a href='@Url.Action("AddEditProgram")?programId=" + rowObject.ProgramThreeId + "'>" + rowObject.ProgramNameThree + "</a>";
+        }
+        else {
+            return "";
+        }
+    }
+</script>
+<p>
+    <span class="page-header">Search Programs By Producer/Contact</span>
+</p>
+<div style="width: 63%;">
+    <table>
+        <tr>
+            <td>Programs:</td>
+            <td>
+                @Inf.ProgramSearch(this, Model.ProgramSearch)
+            </td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.ProducerId):</td>
+            <td>@Html.DropDownListFor(model => model.ProducerId, Model.ProducerList)</td>
+        </tr>
+        <tr>
+            <td><input id="searchButton" type="button" value="Search"/></td>
+        </tr>
+    </table>
+<div style="text-align: left; display: block;">
+    @Inf.ExportGridButton(this, "ProgramProducerGrid", "SearchByProgramProducer.csv")
+    <a href="mailto:" id="sendEmail" title="Send Email"><img src="@Url.Content("~/Content/Images/email.png")" /></a>
+</div>
+    @(Html.Grid("ProgramProducerGrid")
+    .SetDataType(MvcJqGrid.Enums.DataType.Local)
+    .OnBeforeRequest("applyFilters()")
+    .SetSortName("ProducerName")
+    .SetVirtualScroll(true)
+    .SetHeight(400)
+
+    .AddColumn(new Column("Select")
+        .SetWidth(65)
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Checkbox, "disabled: false"))      
+    
+    .AddColumn(new Column("ProducerId")
+        .SetHidden(true))
+
+    .AddColumn(new Column("ProducerName")
+        .SetLabel("Name")
+        .SetWidth(200))       
+        
+    .AddColumn(new Column("Role")
+        .SetLabel("Role")
+        .SetWidth(150))        
+        
+    .AddColumn(new Column("Email")
+        .SetLabel("Email")
+        .SetFormatter(MvcJqGrid.Enums.Formatters.Email)
+        .SetWidth(175))             
+        
+    .AddColumn(new Column("Phone")
+        .SetLabel("Phone")
+        .SetAlign(MvcJqGrid.Enums.Align.Center)
+        .SetWidth(100))          
+            
+    .AddColumn(new Column("ProgramOneId")
+        .SetHidden(true))        
+        
+    .AddColumn(new Column("ProgramNameOne")
+        .SetLabel("Program 1")
+        .SetCustomFormatter("programNameOneFormatter")
+        .SetWidth(200))          
+        
+    .AddColumn(new Column("ProgramTwoId")
+        .SetHidden(true))        
+        
+    .AddColumn(new Column("ProgramNameTwo")
+        .SetLabel("Program 2")
+        .SetCustomFormatter("programNameTwoFormatter")
+        .SetWidth(200))  
+        
+    .AddColumn(new Column("ProgramThreeId")
+        .SetHidden(true))        
+        
+    .AddColumn(new Column("ProgramNameThree")
+        .SetLabel("Program 3")
+        .SetCustomFormatter("programNameThreeFormatter")
+        .SetWidth(200))                    
+    )
+</div>
