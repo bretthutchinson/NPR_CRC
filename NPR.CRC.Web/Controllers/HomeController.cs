@@ -16,6 +16,7 @@ namespace NPR.CRC.Web.Controllers
     public class HomeController : BaseController
     {
        // string userEmail = "checkMail";
+       //GIT_X7
         public ActionResult Index()
         {
             if (User.Identity.IsAuthenticated)
