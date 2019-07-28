@@ -2081,7 +2081,8 @@ namespace NPR.CRC.Web.Controllers
         }
 
 
-		public void ConvertToXLSXFormatCalculationsRawData(DataTable table, string fileName, bool header, int multiDayColumn)
+        [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "h")]
+        public void ConvertToXLSXFormatCalculationsRawData(DataTable table, string fileName, bool header, int multiDayColumn)
         {
             MemoryStream Result = new MemoryStream();
             OfficeOpenXml.ExcelPackage pack = new OfficeOpenXml.ExcelPackage();
